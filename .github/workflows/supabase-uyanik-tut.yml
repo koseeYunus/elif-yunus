@@ -1,0 +1,22 @@
+# Supabase'in ücretsiz projeleri 7 gün hiç kullanılmazsa duraklatılır.
+# Bu görev haftada iki kez veritabanına küçük bir okuma isteği göndererek projeyi uyanık tutar.
+# Elle çalıştırmak için: GitHub › Actions › "Supabase'i uyanık tut" › Run workflow
+name: Supabase'i uyanık tut
+
+on:
+  schedule:
+    - cron: '17 6 * * 1,4'   # Pazartesi ve perşembe 06:17 UTC (Türkiye saatiyle 09:17)
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  yokla:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Veritabanına küçük bir istek gönder
+        run: |
+          curl -sS --fail --retry 3 --retry-delay 20 -o /dev/null -w "Supabase yanıtı: HTTP %{http_code}\n" \
+            "https://hpmhoursfrtigfyoibvd.supabase.co/rest/v1/notlar?select=id&limit=1" \
+            -H "apikey: sb_publishable_1NkpbDIHSAAuhWhQPF3X0A_LB9MDNWp"
