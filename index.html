@@ -121,8 +121,10 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 .eyebrow { margin: 0 0 16px; padding-left: .4em; font: 500 12px/1.3 var(--sans); letter-spacing: .4em; text-transform: uppercase; color: var(--gold-deep); }
 .hero .eyebrow { color: var(--gold-light); }
 .names { margin: 0; display: flex; flex-direction: column; align-items: center; font: 400 clamp(70px, 20vw, 150px)/.9 var(--script); }
+/* El yazısının kıvrımları satırın 1.15em üstüne ve .56em altına taşabilir. Parıltı rengi yalnızca kutunun
+   içine boyandığı için kutu bu payı her platformda kapsayacak kadar büyük; negatif boşlukla eski aralık korunur. */
 .names span {
-  padding: .1em .24em .16em; color: var(--gold-light);
+  padding: .5em .3em .42em; margin: -.4em 0 -.26em; color: var(--gold-light);
   background: linear-gradient(100deg, #B98F4E 0%, #F2DDA9 26%, #C9A464 50%, #F0DBA8 74%, #B98F4E 100%);
   background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
   animation: shimmer 11s ease-in-out infinite;
@@ -276,7 +278,7 @@ textarea.input { min-height: 132px; resize: vertical; }
 .footer { padding: 76px 20px calc(130px + var(--safe-b)); background: var(--forest) var(--noise-light); color: var(--cream); text-align: center; }
 .footer .orn { color: var(--gold-light); opacity: .6; }
 .footer .footer-names {
-  display: inline-block; margin: 0; padding: .05em .2em .12em; font: 400 60px/1.1 var(--script); color: var(--gold-light);
+  display: inline-block; margin: -.4em 0 -.28em; padding: .45em .3em .4em; font: 400 60px/1.1 var(--script); color: var(--gold-light);
   background: linear-gradient(100deg, #B98F4E 0%, #F2DDA9 30%, #C9A464 55%, #F0DBA8 80%, #B98F4E 100%);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
@@ -529,7 +531,7 @@ textarea.input { min-height: 132px; resize: vertical; }
     <div class="wrap">
       <article class="card invite-card rv">
         <div class="monogram" aria-hidden="true">E<small>&amp;</small>Y</div>
-        <p class="eyebrow">Davetimizsiniz</p>
+        <p class="eyebrow">Davetlimizsiniz</p>
         <p class="invite-text">Hayatımızı birleştirdiğimiz bu özel günde mutluluğumuzu sevdiklerimizle paylaşmak istiyoruz. Sizleri de aramızda görmekten <em>onur ve mutluluk</em> duyarız.</p>
         <div class="date-block" role="text" aria-label="15 Kasım 2026 Pazar, saat 19.00">
           <span class="side">Pazar</span><span class="day">15</span><span class="side">19.00</span>
