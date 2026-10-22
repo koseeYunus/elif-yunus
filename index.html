@@ -125,12 +125,18 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
    içine boyandığı için kutu bu payı her platformda kapsayacak kadar büyük; negatif boşlukla eski aralık korunur. */
 .names span {
   padding: .5em .3em .42em; margin: -.4em 0 -.26em; color: var(--gold-light);
-  background: linear-gradient(100deg, #B98F4E 0%, #F2DDA9 26%, #C9A464 50%, #F0DBA8 74%, #B98F4E 100%);
-  background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  animation: shimmer 11s ease-in-out infinite;
+  /* Üstte dönemsel bir ışık süzmesi (--glint), altta yavaşça dalgalanan altın */
+  background:
+    linear-gradient(105deg, transparent calc(var(--glint) - 9%), rgba(255, 249, 232, .95) var(--glint), transparent calc(var(--glint) + 9%)),
+    linear-gradient(100deg, #B98F4E 0%, #F2DDA9 26%, #C9A464 50%, #F0DBA8 74%, #B98F4E 100%);
+  background-size: 100% 100%, 220% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  animation: shimmer 11s ease-in-out infinite, glint 7s ease-in-out 2.4s infinite;
 }
 .names .amp { font: italic 400 .34em/1 var(--serif); padding: 0 .4em .12em; margin: -.12em 0 -.02em; }
 @keyframes shimmer { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+/* @property ile kayıtlı olduğu için yüzde değeri akıcı canlanır; desteklemeyen tarayıcıda ışık hiç görünmez */
+@property --glint { syntax: '<percentage>'; inherits: false; initial-value: -30%; }
+@keyframes glint { 0%, 62% { --glint: -30%; } 88%, 100% { --glint: 130%; } }
 .orn { width: 210px; height: 18px; margin: 18px auto; color: var(--gold); }
 .hero .orn { color: var(--gold-light); opacity: .75; margin: 14px auto 16px; }
 .hero-date { margin: 0; font: 500 clamp(19px, 5vw, 24px)/1.35 var(--serif); letter-spacing: .05em; color: #FBF3E4; }
@@ -162,7 +168,7 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 .in-1, .in-2, .in-3, .in-4, .in-5 { animation: enter 1.3s var(--ease) both; }
 .in-2 { animation-delay: .15s; } .in-3 { animation-delay: .35s; } .in-4 { animation-delay: .55s; } .in-5 { animation-delay: .75s; }
 @keyframes enter { from { opacity: 0; transform: translateY(18px); } }
-.names.in-2 span { animation: shimmer 11s ease-in-out infinite; }
+.names.in-2 span { animation: shimmer 11s ease-in-out infinite, glint 7s ease-in-out 2.4s infinite; }
 
 /* ===== Bölümler ===== */
 .section { position: relative; padding: 76px 20px; }
@@ -260,7 +266,7 @@ textarea.input { min-height: 132px; resize: vertical; }
 /* Galeri */
 .gallery { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-top: 30px; }
 .tile { position: relative; aspect-ratio: 1; padding: 0; border: 0; border-radius: 6px; overflow: hidden; background: var(--sand); }
-.tile img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .6s, transform .7s var(--ease); }
+.tile img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; opacity: 0; transition: opacity .6s, transform .7s var(--ease); }
 .tile img.ok { opacity: 1; }
 .tile.new { animation: pop .7s var(--ease); }
 .tile.broken { display: none; }
@@ -284,7 +290,7 @@ textarea.input { min-height: 132px; resize: vertical; }
 .wish-time { flex: none; font-size: 12px; color: var(--ink-3); }
 .wish-photos { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 0; }
 .wish-photo { position: relative; width: 64px; height: 64px; padding: 0; border: 0; border-radius: 10px; overflow: hidden; background: var(--sand); }
-.wish-photo img { width: 100%; height: 100%; object-fit: cover; }
+.wish-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
 .wish-photo .more { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(28, 42, 35, .55); color: #fff; font: 500 16px/1 var(--sans); }
 
 /* Alt bilgi */
@@ -324,9 +330,18 @@ textarea.input { min-height: 132px; resize: vertical; }
 .icon-btn { display: grid; place-items: center; width: 46px; height: 46px; padding: 0; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .09); color: inherit; transition: background-color .2s; }
 .icon-btn:active { background: rgba(255, 255, 255, .2); }
 .icon-btn[disabled] { opacity: .25; pointer-events: none; }
-.lb-stage { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+.lb-stage { position: relative; flex: 1; min-height: 0; overflow: hidden; container-type: size; }
+.lb.vt { animation: none; }
+/* Fotoğrafın görünen alanı: sahneye sığan, fotoğrafla aynı oranlı kutu (container query birimleriyle).
+   Açılış/kapanış geçişi bu kutuyu albümdeki kareye bağlar. Desteklemeyen tarayıcıda tüm sahneyi kaplar. */
+.lb-frame { position: absolute; inset: 0; transition: transform .3s var(--ease); }
+.lb-ghost, .lb-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+@supports (width: 1cqw) {
+  .lb-frame { inset: auto; left: 50%; top: 50%; translate: -50% -50%; width: min(100cqw, calc(100cqh * var(--ar, 1.5))); height: min(100cqh, calc(100cqw / var(--ar, 1.5))); }
+  .lb-ghost { object-fit: cover; object-position: 50% 30%; }
+}
 .lb-amb { position: absolute; inset: -10%; width: 120%; height: 120%; max-width: none; object-fit: cover; filter: blur(42px) saturate(1.25); opacity: .32; }
-.lb-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .35s, transform .3s var(--ease); -webkit-user-select: none; user-select: none; -webkit-touch-callout: default; }
+.lb-img { opacity: 0; transition: opacity .35s; -webkit-user-select: none; user-select: none; -webkit-touch-callout: default; }
 .lb-img.ok { opacity: 1; }
 .lb-spin { position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-width: 2px; }
 .lb-nav { position: absolute; top: 50%; margin-top: -23px; background: rgba(0, 0, 0, .35); }
@@ -418,7 +433,7 @@ textarea.input { min-height: 132px; resize: vertical; }
 .adm-tile { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--sand); }
 .adm-tile.sel { box-shadow: 0 0 0 3px var(--gold); }
 .adm-open { display: block; width: 100%; height: 100%; padding: 0; border: 0; background: none; }
-.adm-open img { width: 100%; height: 100%; object-fit: cover; transition: transform .2s var(--ease); }
+.adm-open img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; transition: transform .2s var(--ease); }
 .adm-tile.sel .adm-open img { transform: scale(.9); border-radius: 8px; }
 .adm-name { position: absolute; left: 0; right: 0; bottom: 0; padding: 16px 7px 5px; background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, .62)); color: #fff; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
 .chk { position: relative; display: grid; place-items: center; width: 42px; height: 42px; flex: none; cursor: pointer; }
@@ -468,6 +483,36 @@ textarea.input { min-height: 132px; resize: vertical; }
 /* Kaydırınca beliren öğeler */
 .js .rv { opacity: 0; transform: translateY(24px); transition: opacity 1s var(--ease), transform 1s var(--ease); }
 .js .rv.in { opacity: 1; transform: none; }
+
+/* ===== Akıcı geçişler (yalnızca destekleyen tarayıcılarda; "hareketi azalt" açıksa hiçbiri çalışmaz) ===== */
+/* Fotoğraf, albümdeki yerinden büyüyerek açılır ve kapanınca yerine döner (View Transitions API) */
+::view-transition-group(lb-foto) { animation-duration: .46s; animation-timing-function: cubic-bezier(.22, .8, .24, 1); border-radius: 8px; overflow: clip; }
+::view-transition-old(lb-foto), ::view-transition-new(lb-foto) { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; animation-duration: .46s; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .3s; }
+
+/* Gönderim kutlaması: saçılan yapraklar */
+.petals { position: fixed; inset: 0; z-index: 95; overflow: hidden; pointer-events: none; }
+.petals i { position: absolute; width: var(--w); height: calc(var(--w) * 1.35); margin: calc(var(--w) * -.68) 0 0 calc(var(--w) * -.5); border-radius: 85% 0 85% 0; background: var(--c); box-shadow: inset 1px 1px 3px rgba(255, 255, 255, .5), 0 1px 3px rgba(60, 40, 20, .18); will-change: transform, opacity; }
+
+.progress { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    /* Sayfanın ne kadarının okunduğunu gösteren ince altın çizgi */
+    .progress { display: block; position: fixed; top: 0; left: 0; right: 0; z-index: 60; height: 2px; background: linear-gradient(90deg, #B98F4E, #F2DDA9 55%, #C9A464); transform-origin: 0 50%; pointer-events: none; animation: grow-x linear both; animation-timeline: scroll(root); }
+    @keyframes grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    /* Kapak, aşağı kaydırdıkça yumuşakça uzaklaşır */
+    .hero-inner { animation: hero-out linear both; animation-timeline: scroll(root); animation-range: 0 85vh; }
+    @keyframes hero-out { to { transform: translateY(-9vh) scale(.95); opacity: 0; } }
+    /* Başlıklar, albüm kareleri ve dilek kartları kaydırmayla birlikte akarak gelir */
+    .js .sec-head.rv { opacity: 1; transform: none; transition: none; animation: reveal linear both; animation-timeline: view(); animation-range: entry 0% entry 85%; }
+    .wish { animation: reveal linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
+    .tile:not(.skel) { animation: tile-in linear both; animation-timeline: view(); animation-range: entry 0% entry 65%; }
+    .wish.new { animation: pop .7s var(--ease), reveal linear both; animation-timeline: auto, view(); animation-range: normal, entry 0% entry 55%; }
+    .tile.new:not(.skel) { animation: pop .7s var(--ease), tile-in linear both; animation-timeline: auto, view(); animation-range: normal, entry 0% entry 65%; }
+    @keyframes reveal { from { opacity: 0; transform: translateY(40px) scale(.98); } }
+    @keyframes tile-in { from { opacity: 0; scale: .88; } }
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -692,6 +737,7 @@ textarea.input { min-height: 132px; resize: vertical; }
 </footer>
 
 <!-- ===== Alt menü ===== -->
+<div class="progress" aria-hidden="true"></div>
 <nav class="dock" id="dock" aria-label="Sayfa bölümleri">
   <a href="#davet" data-sec="davet"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg><span>Davet</span></a>
   <a href="#program" data-sec="program"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span>Program</span></a>
@@ -859,7 +905,7 @@ const CONFIG = {
   pollSeconds: 25,        // yeni fotoğraf/dilek kontrol aralığı (saniye)
   pageSize: 24,           // galeride bir seferde gösterilen fotoğraf sayısı
   largeMax: 2000,         // büyük sürümün uzun kenarı (piksel)
-  thumbSize: 400,         // galerideki kare küçük sürüm (piksel)
+  thumbSize: 400,         // küçük sürümün kısa kenarı (piksel); albümde kare kırpılarak gösterilir
   largeQuality: 0.82,
   thumbQuality: 0.72,
   storageLimitGB: 1,      // Supabase fotoğraf alanı: ücretsiz plan 1 GB (Pro plana geçerseniz 100 yapın)
@@ -1344,7 +1390,7 @@ async function samplePhotos(n) {
     x.fillStyle = 'rgba(255,252,245,.9)'; x.textAlign = 'center'; x.textBaseline = 'middle';
     x.font = `italic 500 ${Math.round(W / 11)}px "Cormorant Garamond", Georgia, serif`;
     x.fillText('Önizleme ' + (i + 1), W / 2, H / 2);
-    const large = await toJpeg(cv, .8), th = squareThumb(cv, CONFIG.thumbSize), thumb = await toJpeg(th, .72);
+    const large = await toJpeg(cv, .8), th = thumbOf(cv, CONFIG.thumbSize), thumb = await toJpeg(th, .72);
     out.push({ large: URL.createObjectURL(large), thumb: URL.createObjectURL(thumb), w: W, h: H });
     free(cv, th);
   }
@@ -1378,10 +1424,12 @@ function shrink(src, sx, sy, sw, sh, tw, th) {
   free(...temps);
   return out;
 }
-// Galeri için kare kırpar; dikey fotoğraflarda yüzler genelde üstte olduğundan biraz yukarıdan keser.
-function squareThumb(src, size) {
-  const W = src.width, H = src.height, s = Math.min(W, H), t = Math.min(size, s);
-  return shrink(src, (W - s) / 2, H > W ? (H - s) * .3 : 0, s, s, t, t);
+// Küçük sürüm fotoğrafın kendi oranında (kısa kenarı `size`, panoramada uzun kenar en çok 2×size).
+// Albümde CSS ile kare kırpılır (yüzler genelde üstte olduğundan odak %30 yukarıda); görüntüleyici
+// açılırken de büyük sürüm inene kadar doğru oranlı ön gösterim olur.
+function thumbOf(src, size) {
+  const W = src.width, H = src.height, k = Math.min(1, size / Math.min(W, H), (2 * size) / Math.max(W, H));
+  return shrink(src, 0, 0, W, H, Math.max(1, Math.round(W * k)), Math.max(1, Math.round(H * k)));
 }
 
 // Tarayıcı EXIF yönünü kendisi uyguluyor mu? Modern tarayıcılar uygular; eskiler için biz döndürürüz.
@@ -1459,7 +1507,7 @@ async function processImage(file) {
     if (m) x.transform(...m);
     x.drawImage(img, 0, 0, dw, dh);
     const large = await toJpeg(big, CONFIG.largeQuality);
-    const th = squareThumb(big, CONFIG.thumbSize);
+    const th = thumbOf(big, CONFIG.thumbSize);
     const thumb = await toJpeg(th, CONFIG.thumbQuality);
     free(big, th);
     return { large, thumb, width: W, height: H };
@@ -1620,10 +1668,33 @@ async function sendComposer(e) {
   }
   // Seçilen fotoğrafların hiçbiri açılamadıysa (her biri için uyarı zaten gösterildi) form olduğu gibi kalır.
   if (!sentNote && !sentPhotos) { $('#k-progress').hidden = true; return; }
+  celebrate($('#k-send'));
   toast(sentNote && sentPhotos ? 'Anınız ve dileğiniz eklendi. Çok teşekkür ederiz!'
     : sentNote ? 'Dileğiniz deftere eklendi. Çok teşekkür ederiz!'
     : sentPhotos === 1 ? 'Fotoğrafınız albüme eklendi. Teşekkürler!' : `${sentPhotos} fotoğrafınız albüme eklendi. Teşekkürler!`, 'ok');
   resetComposer();
+}
+// Gönderim kutlaması: düğmeden saçılan yapraklar (Web Animations API) ve kısa titreşim (destekleyen telefonlarda)
+function celebrate(from) {
+  try { if (navigator.userActivation?.hasBeenActive !== false) navigator.vibrate?.([14, 60, 24]); } catch { /* desteklenmiyor */ }
+  if (!from || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const b = from.getBoundingClientRect(), layer = h('div', { class: 'petals', 'aria-hidden': 'true' });
+  const colors = ['#E8B4A8', '#D99A8C', '#F1CFC4', '#E2C994', '#C9A464', '#B8955A'];
+  let longest = 0;
+  document.body.append(layer);
+  for (let i = 0; i < 28; i++) {
+    const p = h('i'), w = 8 + Math.random() * 9, dx = (Math.random() - .5) * 340, up = 110 + Math.random() * 230;
+    const drop = 240 + Math.random() * 300, turn = (Math.random() - .5) * 900, dur = 1500 + Math.random() * 1100;
+    p.style.cssText = `left:${(b.left + b.width * (.2 + Math.random() * .6)).toFixed(0)}px;top:${(b.top + b.height / 2).toFixed(0)}px;--w:${w.toFixed(1)}px;--c:${colors[i % colors.length]}`;
+    layer.append(p);
+    p.animate([
+      { transform: 'translate(0, 0) rotate(0deg)', opacity: 0 },
+      { transform: `translate(${(dx * .55).toFixed(0)}px, ${(-up).toFixed(0)}px) rotate(${(turn * .4).toFixed(0)}deg)`, opacity: 1, offset: .3 },
+      { transform: `translate(${dx.toFixed(0)}px, ${(drop - up).toFixed(0)}px) rotate(${turn.toFixed(0)}deg)`, opacity: 0 },
+    ], { duration: dur, easing: 'cubic-bezier(.2, .65, .35, 1)', fill: 'forwards' });
+    longest = Math.max(longest, dur);
+  }
+  setTimeout(() => layer.remove(), longest + 100);
 }
 // Yükleme sürerken telefon ekranının kapanmasını engeller (destekleyen tarayıcılarda).
 let wakeLock = null;
@@ -1750,7 +1821,7 @@ function photoTile(r, isNew) {
   img.addEventListener('load', () => img.classList.add('ok'), { once: true });
   img.addEventListener('error', () => tile.classList.add('broken'), { once: true });
   img.src = src;
-  tile.addEventListener('click', () => openLightbox(r.id));
+  tile.addEventListener('click', () => openLightbox(r.id, undefined, true, img));
   return tile;
 }
 function renderPhotoCount() {
@@ -1773,29 +1844,60 @@ function renderGalleryMore() {
 // src: gösterilecek liste (galeri ya da yönetim ekranındaki süzülmüş liste)
 const lb = { open: false, idx: -1, curId: null, token: 0, shareCache: null, src: () => [], fromGallery: true };
 const swipe = { on: false, x: 0, y: 0, dx: 0, dy: 0 };
-function openLightbox(id, src = () => gallery.rows, fromGallery = true) {
+// Akıcı geçiş yalnızca destekleyen tarayıcıda ve "hareketi azalt" kapalıyken yapılır.
+const canMorph = () => typeof document.startViewTransition === 'function' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+const inView = el => { const b = el?.getBoundingClientRect(); return !!b && b.width > 0 && b.bottom > 0 && b.top < innerHeight && b.right > 0 && b.left < innerWidth; };
+// Görüntüleyicideki fotoğrafın sayfadaki küçük resmi (kapanırken oraya küçülür)
+function lbOriginOf(id) {
+  const scope = { admin: '#adm-grid .adm-tile', wishes: '#wishes .wish-photo', gallery: '#gallery .tile' }[lb.scope];
+  return scope ? document.querySelector(`${scope}[data-id="${id}"] img`) : null;
+}
+// fromEl: dokunulan küçük resim; fotoğraf onun yerinden büyüyerek açılır (View Transitions API).
+function openLightbox(id, src = () => gallery.rows, fromGallery = true, fromEl = null) {
   const i = src().findIndex(r => r.id === id);
   if (i < 0) return;
-  lb.src = src; lb.fromGallery = fromGallery;
-  if (!lb.open) {
-    lb.open = true;
-    $('#lb').hidden = false;
-    lockScroll(true);
-    history.pushState({ lb: true }, '');   // telefonun "geri" tuşu görüntüleyiciyi kapatsın
-    $('#lb-close').focus({ preventScroll: true });
-  }
-  showPhoto(i);
+  const show = () => {
+    lb.src = src; lb.fromGallery = fromGallery;
+    lb.scope = fromEl?.closest('#adm-grid') ? 'admin' : fromEl?.closest('#wishes') ? 'wishes' : fromGallery ? 'gallery' : '';
+    if (!lb.open) {
+      lb.open = true;
+      $('#lb').hidden = false;
+      lockScroll(true);
+      history.pushState({ lb: true }, '');   // telefonun "geri" tuşu görüntüleyiciyi kapatsın
+      $('#lb-close').focus({ preventScroll: true });
+    }
+    showPhoto(i);
+  };
+  if (lb.open || !canMorph() || !inView(fromEl)) { show(); return; }
+  const frame = $('#lb-frame'), box = $('#lb');
+  fromEl.style.viewTransitionName = 'lb-foto';
+  box.classList.add('vt');
+  const t = document.startViewTransition(async () => {
+    fromEl.style.viewTransitionName = '';
+    show();
+    frame.style.viewTransitionName = 'lb-foto';
+    // Ön gösterim (önbellekteki küçük resim) hazır olunca geçiş başlar; en çok 160 ms beklenir
+    await Promise.race([$('#lb-ghost').decode().catch(() => {}), sleep(160)]);
+  });
+  t.finished.finally(() => { frame.style.viewTransitionName = ''; box.classList.remove('vt'); });
 }
 function showPhoto(i) {
   const rows = lb.src();
   if (i < 0 || i >= rows.length) return;
   lb.idx = i; lb.curId = rows[i].id;
-  const r = rows[i], tok = ++lb.token, img = $('#lb-img'), spin = $('#lb-spin');
+  const r = rows[i], tok = ++lb.token, img = $('#lb-img'), spin = $('#lb-spin'), frame = $('#lb-frame');
   lbMeta();
-  $('#lb-amb').src = store.thumbUrl(r);
+  // Çerçeve fotoğrafın oranını alır; büyük sürüm inene kadar küçük resim ön gösterim olur
+  const ar = r.genislik && r.yukseklik ? r.genislik / r.yukseklik : 0;
+  if (ar) frame.style.setProperty('--ar', ar.toFixed(4)); else frame.style.removeProperty('--ar');
+  $('#lb-ghost').src = $('#lb-amb').src = store.thumbUrl(r);
   img.classList.remove('ok');
   spin.hidden = false;
-  img.onload = () => { if (tok === lb.token) { img.classList.add('ok'); spin.hidden = true; } };
+  img.onload = () => {
+    if (tok !== lb.token) return;
+    if (!ar && img.naturalHeight) frame.style.setProperty('--ar', (img.naturalWidth / img.naturalHeight).toFixed(4));
+    img.classList.add('ok'); spin.hidden = true;
+  };
   img.onerror = () => { if (tok === lb.token) { spin.hidden = true; toast('Fotoğraf yüklenemedi.', 'err'); } };
   img.alt = r.isim ? `${r.isim} tarafından paylaşılan fotoğraf` : 'Misafirlerimizin paylaştığı fotoğraf';
   img.src = store.largeUrl(r);
@@ -1827,16 +1929,29 @@ function lbRefresh() {
 function closeLightbox(fromHistory = false) {
   if (!lb.open) return;
   if (!fromHistory && history.state?.lb) { history.back(); return; }  // popstate kapatacak
-  lb.open = false; lb.token++;
-  $('#lb').hidden = true;
-  lockScroll(false);
-  const img = $('#lb-img');
-  img.onload = img.onerror = null;
-  img.removeAttribute('src');            // yarım kalan indirmeyi durdurur (trafik tasarrufu)
-  $('#lb-amb').removeAttribute('src');
-  resetSwipe();
-  const sel = lb.fromGallery ? `#gallery .tile[data-id="${lb.curId}"]` : `#adm-grid [data-id="${lb.curId}"] .adm-open`;
-  $(sel)?.focus({ preventScroll: true });
+  const target = lbOriginOf(lb.curId), frame = $('#lb-frame');
+  const hide = () => {
+    lb.open = false; lb.token++;
+    $('#lb').hidden = true;
+    lockScroll(false);
+    const img = $('#lb-img');
+    img.onload = img.onerror = null;
+    img.removeAttribute('src');            // yarım kalan indirmeyi durdurur (trafik tasarrufu)
+    $('#lb-amb').removeAttribute('src');
+    $('#lb-ghost').removeAttribute('src');
+    resetSwipe();
+  };
+  // Fotoğraf, sayfadaki küçük resmine küçülerek döner (küçük resim ekranda değilse yalnızca kaybolur)
+  if (canMorph() && target) {
+    frame.style.viewTransitionName = 'lb-foto';
+    const t = document.startViewTransition(() => {
+      frame.style.viewTransitionName = '';
+      hide();
+      if (inView(target)) target.style.viewTransitionName = 'lb-foto';
+    });
+    t.finished.finally(() => { target.style.viewTransitionName = ''; });
+  } else hide();
+  (target?.closest('button') || target)?.focus({ preventScroll: true });
 }
 // Yönetici: görüntüleyicideki fotoğrafın paylaşan adını düzenle / fotoğrafı sil
 async function lbEditName() {
@@ -1854,8 +1969,8 @@ async function lbDelete() {
   if (r) await removePhotos([r]);
 }
 function resetSwipe() {
-  const img = $('#lb-img');
-  img.style.transition = ''; img.style.transform = '';
+  const frame = $('#lb-frame');
+  frame.style.transition = ''; frame.style.transform = '';
   $('#lb').style.backgroundColor = '';
 }
 // Telefonda paylaş menüsü ("Görüntüyü Kaydet"), bilgisayarda doğrudan indirme.
@@ -1894,8 +2009,11 @@ function initLightbox() {
   // Görseller adresleri belli olunca oluşturulur (HTML'de boş görsel etiketi kalmasın).
   $('#lb-stage').prepend(
     h('img', { class: 'lb-amb', id: 'lb-amb', alt: '', 'aria-hidden': 'true' }),
-    h('img', { class: 'lb-img', id: 'lb-img', alt: '' }));
-  const stage = $('#lb-stage'), img = $('#lb-img'), box = $('#lb');
+    h('div', { class: 'lb-frame', id: 'lb-frame' },
+      h('img', { class: 'lb-ghost', id: 'lb-ghost', alt: '', 'aria-hidden': 'true' }),
+      h('img', { class: 'lb-img', id: 'lb-img', alt: '' })));
+  // Kaydırma hareketi çerçeveyi taşır (ön gösterim ve büyük sürüm birlikte hareket eder)
+  const stage = $('#lb-stage'), img = $('#lb-frame'), box = $('#lb');
   $('#lb-close').addEventListener('click', () => closeLightbox());
   $('#lb-prev').addEventListener('click', () => showPhoto(lb.idx - 1));
   $('#lb-next').addEventListener('click', () => showPhoto(lb.idx + 1));
@@ -1925,7 +2043,7 @@ function initLightbox() {
     swipe.on = false;
     const ax = Math.abs(swipe.dx), ay = Math.abs(swipe.dy);
     if (ax > 60 && ax > ay) showPhoto(lb.idx + (swipe.dx < 0 ? 1 : -1));
-    else if (swipe.dy > 110 && ay > ax) closeLightbox();
+    else if (swipe.dy > 110 && ay > ax) { closeLightbox(); return; }   // sürüklendiği yerden küçük resmine döner
     resetSwipe();
   });
   stage.addEventListener('touchcancel', () => { swipe.on = false; resetSwipe(); });
@@ -1940,10 +2058,10 @@ function wishCard(r, isNew) {
   const photos = sortedPhotos(r), shown = photos.slice(0, 4);
   const strip = photos.length ? h('div', { class: 'wish-photos' }, shown.map((p, i) => {
     const extra = i === shown.length - 1 ? photos.length - shown.length : 0;
-    const b = h('button', { class: 'wish-photo', type: 'button', 'aria-label': extra ? `Fotoğrafları gör (${photos.length} fotoğraf)` : 'Fotoğrafı büyüt' },
+    const b = h('button', { class: 'wish-photo', type: 'button', 'data-id': p.id, 'aria-label': extra ? `Fotoğrafları gör (${photos.length} fotoğraf)` : 'Fotoğrafı büyüt' },
       h('img', { src: store.thumbUrl(p), alt: '', loading: 'lazy', decoding: 'async' }),
       extra ? h('span', { class: 'more', text: '+' + extra }) : null);
-    b.addEventListener('click', () => openLightbox(p.id, () => photosOf(r.id), false));
+    b.addEventListener('click', () => openLightbox(p.id, () => photosOf(r.id), false, b.querySelector('img')));
     return b;
   })) : null;
   return h('article', { class: 'wish' + (isNew ? ' new' : ''), 'data-id': r.id },
@@ -2137,7 +2255,7 @@ function bookHtml(entries, nNotes, nPhotos) {
     return `<article>${grid}${msg}<footer><b>${esc(e.isim || 'Misafirlerimizden')}</b><span>${esc(meta)}</span></footer></article>`;
   }).join('\n');
   return `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Elif &amp; Yunus — Anı Defteri</title>
-<style>*{box-sizing:border-box}body{margin:0;background:#FAF6EE;color:#24312A;font:18px/1.6 Georgia,'Times New Roman',serif}main{max-width:860px;margin:0 auto;padding:56px 20px 72px}header{margin:0 0 44px;text-align:center}.eyebrow,.stats,footer,.end{font-family:system-ui,sans-serif}.eyebrow{margin:0;color:#7A5B2F;font-size:13px;letter-spacing:.28em;text-transform:uppercase}h1{margin:10px 0 6px;font-weight:400;font-size:54px;line-height:1.1}h1 i{padding:0 .18em;color:#A88447;font-size:.6em}.sub{margin:0;color:#56635B;font-style:italic}.stats{margin:14px 0 0;color:#7A5B2F;font-size:13px;letter-spacing:.14em;text-transform:uppercase}article{margin:0 0 18px;padding:22px;background:#fff;border:1px solid #E6DCCB;border-radius:16px;break-inside:avoid}.ph{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.ph a{display:block}.ph img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;background:#F1EADF}.ph.one{display:block;text-align:center}.ph.one a{display:inline-block;max-width:100%}.ph.one img{width:auto;max-width:100%;height:auto;max-height:640px;aspect-ratio:auto}.msg{margin:0;font-size:20px;white-space:pre-line;overflow-wrap:anywhere}.ph+.msg{margin-top:16px}footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;margin-top:14px;color:#7A5B2F;font-size:13px;line-height:1.4}.end{margin:40px 0 0;text-align:center;color:#6B756F;font-size:12.5px}@media (max-width:560px){main{padding:40px 14px 56px}h1{font-size:44px}article{padding:16px}.ph{grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:6px}.msg{font-size:18px}}@media print{body{background:#fff}main{padding:0}article{border-color:#ddd}}</style></head>
+<style>*{box-sizing:border-box}body{margin:0;background:#FAF6EE;color:#24312A;font:18px/1.6 Georgia,'Times New Roman',serif}main{max-width:860px;margin:0 auto;padding:56px 20px 72px}header{margin:0 0 44px;text-align:center}.eyebrow,.stats,footer,.end{font-family:system-ui,sans-serif}.eyebrow{margin:0;color:#7A5B2F;font-size:13px;letter-spacing:.28em;text-transform:uppercase}h1{margin:10px 0 6px;font-weight:400;font-size:54px;line-height:1.1}h1 i{padding:0 .18em;color:#A88447;font-size:.6em}.sub{margin:0;color:#56635B;font-style:italic}.stats{margin:14px 0 0;color:#7A5B2F;font-size:13px;letter-spacing:.14em;text-transform:uppercase}article{margin:0 0 18px;padding:22px;background:#fff;border:1px solid #E6DCCB;border-radius:16px;break-inside:avoid}.ph{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.ph a{display:block}.ph img{display:block;width:100%;aspect-ratio:1;object-fit:cover;object-position:50% 30%;border-radius:10px;background:#F1EADF}.ph.one{display:block;text-align:center}.ph.one a{display:inline-block;max-width:100%}.ph.one img{width:auto;max-width:100%;height:auto;max-height:640px;aspect-ratio:auto}.msg{margin:0;font-size:20px;white-space:pre-line;overflow-wrap:anywhere}.ph+.msg{margin-top:16px}footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;margin-top:14px;color:#7A5B2F;font-size:13px;line-height:1.4}.end{margin:40px 0 0;text-align:center;color:#6B756F;font-size:12.5px}@media (max-width:560px){main{padding:40px 14px 56px}h1{font-size:44px}article{padding:16px}.ph{grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:6px}.msg{font-size:18px}}@media print{body{background:#fff}main{padding:0}article{border-color:#ddd}}</style></head>
 <body><main><header><p class="eyebrow">Anı Defteri</p><h1>Elif<i>&amp;</i>Yunus</h1><p class="sub">15 Kasım 2026 · Nazar Düğün Salonu</p><p class="stats">${nNotes} dilek · ${nPhotos} fotoğraf</p></header>
 ${items}
 <p class="end">${esc(fmtFull.format(Date.now()))} tarihinde indirildi. Tam boyutu görmek için fotoğrafa tıklayın.</p>
@@ -2650,7 +2768,7 @@ function adminPhotoTile(r) {
   tile.row = r;
   setChecked(tile, admin.selP.has(r.id));
   chk.addEventListener('change', () => { toggleSel(admin.selP, r.id, chk.checked); tile.classList.toggle('sel', chk.checked); renderAdminBars(); });
-  open.addEventListener('click', () => openLightbox(r.id, visibleAdminPhotos, false));
+  open.addEventListener('click', () => openLightbox(r.id, visibleAdminPhotos, false, img));
   return tile;
 }
 function adminNoteItem(r) {
