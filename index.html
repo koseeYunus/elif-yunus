@@ -667,7 +667,7 @@ textarea.input { min-height: 132px; resize: vertical; }
         <div class="cal-btns">
           <a class="btn btn-dark btn-sm" id="cal-add" href="dugun.ics"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg>Takvime Ekle</a>
         </div>
-        <p class="cal-alt" id="cal-android" hidden>Dosya inince ekranın altındaki <b>Aç</b>’a dokunun; takvim uygulamanız açılır, <b>Kaydet</b> demeniz yeterli.</p>
+        <p class="cal-alt" id="cal-android" hidden>Açılan ekranda <b>Ekle</b> ya da <b>Kaydet</b>’e dokunmanız yeterli.</p>
         <p class="cal-alt">Başka bir takvim mi kullanıyorsunuz? <a id="cal-google" href="#" target="_blank" rel="noopener">Google Takvim</a> · <a href="dugun.ics">Apple, Outlook (.ics)</a></p>
       </div>
     </div>
@@ -1109,11 +1109,19 @@ function initLinks() {
   });
   const google = 'https://calendar.google.com/calendar/render?' + q;
   $('#cal-google').href = google;
-  // "Takvime Ekle" her cihazda .ics dosyasını açar; böylece telefonun kendi takvim uygulaması kullanılır:
-  // iPhone/iPad/Mac'te Takvim'in "Ekle" ekranı doğrudan gelir. Android'de tarayıcılar takvim uygulamasını
-  // doğrudan açamaz (Chrome yalnızca "BROWSABLE" ekranları açabilir); dosya iner ve "Aç"a dokununca
-  // varsayılan takvim (Google/Samsung Takvim) etkinliği gösterip kaydetmeyi sorar. Bunun için kısa bir not gösterilir.
-  $('#cal-android').hidden = !/Android/i.test(navigator.userAgent);
+  // "Takvime Ekle" telefonun kendi takvim uygulamasını açar, hiçbir şey indirmez:
+  // • iPhone/iPad/Mac: .ics bağlantısı Takvim'in "Ekle" ekranını doğrudan açar.
+  // • Android: .ics adresi bir "intent" ile takvim uygulamasına verilir (gerçek telefonda denendi: ör. Xiaomi
+  //   Takvim "URL aboneliği ekle" ekranını açıyor). Bunu karşılayan uygulama yoksa Chrome, Google Takvim'in
+  //   doldurulmuş "Kaydet" formuna düşer. Uygulama içi tarayıcılarda (Instagram vb.) intent çalışmadığından
+  //   doğrudan bu forma gidilir.
+  const ua = navigator.userAgent;
+  if (/Android/i.test(ua)) {
+    const add = $('#cal-add'), ics = new URL('dugun.ics', location.href);
+    if (/; wv\)|Instagram|FBAN|FBAV/i.test(ua)) Object.assign(add, { href: google, target: '_blank', rel: 'noopener' });
+    else add.href = `intent://${ics.host}${ics.pathname}#Intent;scheme=${ics.protocol.slice(0, -1)};action=android.intent.action.VIEW;type=text/calendar;S.browser_fallback_url=${encodeURIComponent(google)};end`;
+    $('#cal-android').hidden = false;
+  }
 }
 
 /* ---------- İsim: tüm alanlarda ortak, bu cihazda hatırlanır ---------- */
