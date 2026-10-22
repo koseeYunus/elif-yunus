@@ -214,8 +214,26 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 .cal p { margin: 0 0 14px; font: italic 400 20px/1.4 var(--serif); color: var(--ink-2); }
 .cal-btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 
-/* Albüm — yükleme alanı */
-.uploader { padding: 26px 22px 24px; text-align: center; }
+/* Anı & dilek formu */
+.composer { padding: 26px 22px 22px; }
+.composer .hint { text-align: center; }
+.k-photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
+.k-tile, .k-add { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; }
+.k-tile { background: var(--sand); }
+.k-tile img { width: 100%; height: 100%; object-fit: cover; }
+.k-tile.hazirlaniyor img, .k-tile.yukleniyor img { opacity: .55; }
+.k-tile.hata, .k-tile.gecersiz { outline: 2px solid #B4533E; outline-offset: -2px; }
+.k-tile.hata .q-badge, .k-tile.gecersiz .q-badge { background: #B4533E; }
+.k-tile.tamam .q-badge { background: #4E7A5C; }
+.k-remove { position: absolute; top: 4px; right: 4px; display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: rgba(28, 42, 35, .72); color: #fff; }
+.k-remove .ic { width: 14px; height: 14px; stroke-width: 2.4; }
+.k-add { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 6px; border: 1.5px dashed var(--line-2); background: var(--ivory); color: var(--gold-deep); font: 500 10.5px/1.25 var(--sans); letter-spacing: .08em; text-transform: uppercase; text-align: center; transition: background-color .2s, border-color .2s; }
+.k-add:active { background: var(--sand); }
+@media (hover: hover) { .k-add:hover { border-color: var(--gold); background: #fff; } }
+.k-add .ic { width: 22px; height: 22px; }
+.k-progress { margin: 4px 0 16px; }
+.k-saved { display: flex; align-items: flex-start; gap: 8px; margin: -6px 0 14px; padding: 10px 12px; border-radius: 12px; background: #EEF4EF; color: #2F5A3E; font-size: 13.5px; line-height: 1.45; }
+.k-saved .ic { width: 16px; height: 16px; margin-top: 2px; flex: none; }
 .field { display: block; margin: 0 0 16px; text-align: left; }
 .field > span { display: block; margin: 0 0 8px; font: 500 11px/1 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3); }
 .field > span i { font-style: normal; letter-spacing: .06em; text-transform: none; }
@@ -228,22 +246,13 @@ textarea.input { min-height: 132px; resize: vertical; }
 .hint { margin: 12px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--ink-3); }
 .count-line { margin: 26px 0 0; text-align: center; font: 500 11px/1 var(--sans); letter-spacing: .22em; text-transform: uppercase; color: var(--ink-3); }
 
-/* Yükleme kuyruğu */
-.queue { margin-top: 18px; padding: 16px; border-radius: 16px; background: var(--ivory); border: 1px solid var(--line); text-align: left; }
+/* Gönderim ilerlemesi ve durum rozetleri */
 .q-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; font-size: 14px; color: var(--ink-2); }
 .q-head b { font: 600 19px/1 var(--serif); color: var(--ink); font-variant-numeric: lining-nums; }
 .q-bar { height: 4px; border-radius: 4px; background: rgba(122, 91, 47, .14); overflow: hidden; }
 .q-bar i { display: block; height: 100%; width: 0; border-radius: 4px; background: linear-gradient(90deg, var(--gold), #DCC088); transition: width .5s var(--ease); }
-.q-list { display: flex; gap: 8px; overflow-x: auto; padding: 12px 0 2px; scrollbar-width: none; }
-.q-list::-webkit-scrollbar { display: none; }
-.q-item { position: relative; flex: none; width: 60px; height: 60px; padding: 0; border: 0; border-radius: 12px; overflow: hidden; background: var(--sand); }
-.q-item img { width: 100%; height: 100%; object-fit: cover; }
-.q-item.wait img, .q-item.work img { opacity: .5; }
 .q-badge { position: absolute; right: 4px; bottom: 4px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: rgba(28, 42, 35, .78); color: #fff; }
 .q-badge .ic { width: 13px; height: 13px; stroke-width: 2.4; }
-.q-item.done .q-badge { background: #4E7A5C; }
-.q-item.err { box-shadow: inset 0 0 0 2px #B4533E; }
-.q-item.err .q-badge { background: #B4533E; }
 .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255, 255, 255, .35); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -263,7 +272,6 @@ textarea.input { min-height: 132px; resize: vertical; }
 .notice { margin: 26px auto 0; max-width: 30em; padding: 16px 18px; border-radius: 14px; background: #FBEFEA; border: 1px solid rgba(180, 83, 62, .25); color: #7E3A2C; text-align: center; font-size: 15px; }
 
 /* Dilek defteri */
-.wish-form { padding: 26px 22px 24px; }
 .counter { display: block; margin-top: 6px; text-align: right; font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .wishes { display: grid; gap: 14px; margin-top: 32px; }
 .wish { position: relative; padding: 22px 22px 16px; background: var(--paper); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 12px 30px -24px rgba(28, 42, 35, .5); }
@@ -273,6 +281,10 @@ textarea.input { min-height: 132px; resize: vertical; }
 .wish-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line-2); }
 .wish-name { font: 500 13px/1.35 var(--sans); letter-spacing: .08em; color: var(--gold-deep); overflow-wrap: anywhere; }
 .wish-time { flex: none; font-size: 12px; color: var(--ink-3); }
+.wish-photos { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 0; }
+.wish-photo { position: relative; width: 64px; height: 64px; padding: 0; border: 0; border-radius: 10px; overflow: hidden; background: var(--sand); }
+.wish-photo img { width: 100%; height: 100%; object-fit: cover; }
+.wish-photo .more { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(28, 42, 35, .55); color: #fff; font: 500 16px/1 var(--sans); }
 
 /* Alt bilgi */
 .footer { padding: 76px 20px calc(130px + var(--safe-b)); background: var(--forest) var(--noise-light); color: var(--cream); text-align: center; }
@@ -321,6 +333,7 @@ textarea.input { min-height: 132px; resize: vertical; }
 @media (hover: none) { .lb-nav { display: none; } }
 .lb-cap { margin: 0; padding: 12px 20px calc(18px + var(--safe-b)); text-align: center; font: italic 400 20px/1.3 var(--serif); }
 .lb-cap small { display: block; margin-top: 5px; font: 400 12px/1.4 var(--sans); letter-spacing: .08em; color: rgba(244, 236, 221, .6); }
+.lb-msg { display: block; max-width: 34em; max-height: 4.4em; margin: 6px auto 0; overflow: hidden; font: italic 400 16px/1.45 var(--serif); color: rgba(244, 236, 221, .88); }
 
 /* ===== Alttan açılan pencere (isim, arşiv) ===== */
 .sheet-bg { position: fixed; inset: 0; z-index: 70; display: flex; align-items: flex-end; justify-content: center; background: rgba(10, 16, 13, .55); animation: fade .25s; }
@@ -403,6 +416,7 @@ textarea.input { min-height: 132px; resize: vertical; }
 .adm-note-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin: 10px 0 6px; font-size: 12.5px; color: var(--ink-3); }
 .adm-note-head b { font-weight: 500; font-size: 14px; color: var(--gold-deep); overflow-wrap: anywhere; }
 .adm-note-head time { flex: none; }
+.adm-note-photos { font-size: 12.5px; color: var(--ink-3); }
 .adm-note-msg { margin: 0; font: 400 18.5px/1.45 var(--serif); color: var(--ink); white-space: pre-line; overflow-wrap: anywhere; }
 .adm-note-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .adm-edit { padding-top: 10px; }
@@ -519,7 +533,7 @@ textarea.input { min-height: 132px; resize: vertical; }
     </div>
     <div class="hero-cta in-5" id="hero-cta">
       <a class="btn btn-gold" href="#davet" data-action="open-invite">Davetiyeyi Aç</a>
-      <a class="btn btn-line" href="#dilekler">Dilek Bırak</a>
+      <a class="btn btn-line" href="#paylas">Anı &amp; Dilek Bırak</a>
     </div>
   </div>
   <a class="scroll-hint" href="#davet" aria-label="Aşağı kaydır"></a>
@@ -589,49 +603,60 @@ textarea.input { min-height: 132px; resize: vertical; }
       </div>
     </div>
   </section>
-  <!-- ===== Anı albümü ===== -->
-  <section class="section" id="album">
-    <div class="wrap-wide">
+  <!-- ===== Anı & dilek bırak: fotoğraf, dilek ya da ikisi birden tek formdan ===== -->
+  <section class="section" id="paylas">
+    <div class="wrap">
       <header class="sec-head rv">
-        <p class="eyebrow">Anılarınızı Paylaşın</p>
-        <h2 class="sec-title">Anı Albümü</h2>
-        <p class="sec-sub">Düğünde çektiğiniz fotoğrafları buraya yükleyin; bu güzel geceye dair tüm anılar tek bir albümde buluşsun.</p>
+        <p class="eyebrow">Bir Fotoğraf, Bir Dilek</p>
+        <h2 class="sec-title">Anı &amp; Dilek Bırak</h2>
+        <p class="sec-sub">Bir fotoğraf, birkaç satır dilek ya da ikisi birden… Hepsi bu güzel günün hatırası olacak.</p>
       </header>
-      <div class="wrap">
-        <div class="card uploader rv">
-          <label class="field"><span>Adınız <i>(isteğe bağlı)</i></span><input class="input" id="photo-name" data-name maxlength="50" autocomplete="name" enterkeyhint="done" placeholder="Adınız ve soyadınız"></label>
-          <button class="btn btn-gold btn-block" id="btn-upload" type="button"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg>Fotoğraf Yükle</button>
-          <p class="hint">Birden fazla fotoğraf seçebilirsiniz. Fotoğraflar yüklenmeden önce otomatik olarak küçültülür.</p>
-          <div class="queue" id="queue" hidden>
-            <div class="q-head"><span id="q-text" aria-live="polite">Hazırlanıyor…</span><b id="q-count">0/0</b></div>
-            <div class="q-bar"><i id="q-bar"></i></div>
-            <div class="q-list" id="q-list"></div>
+      <form class="card composer rv" id="k-form" novalidate>
+        <label class="field"><span>Adınız</span><input class="input" id="k-name" data-name maxlength="50" autocomplete="name" enterkeyhint="next" placeholder="Adınız ve soyadınız"></label>
+        <label class="field"><span>Dileğiniz <i>(isteğe bağlı)</i></span><textarea class="input" id="k-msg" maxlength="600" rows="4" placeholder="Elif ile Yunus’a dileklerinizi yazın…"></textarea><small class="counter" id="k-counter">0 / 600</small></label>
+        <p class="k-saved" id="k-saved" hidden><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Dileğiniz kaydedildi. Kalan fotoğrafları yeniden göndermek için Gönder’e basın.</p>
+        <div class="field">
+          <span>Fotoğraflar <i>(isteğe bağlı)</i></span>
+          <div class="k-photos" id="k-photos">
+            <button class="k-add" id="k-add" type="button"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg><span>Fotoğraf Ekle</span></button>
           </div>
         </div>
-      </div>
+        <div class="k-progress" id="k-progress" hidden>
+          <div class="q-head"><span id="q-text" aria-live="polite">Gönderiliyor…</span><b id="q-count">0/0</b></div>
+          <div class="q-bar"><i id="q-bar"></i></div>
+        </div>
+        <button class="btn btn-gold btn-block" type="submit" id="k-send"><svg class="ic" aria-hidden="true"><use href="#i-send"/></svg><span>Gönder</span></button>
+        <p class="hint">Yalnızca dilek, yalnızca fotoğraf ya da ikisini birden gönderebilirsiniz. Fotoğraflar yüklenmeden önce otomatik olarak küçültülür.</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== Anı albümü ===== -->
+  <section class="section alt" id="album">
+    <div class="wrap-wide">
+      <header class="sec-head rv">
+        <p class="eyebrow">Misafirlerimizin Gözünden</p>
+        <h2 class="sec-title">Anı Albümü</h2>
+        <p class="sec-sub">Paylaşılan tüm fotoğraflar burada toplanıyor; büyütmek için fotoğrafa dokunun.</p>
+      </header>
       <p class="count-line" id="photo-count" hidden></p>
       <div class="gallery" id="gallery"></div>
-      <p class="empty" id="gallery-empty" hidden>Henüz fotoğraf yok.<br>İlk anıyı siz paylaşın!</p>
+      <p class="empty" id="gallery-empty" hidden>Henüz fotoğraf yok.<br><a href="#paylas">İlk anıyı siz paylaşın!</a></p>
       <p class="notice" id="gallery-error" hidden>Albüm şu anda yüklenemiyor. Birazdan kendiliğinden tekrar denenecek.</p>
       <div class="more"><button class="btn btn-line btn-sm" id="gallery-more" type="button" hidden>Daha Fazla Göster</button></div>
     </div>
   </section>
 
   <!-- ===== Dilek defteri ===== -->
-  <section class="section alt" id="dilekler">
+  <section class="section" id="dilekler">
     <div class="wrap">
       <header class="sec-head rv">
-        <p class="eyebrow">Bize Birkaç Satır Bırakın</p>
+        <p class="eyebrow">Sevgiyle Yazılanlar</p>
         <h2 class="sec-title">Dilek Defteri</h2>
         <p class="sec-sub">Güzel dilekleriniz, yıllar sonra da açıp okuyacağımız en kıymetli hatıramız olacak.</p>
       </header>
-      <form class="card wish-form rv" id="wish-form" novalidate>
-        <label class="field"><span>Adınız</span><input class="input" id="wish-name" data-name maxlength="50" autocomplete="name" enterkeyhint="next" placeholder="Adınız ve soyadınız"></label>
-        <label class="field"><span>Dileğiniz</span><textarea class="input" id="wish-msg" maxlength="600" rows="4" placeholder="Elif ile Yunus’a dileklerinizi yazın…"></textarea><small class="counter" id="wish-counter">0 / 600</small></label>
-        <button class="btn btn-dark btn-block" type="submit" id="wish-submit"><svg class="ic" aria-hidden="true"><use href="#i-send"/></svg><span>Dileğimi Gönder</span></button>
-      </form>
       <div class="wishes" id="wishes"></div>
-      <p class="empty" id="wishes-empty" hidden>İlk dileği siz yazın ♡</p>
+      <p class="empty" id="wishes-empty" hidden><a href="#paylas">İlk dileği siz yazın ♡</a></p>
       <p class="notice" id="wishes-error" hidden>Dilekler şu anda yüklenemiyor. Birazdan kendiliğinden tekrar denenecek.</p>
       <div class="more"><button class="btn btn-line btn-sm" id="wishes-more" type="button" hidden>Daha Fazla Dilek</button></div>
     </div>
@@ -650,7 +675,7 @@ textarea.input { min-height: 132px; resize: vertical; }
 <nav class="dock" id="dock" aria-label="Sayfa bölümleri">
   <a href="#davet" data-sec="davet"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg><span>Davet</span></a>
   <a href="#program" data-sec="program"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span>Program</span></a>
-  <button class="fab" type="button" data-action="upload" aria-label="Fotoğraf yükle"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg></button>
+  <button class="fab" type="button" data-action="upload" aria-label="Fotoğraf ekle"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg></button>
   <a href="#album" data-sec="album"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg><span>Albüm</span><i class="dot" hidden></i></a>
   <a href="#dilekler" data-sec="dilekler"><svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg><span>Dilekler</span><i class="dot" hidden></i></a>
 </nav>
@@ -674,18 +699,6 @@ textarea.input { min-height: 132px; resize: vertical; }
   <p class="lb-cap" id="lb-cap"></p>
 </div>
 
-<!-- ===== İsim penceresi ===== -->
-<div class="sheet-bg" id="name-sheet" hidden>
-  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ns-title">
-    <h3 id="ns-title">Hoş geldiniz</h3>
-    <p>Paylaştığınız fotoğrafların altında adınız görünsün ister misiniz?</p>
-    <label class="field"><span>Adınız</span><input class="input" id="ns-name" data-name maxlength="50" autocomplete="name" enterkeyhint="done" placeholder="Adınız ve soyadınız"></label>
-    <div class="sheet-btns">
-      <button class="btn btn-gold" id="ns-go" type="button"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg>Fotoğraf Seç</button>
-      <button class="btn btn-line btn-sm" id="ns-skip" type="button">İsimsiz Devam Et</button>
-    </div>
-  </div>
-</div>
 
 <!-- ===== Yönetim girişi ===== -->
 <div class="sheet-bg" id="login-sheet" hidden>
@@ -939,8 +952,10 @@ function applyPhase(p) {
   $('#hero-cta').replaceChildren(
     p === 'before'
       ? h('a', { class: 'btn btn-gold', href: '#davet', 'data-action': 'open-invite' }, 'Davetiyeyi Aç')
-      : h('button', { class: 'btn btn-gold', type: 'button', 'data-action': 'upload' }, icon('camera'), 'Fotoğraf Paylaş'),
-    h('a', { class: 'btn btn-line', href: '#dilekler' }, 'Dilek Bırak'));
+      : h('a', { class: 'btn btn-gold', href: '#paylas' }, icon('camera'), 'Anı & Dilek Bırak'),
+    p === 'before'
+      ? h('a', { class: 'btn btn-line', href: '#paylas' }, 'Anı & Dilek Bırak')
+      : h('a', { class: 'btn btn-line', href: '#album' }, 'Albümü Gör'));
 }
 function tickCountdown() {
   const t = now(), p = phase(t);
@@ -1021,8 +1036,9 @@ function initNames() {
    VERİ KATMANI — Supabase (canlı) ya da önizleme (yalnızca bu sekmede)
    ===================================================================== */
 const PATH_RE = /^(buyuk|kucuk)\/[0-9a-f-]{36}\.jpg$/;
-const NOTE_COLS = 'id,created_at,isim,mesaj';
-const PHOTO_COLS = 'id,created_at,isim,buyuk,kucuk,genislik,yukseklik';
+// Dilekler bağlı fotoğraflarıyla, fotoğraflar da bağlı oldukları dilekle birlikte tek sorguda gelir.
+const NOTE_COLS = 'id,created_at,isim,mesaj,fotograflar(id,created_at,isim,buyuk,kucuk,genislik,yukseklik,not_id)';
+const PHOTO_COLS = 'id,created_at,isim,buyuk,kucuk,genislik,yukseklik,not_id,notlar(mesaj)';
 const LIVE = Boolean(CONFIG.supabaseUrl.trim() && CONFIG.supabaseKey.trim());
 
 // Tarayıcıya yalnızca publishable (herkese açık) anahtar konabilir; secret anahtar tespit edilirse sayfa durur.
@@ -1047,14 +1063,28 @@ function liveStore() {
   });
   const run = async build => { await ready; const { data, error } = await build(sb); if (error) throw error; return data; };
   const publicUrl = p => (PATH_RE.test(p || '') ? `${base}/storage/v1/object/public/${encodeURIComponent(CONFIG.bucket)}/${p}` : '');
-  const page = (table, cols) => ({ before, limit }) => run(db => {
-    const q = db.from(table).select(cols).order('id', { ascending: false }).limit(limit);
-    return before ? q.lt('id', before) : q;
+  // Veritabanı henüz yeni kurulum dosyasıyla güncellenmediyse (fotoğraf-dilek bağı yoksa) sade sorgulara düşer;
+  // böylece SQL ile sayfanın yayına giriş sırası ne olursa olsun albüm ve dilekler yüklenmeye devam eder.
+  let linked = true;
+  const BASIC = { notlar: 'id,created_at,isim,mesaj', fotograflar: 'id,created_at,isim,buyuk,kucuk,genislik,yukseklik' };
+  const cols = table => (linked ? (table === 'notlar' ? NOTE_COLS : PHOTO_COLS) : BASIC[table]);
+  // PGRST200: ilişki yok, PGRST204/42703: sütun yok. 23503 (dilek bu arada silinmiş) bu sayılmaz.
+  const isLinkError = e => e?.code !== '23503' && /PGRST20[04]|42703|not_id|relationship/i.test(`${e?.code} ${e?.message} ${e?.details}`);
+  // withLink: bu sorgunun bağlantılı sütunlarla gidip gitmediği (aynı anda çalışan sorgular birbirini etkilemesin)
+  const query = (table, chain, withLink = linked) =>
+    run(db => chain(db.from(table).select(withLink ? (table === 'notlar' ? NOTE_COLS : PHOTO_COLS) : BASIC[table]))).catch(e => {
+      if (!withLink || !isLinkError(e)) throw e;
+      if (linked) { linked = false; console.warn('Fotoğraf-dilek bağlantısı veritabanında yok; sade sorgulara geçildi.', e); }
+      return query(table, chain, false);
+    });
+  const page = table => ({ before, limit }) => query(table, q => {
+    const sorted = q.order('id', { ascending: false }).limit(limit);
+    return before ? sorted.lt('id', before) : sorted;
   });
   // Yalnızca verilen andan sonra eklenen kayıtları sorgular (tüm tabloyu tekrar çekmez).
-  const since = (table, cols) => iso => run(db => {
-    const q = db.from(table).select(cols).order('id', { ascending: true }).limit(200);
-    return iso ? q.gte('created_at', iso) : q;
+  const since = table => iso => query(table, q => {
+    const sorted = q.order('id', { ascending: true }).limit(200);
+    return iso ? sorted.gte('created_at', iso) : sorted;
   });
   const upload = (path, blob) => retry(async () => {
     const { error } = await sb.storage.from(CONFIG.bucket).upload(path, blob, { contentType: 'image/jpeg', cacheControl: '86400', upsert: false });
@@ -1063,15 +1093,23 @@ function liveStore() {
   });
   return {
     live: true,
-    notes: { page: page('notlar', NOTE_COLS), since: since('notlar', NOTE_COLS) },
-    photos: { page: page('fotograflar', PHOTO_COLS), since: since('fotograflar', PHOTO_COLS) },
-    addNote: (isim, mesaj) => run(db => db.from('notlar').insert({ isim, mesaj })),
-    async addPhoto({ isim, large, thumb, width, height }) {
+    notes: { page: page('notlar'), since: since('notlar') },
+    photos: { page: page('fotograflar'), since: since('fotograflar') },
+    // Yeni dileğin numarasını döndürür (fotoğraflar bu numarayla dileğe bağlanır).
+    addNote: async (isim, mesaj) => (await run(db => db.from('notlar').insert({ isim, mesaj }).select('id')))[0]?.id ?? null,
+    async addPhoto({ isim, large, thumb, width, height, notId }) {
       await ready;
       const id = uuid(), buyuk = `buyuk/${id}.jpg`, kucuk = `kucuk/${id}.jpg`;
       await Promise.all([upload(buyuk, large), upload(kucuk, thumb)]);
       await retry(async () => {
-        const { error } = await sb.from('fotograflar').insert({ isim, buyuk, kucuk, genislik: width, yukseklik: height });
+        const row = { isim, buyuk, kucuk, genislik: width, yukseklik: height };
+        if (notId && linked) row.not_id = notId;
+        let { error } = await sb.from('fotograflar').insert(row);
+        if (error && row.not_id && isLinkError(error)) {        // veritabanı henüz güncellenmemiş: bağsız kaydet
+          linked = false;
+          delete row.not_id;
+          ({ error } = await sb.from('fotograflar').insert(row));
+        }
         if (error && error.code !== '23505') throw error; // 23505: kayıt zaten eklenmiş
       });
     },
@@ -1084,14 +1122,14 @@ function liveStore() {
       return count ?? 0;
     },
     async all(table) {
-      const cols = table === 'notlar' ? NOTE_COLS : PHOTO_COLS, out = [];
+      const out = [];
       for (let from = 0; ; from += 1000) {
-        const rows = await run(db => db.from(table).select(cols).order('id', { ascending: true }).range(from, from + 999));
+        const rows = await query(table, q => q.order('id', { ascending: true }).range(from, from + 999));
         out.push(...rows);
         if (rows.length < 1000) return out;
       }
     },
-    byIds: (table, ids) => run(db => db.from(table).select(table === 'notlar' ? NOTE_COLS : PHOTO_COLS).in('id', ids)),
+    byIds: (table, ids) => query(table, q => q.in('id', ids)),
 
     // --- Yönetici işlemleri (Supabase kuralları yalnızca yönetici hesabına izin verir) ---
     auth: {
@@ -1112,8 +1150,8 @@ function liveStore() {
       return deleteRows('fotograflar', rows.map(r => r.id));
     },
     deleteNotes: ids => deleteRows('notlar', ids),
-    updateNote: (id, fields) => updateRow('notlar', NOTE_COLS, id, fields),
-    updatePhoto: (id, fields) => updateRow('fotograflar', PHOTO_COLS, id, fields),
+    updateNote: (id, fields) => updateRow('notlar', id, fields),
+    updatePhoto: (id, fields) => updateRow('fotograflar', id, fields),
     // Yöneticinin sildiği/düzenlediği kayıtların listesi: açık sayfalar bunu izleyip kendini günceller.
     changes: {
       recent: () => run(db => db.from('degisiklikler').select('id,tablo,kayit_id,islem').order('id', { ascending: false }).limit(20)),
@@ -1129,8 +1167,8 @@ function liveStore() {
     if (ids.length && !out.length) throw new UserError('Silme izniniz yok. Yönetici hesabının kurulumda tanımlandığından emin olun.');
     return out;
   }
-  async function updateRow(table, cols, id, fields) {
-    const rows = await run(db => db.from(table).update(fields).eq('id', id).select(cols));
+  async function updateRow(table, id, fields) {
+    const rows = await run(db => db.from(table).update(fields).eq('id', id).select(cols(table)));
     if (!rows.length) throw new UserError('Bu kaydı değiştirme izniniz yok.');
     return rows[0];
   }
@@ -1150,28 +1188,40 @@ function previewStore() {
     ['Hasan Amca', 'Bir ömür boyu el ele, gönül gönüle yaşayın evlatlarım.', 12],
   ].forEach(([isim, mesaj, m]) => notes.push({ id: ++nid, created_at: at(m), isim, mesaj }));
   const names = ['Zeynep', 'Emre', 'Ayşe Teyze', null, 'Merve', 'Kerem', 'Selin', 'Burak', null];
+  const links = { 2: 1, 7: 3 };   // örnek: Ayşe Teyze ve Burak'ın fotoğrafları dileklerine bağlı
   const photosReady = samplePhotos(9).then(list => list.forEach((p, i) => photos.push({
-    id: ++pid, created_at: at((9 - i) * 7), isim: names[i], buyuk: p.large, kucuk: p.thumb, genislik: p.w, yukseklik: p.h,
+    id: ++pid, created_at: at((9 - i) * 7), isim: names[i], buyuk: p.large, kucuk: p.thumb, genislik: p.w, yukseklik: p.h, not_id: links[i] ?? null,
   })));
-  const page = (arr, gate) => async ({ before, limit }) => {
-    await gate; await sleep(300);
-    return arr.filter(r => !before || r.id < before).sort((a, b) => b.id - a.id).slice(0, limit);
+  // Canlıdaki birleşik sorguların aynısı: dilek + bağlı fotoğraflar, fotoğraf + bağlı dilek
+  const noteView = n => ({ ...n, fotograflar: photos.filter(p => p.not_id === n.id).sort((a, b) => a.id - b.id).map(p => ({ ...p })) });
+  const photoView = p => {
+    const n = p.not_id && notes.find(x => x.id === p.not_id);
+    return { ...p, notlar: n ? { mesaj: n.mesaj } : null };
   };
-  const since = (arr, gate) => async iso => { await gate; return arr.filter(r => !iso || r.created_at >= iso).sort((a, b) => a.id - b.id); };
+  const view = table => (table === 'notlar' ? noteView : photoView);
+  const page = (arr, v, gate) => async ({ before, limit }) => {
+    await gate; await sleep(300);
+    return arr.filter(r => !before || r.id < before).sort((a, b) => b.id - a.id).slice(0, limit).map(v);
+  };
+  const since = (arr, v, gate) => async iso => { await gate; return arr.filter(r => !iso || r.created_at >= iso).sort((a, b) => a.id - b.id).map(v); };
   return {
     live: false,
-    notes: { page: page(notes), since: since(notes) },
-    photos: { page: page(photos, photosReady), since: since(photos, photosReady) },
-    async addNote(isim, mesaj) { await sleep(500); notes.push({ id: ++nid, created_at: new Date(now()).toISOString(), isim, mesaj }); },
-    async addPhoto({ isim, large, thumb, width, height }) {
+    notes: { page: page(notes, noteView, photosReady), since: since(notes, noteView, photosReady) },
+    photos: { page: page(photos, photoView, photosReady), since: since(photos, photoView, photosReady) },
+    async addNote(isim, mesaj) {
+      await sleep(500);
+      notes.push({ id: ++nid, created_at: new Date(now()).toISOString(), isim, mesaj });
+      return nid;
+    },
+    async addPhoto({ isim, large, thumb, width, height, notId }) {
       await sleep(500 + Math.random() * 800);
-      photos.push({ id: ++pid, created_at: new Date(now()).toISOString(), isim, buyuk: URL.createObjectURL(large), kucuk: URL.createObjectURL(thumb), genislik: width, yukseklik: height });
+      photos.push({ id: ++pid, created_at: new Date(now()).toISOString(), isim, buyuk: URL.createObjectURL(large), kucuk: URL.createObjectURL(thumb), genislik: width, yukseklik: height, not_id: notId || null });
     },
     thumbUrl: r => r.kucuk,
     largeUrl: r => r.buyuk,
     async count(table) { await photosReady; return (table === 'notlar' ? notes : photos).length; },
-    async all(table) { await photosReady; return [...(table === 'notlar' ? notes : photos)].sort((a, b) => a.id - b.id); },
-    async byIds(table, ids) { return (table === 'notlar' ? notes : photos).filter(r => ids.includes(r.id)).map(r => ({ ...r })); },
+    async all(table) { await photosReady; return [...(table === 'notlar' ? notes : photos)].sort((a, b) => a.id - b.id).map(view(table)); },
+    async byIds(table, ids) { return (table === 'notlar' ? notes : photos).filter(r => ids.includes(r.id)).map(view(table)); },
     // Önizlemede herhangi bir e-posta/şifre kabul edilir.
     auth: {
       async session() { return user ? { user } : null; },
@@ -1195,6 +1245,8 @@ function previewStore() {
         const i = notes.findIndex(n => n.id === id);
         if (i < 0) return false;
         notes.splice(i, 1); record('notlar', id, 'sil');
+        // Veritabanındaki "on delete set null" gibi: fotoğraflar albümde kalır, yalnızca dilekle bağı kopar
+        photos.filter(p => p.not_id === id).forEach(p => { p.not_id = null; record('fotograflar', p.id, 'duzenle'); });
         return true;
       });
     },
@@ -1210,7 +1262,7 @@ function previewStore() {
     if (i < 0) throw new UserError('Kayıt bulunamadı.');
     arr[i] = { ...arr[i], ...fields };
     record(table, id, 'duzenle');
-    return { ...arr[i] };
+    return view(table)(arr[i]);
   }
 }
 
@@ -1359,85 +1411,163 @@ async function processImage(file) {
 }
 
 /* =====================================================================
-   YÜKLEME KUYRUĞU — fotoğraflar sırayla hazırlanır ve yüklenir
+   ANI & DİLEK FORMU — dilek, fotoğraf ya da ikisi birden tek seferde gönderilir.
+   Fotoğraflar seçilir seçilmez arka planda küçültülür. Gönder'e basınca önce dilek
+   kaydedilir, ardından fotoğraflar bu dileğe bağlanarak sırayla yüklenir.
    ===================================================================== */
-const queue = { items: [], running: false, sessionDone: 0 };
-const STATE_LABEL = { wait: 'Sırada bekliyor', work: 'Hazırlanıyor', up: 'Yükleniyor', done: 'Yüklendi', err: 'Yüklenemedi — tekrar denemek için dokunun' };
+const komp = { items: [], sending: false, notId: null, noteSaved: false, prep: Promise.resolve() };
+const K_LABEL = { hazirlaniyor: 'Fotoğraf hazırlanıyor', hazir: 'Göndermeye hazır fotoğraf', yukleniyor: 'Fotoğraf yükleniyor', tamam: 'Fotoğraf gönderildi', hata: 'Fotoğraf gönderilemedi', gecersiz: 'Bu fotoğraf açılamadı' };
+let lastNoteAt = 0;
+// Henüz gönderilmemiş fotoğraflar / bu paylaşımda kaydedilmiş bir şey var mı
+const pendingItems = () => komp.items.filter(i => i.state !== 'gecersiz' && i.state !== 'tamam');
+const sentSome = () => komp.noteSaved || komp.items.some(i => i.state === 'tamam');
 
-function enqueue(fileList) {
+function addFiles(fileList) {
   const files = [...fileList].filter(f => /^image\//.test(f.type) || /\.(jpe?g|png|webp|gif|heic|heif|avif)$/i.test(f.name));
   if (!files.length) { toast('Lütfen fotoğraf seçin.', 'err'); return; }
-  $('#queue').hidden = false;
   for (const file of files) {
-    const it = { file, state: 'wait', error: '', thumbUrl: '' };
-    it.el = h('button', { class: 'q-item', type: 'button' }, h('span', { class: 'q-badge' }));
-    it.el.addEventListener('click', () => { if (it.state === 'err') { it.error = ''; setItemState(it, 'wait'); runQueue(); } });
-    queue.items.push(it);
-    $('#q-list').append(it.el);
-    setItemState(it, 'wait');
+    const it = { file, state: 'hazirlaniyor', out: null, thumbUrl: '', error: '', removed: false };
+    const rm = h('button', { class: 'k-remove', type: 'button', 'aria-label': 'Fotoğrafı çıkar' }, icon('x'));
+    rm.addEventListener('click', () => removeItem(it));
+    it.el = h('div', { class: 'k-tile', role: 'group' }, h('span', { class: 'q-badge' }), rm);
+    komp.items.push(it);
+    $('#k-add').before(it.el);
+    setItemState(it, 'hazirlaniyor');
+    komp.prep = komp.prep.then(() => prepareItem(it));   // sırayla: telefonun belleğini zorlamaz
   }
-  $('#queue').scrollIntoView({ behavior: 'smooth', block: 'center' });
-  runQueue();
+}
+async function prepareItem(it) {
+  if (it.removed || it.out) return;
+  try {
+    it.out = await processImage(it.file);
+    if (it.removed) return;
+    it.thumbUrl = URL.createObjectURL(it.out.thumb);
+    it.el.prepend(h('img', { src: it.thumbUrl, alt: '' }));
+    it.file = null;
+    setItemState(it, 'hazir');
+  } catch (e) {
+    if (it.removed) return;
+    console.warn('Fotoğraf hazırlanamadı:', e);
+    it.error = friendlyError(e);
+    setItemState(it, 'gecersiz');
+    toast(it.error, 'err');
+  }
 }
 function setItemState(it, s) {
   it.state = s;
-  it.el.className = 'q-item ' + s;
-  it.el.setAttribute('aria-label', STATE_LABEL[s]);
-  it.el.querySelector('.q-badge').replaceChildren(s === 'work' || s === 'up' ? h('span', { class: 'spin' }) : icon({ wait: 'clock', done: 'check', err: 'alert' }[s]));
-  renderQueueHead();
+  it.el.className = 'k-tile ' + s;
+  it.el.setAttribute('aria-label', K_LABEL[s]);
+  const badge = it.el.querySelector('.q-badge');
+  badge.hidden = s === 'hazir';
+  badge.replaceChildren(s === 'hazirlaniyor' || s === 'yukleniyor' ? h('span', { class: 'spin' }) : icon({ hazir: 'image', tamam: 'check', hata: 'alert', gecersiz: 'alert' }[s]));
+  it.el.querySelector('.k-remove').hidden = komp.sending || s === 'tamam';
+  renderProgress();
 }
-function renderQueueHead() {
-  const all = queue.items.length, done = queue.items.filter(i => i.state === 'done').length;
-  const errs = queue.items.filter(i => i.state === 'err').length, busy = queue.items.find(i => i.state === 'work' || i.state === 'up');
-  const partial = busy ? (busy.state === 'up' ? .6 : .25) : 0;
-  $('#q-count').textContent = `${done}/${all}`;
-  $('#q-bar').style.width = all ? `${((done + partial) / all) * 100}%` : '0';
-  $('#q-text').textContent = busy ? (busy.state === 'work' ? 'Fotoğraf hazırlanıyor…' : 'Yükleniyor…')
-    : errs ? `${errs} fotoğraf yüklenemedi. Tekrar denemek için dokunun.`
-    : all && done === all ? 'Hepsi yüklendi, teşekkürler!' : 'Sırada bekliyor…';
+function removeItem(it) {
+  if (komp.sending) return;
+  it.removed = true;
+  if (it.thumbUrl) URL.revokeObjectURL(it.thumbUrl);
+  it.el.remove();
+  komp.items = komp.items.filter(x => x !== it);
+  renderProgress();
+  // Gönderilemeyen fotoğraf çıkarıldı ve gönderilecek bir şey kalmadıysa paylaşım tamamlanmış sayılır.
+  if (sentSome() && !pendingItems().length && (komp.noteSaved || !$('#k-msg').value.trim())) finishComposer();
 }
-async function runQueue() {
-  if (queue.running) return;
-  queue.running = true; queue.sessionDone = 0;
+function renderProgress() {
+  const list = komp.items.filter(i => i.state !== 'gecersiz');
+  const done = list.filter(i => i.state === 'tamam').length, failed = list.filter(i => i.state === 'hata').length;
+  const busy = list.some(i => i.state === 'yukleniyor');
+  $('#q-count').textContent = `${done}/${list.length}`;
+  $('#q-bar').style.width = list.length ? `${((done + (busy ? .5 : 0)) / list.length) * 100}%` : '0';
+  $('#q-text').textContent = komp.sending ? (busy ? 'Fotoğraflar gönderiliyor…' : 'Gönderiliyor…')
+    : failed ? `${failed} fotoğraf gönderilemedi` : 'Göndermeye hazır';
+}
+function setSending(on) {
+  komp.sending = on;
+  $('#k-send').disabled = on;
+  $('#k-add').disabled = on;
+  $('#k-send span').textContent = on ? 'Gönderiliyor…' : 'Gönder';
+  komp.items.forEach(it => { it.el.querySelector('.k-remove').hidden = on || it.state === 'tamam'; });
+  renderProgress();
+}
+function finishComposer() {
+  resetComposer();
+  toast('Paylaşımınız kaydedildi. Teşekkürler!', 'ok');
+}
+function resetComposer() {
+  for (const it of komp.items) { if (it.thumbUrl) URL.revokeObjectURL(it.thumbUrl); it.el.remove(); }
+  komp.items = [];
+  komp.notId = null;
+  komp.noteSaved = false;
+  $('#k-msg').value = '';
+  $('#k-msg').readOnly = false;
+  $('#k-counter').textContent = `0 / ${NOTE_MAX}`;
+  $('#k-saved').hidden = true;
+  $('#k-progress').hidden = true;
+}
+async function sendComposer(e) {
+  e.preventDefault();
+  if (komp.sending) return;
+  const isim = cleanName($('#k-name').value);
+  const mesaj = komp.noteSaved ? '' : $('#k-msg').value.replace(/\r/g, '').replace(/\n{3,}/g, '\n\n').trim().slice(0, NOTE_MAX);
+  const photos = pendingItems();
+  if (!mesaj && !photos.length) {
+    if (sentSome()) finishComposer();          // kalanların hepsi zaten gönderilmiş
+    else shake('#k-msg', 'Bir dilek yazın ya da fotoğraf ekleyin.');
+    return;
+  }
+  if (mesaj && !isim) { shake('#k-name', 'Dileğinizin altında görünmesi için adınızı yazın.'); return; }
+  if (mesaj && mesaj.length < 2) { shake('#k-msg', 'Dileğiniz çok kısa.'); return; }
+  if (mesaj && Date.now() - lastNoteAt < 8000) { toast('Lütfen birkaç saniye bekleyip tekrar deneyin.', 'err'); return; }
+  setSending(true);
   holdScreen(true);
+  $('#k-progress').hidden = !photos.length;
+  renderProgress();
+  let sentNote = false, sentPhotos = 0;
   try {
-    for (let it; (it = queue.items.find(i => i.state === 'wait'));) {
-      setItemState(it, 'work');
+    if (mesaj) {
+      komp.notId = await store.addNote(isim, mesaj);
+      komp.noteSaved = true;
+      lastNoteAt = Date.now();
+      sentNote = true;
+      $('#k-msg').readOnly = true;           // aynı dilek ikinci kez gönderilmesin
+      pollSoon();
+    }
+    await komp.prep;                          // seçilen fotoğrafların hazırlanmasını bekle
+    for (const it of komp.items) {
+      if (it.state !== 'hazir' && it.state !== 'hata') continue;
+      setItemState(it, 'yukleniyor');
       try {
-        const out = await processImage(it.file);
-        if (!it.thumbUrl) { it.thumbUrl = URL.createObjectURL(out.thumb); it.el.prepend(h('img', { src: it.thumbUrl, alt: '' })); }
-        setItemState(it, 'up');
-        await store.addPhoto({ isim: cleanName($('#photo-name').value) || null, ...out });
-        it.file = null;
-        queue.sessionDone++;
-        setItemState(it, 'done');
+        await store.addPhoto({ isim: isim || null, ...it.out, notId: komp.notId });
+        setItemState(it, 'tamam');
+        sentPhotos++;
         pollSoon();
-      } catch (e) {
-        console.warn('Fotoğraf yüklenemedi:', e);
-        it.error = friendlyError(e);
-        setItemState(it, 'err');
+      } catch (err) {
+        console.warn('Fotoğraf gönderilemedi:', err);
+        it.error = friendlyError(err);
+        setItemState(it, 'hata');
       }
     }
+  } catch (err) {
+    console.warn('Dilek gönderilemedi:', err);
+    toast(friendlyError(err), 'err');
+    return;
   } finally {
-    queue.running = false;
+    setSending(false);
     holdScreen(false);
-    finishQueue();
   }
-}
-function finishQueue() {
-  const errs = queue.items.filter(i => i.state === 'err');
-  if (errs.length) {
-    toast(errs.length === 1 ? errs[0].error : `${errs.length} fotoğraf yüklenemedi. ${errs[0].error}`, 'err');
-  } else if (queue.sessionDone) {
-    toast(queue.sessionDone === 1 ? 'Fotoğrafınız albüme eklendi. Teşekkürler!' : `${queue.sessionDone} fotoğrafınız albüme eklendi. Teşekkürler!`, 'ok');
-    setTimeout(() => { if (!queue.running && queue.items.every(i => i.state === 'done')) clearQueue(); }, 6000);
+  const failed = komp.items.filter(i => i.state === 'hata');
+  if (failed.length) {
+    $('#k-saved').hidden = !komp.noteSaved;
+    toast(`${failed.length} fotoğraf gönderilemedi. ${failed[0].error} Tekrar denemek için Gönder’e basın.`, 'err');
+    return;
   }
-}
-function clearQueue() {
-  for (const it of queue.items) if (it.thumbUrl) URL.revokeObjectURL(it.thumbUrl);
-  queue.items = [];
-  $('#q-list').replaceChildren();
-  $('#queue').hidden = true;
+  // Seçilen fotoğrafların hiçbiri açılamadıysa (her biri için uyarı zaten gösterildi) form olduğu gibi kalır.
+  if (!sentNote && !sentPhotos) { $('#k-progress').hidden = true; return; }
+  toast(sentNote && sentPhotos ? 'Anınız ve dileğiniz eklendi. Çok teşekkür ederiz!'
+    : sentNote ? 'Dileğiniz deftere eklendi. Çok teşekkür ederiz!'
+    : sentPhotos === 1 ? 'Fotoğrafınız albüme eklendi. Teşekkürler!' : `${sentPhotos} fotoğrafınız albüme eklendi. Teşekkürler!`, 'ok');
+  resetComposer();
 }
 // Yükleme sürerken telefon ekranının kapanmasını engeller (destekleyen tarayıcılarda).
 let wakeLock = null;
@@ -1450,22 +1580,23 @@ async function holdScreen(on) {
   } catch { /* desteklenmiyor */ }
 }
 
-// Kapaktaki ve alt menüdeki "fotoğraf" düğmeleri: isim girilmemişse önce kibarca sorar.
-let nameAsked = false;
-function requestUpload() {
-  if (cleanName($('#photo-name').value) || nameAsked) { pickFiles(); return; }
-  $('#name-sheet').hidden = false;
-  lockScroll(true);
-}
-function closeNameSheet() { if (!$('#name-sheet').hidden) { $('#name-sheet').hidden = true; lockScroll(false); } }
 function pickFiles() { const fi = $('#file-input'); fi.value = ''; fi.click(); }
-function initUploader() {
-  $('#btn-upload').addEventListener('click', pickFiles);
-  $('#file-input').addEventListener('change', e => { if (e.target.files?.length) enqueue(e.target.files); });
-  for (const id of ['#ns-go', '#ns-skip']) $(id).addEventListener('click', () => { nameAsked = true; closeNameSheet(); pickFiles(); });
-  $('#name-sheet').addEventListener('click', e => { if (e.target === e.currentTarget) closeNameSheet(); });
-  document.addEventListener('click', e => { if (e.target.closest('[data-action="upload"]')) requestUpload(); });
-  addEventListener('beforeunload', e => { if (queue.running) { e.preventDefault(); e.returnValue = ''; } });
+function initComposer() {
+  $('#k-form').addEventListener('submit', sendComposer);
+  $('#k-add').addEventListener('click', pickFiles);
+  $('#k-msg').addEventListener('input', () => { $('#k-counter').textContent = `${$('#k-msg').value.length} / ${NOTE_MAX}`; });
+  $('#file-input').addEventListener('change', e => {
+    if (!e.target.files?.length) return;
+    addFiles(e.target.files);
+    $('#k-photos').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  // Alt menüdeki kamera düğmesi: hemen fotoğraf seçtirir, seçilenler formda görünür.
+  document.addEventListener('click', e => {
+    if (!e.target.closest('[data-action="upload"]')) return;
+    if (komp.sending) { toast('Gönderim sürüyor, lütfen biraz bekleyin.'); return; }
+    pickFiles();
+  });
+  addEventListener('beforeunload', e => { if (komp.sending) { e.preventDefault(); e.returnValue = ''; } });
 }
 
 /* =====================================================================
@@ -1605,7 +1736,12 @@ function lbMeta() {
   const rows = lb.src(), i = lb.idx, r = rows[i];
   if (!r) return;
   $('#lb-count').textContent = `${i + 1} / ${lb.fromGallery ? Math.max(rows.length, photoTotal) : rows.length}`;
-  $('#lb-cap').replaceChildren(r.isim || 'Misafirlerimizden', h('small', { text: fmtFull.format(Date.parse(r.created_at)) }));
+  const msg = msgOf(r);
+  $('#lb-cap').replaceChildren(...[
+    r.isim || 'Misafirlerimizden',
+    msg ? h('q', { class: 'lb-msg', text: msg.length > 160 ? msg.slice(0, 157) + '…' : msg }) : null,
+    h('small', { text: fmtFull.format(Date.parse(r.created_at)) }),
+  ].filter(Boolean));
   $('#lb-prev').disabled = i === 0;
   $('#lb-next').disabled = i === rows.length - 1 && (!lb.fromGallery || gallery.exhausted);
 }
@@ -1728,45 +1864,60 @@ function initLightbox() {
 /* =====================================================================
    DİLEK DEFTERİ
    ===================================================================== */
-let wishes = null, lastWishAt = 0;
+let wishes = null;
+// Dilek kartı: mesaj, dileğe bağlı fotoğraflar (en fazla 4 küçük resim, fazlası "+N") ve imza
 function wishCard(r, isNew) {
+  const photos = sortedPhotos(r), shown = photos.slice(0, 4);
+  const strip = photos.length ? h('div', { class: 'wish-photos' }, shown.map((p, i) => {
+    const extra = i === shown.length - 1 ? photos.length - shown.length : 0;
+    const b = h('button', { class: 'wish-photo', type: 'button', 'aria-label': extra ? `Fotoğrafları gör (${photos.length} fotoğraf)` : 'Fotoğrafı büyüt' },
+      h('img', { src: store.thumbUrl(p), alt: '', loading: 'lazy', decoding: 'async' }),
+      extra ? h('span', { class: 'more', text: '+' + extra }) : null);
+    b.addEventListener('click', () => openLightbox(p.id, () => photosOf(r.id), false));
+    return b;
+  })) : null;
   return h('article', { class: 'wish' + (isNew ? ' new' : ''), 'data-id': r.id },
     h('p', { class: 'wish-msg', text: r.mesaj }),
+    strip,
     h('footer', { class: 'wish-foot' },
       h('span', { class: 'wish-name', text: r.isim }),
       h('time', { class: 'wish-time', datetime: r.created_at, text: ago(r.created_at) })));
+}
+const sortedPhotos = r => (r?.fotograflar || []).filter(p => store.thumbUrl(p)).sort((a, b) => a.id - b.id);
+// Görüntüleyicide bir dileğin fotoğrafları arasında gezinmek için güncel liste
+const photosOf = noteId => sortedPhotos(wishes?.rows.find(x => x.id === noteId));
+// Fotoğrafla birlikte yazılmış dilek (görüntüleyicide fotoğrafın altında gösterilir)
+function msgOf(p) {
+  if (!p?.not_id) return '';
+  const n = wishes?.rows.find(x => x.id === p.not_id);
+  return n ? n.mesaj : p.notlar?.mesaj || '';
+}
+// Sonradan gelen ya da silinen fotoğrafları ilgili dileğe (misafir kartı ve yönetim listesi) yansıtır.
+function linkPhotosToWishes(added = [], removedId = null) {
+  const all = [...(wishes?.rows || []), ...admin.notes];
+  const touched = new Map();
+  const get = id => touched.get(id) || all.find(x => x.id === id);
+  for (const p of added) {
+    if (!p.not_id) continue;
+    const r = get(p.not_id);
+    if (!r || (r.fotograflar || []).some(x => x.id === p.id)) continue;
+    touched.set(r.id, { ...r, fotograflar: [...(r.fotograflar || []), p] });
+  }
+  if (removedId != null) {
+    for (const id of new Set(all.filter(r => (r.fotograflar || []).some(x => x.id === removedId)).map(r => r.id))) {
+      const r = get(id);
+      touched.set(id, { ...r, fotograflar: (r.fotograflar || []).filter(x => x.id !== removedId) });
+    }
+  }
+  touched.forEach(r => updateEverywhere('notlar', r));
 }
 function refreshTimes() { $$('.wish-time').forEach(t => { t.textContent = ago(t.getAttribute('datetime')); }); }
 function shake(sel, msg) {
   const n = $(sel);
   n.classList.remove('shake'); void n.offsetWidth; n.classList.add('shake');
+  n.addEventListener('input', () => n.classList.remove('shake'), { once: true });   // yazmaya başlayınca kırmızılık kalkar
   n.focus();
   toast(msg, 'err');
-}
-function initWishForm() {
-  const form = $('#wish-form'), msg = $('#wish-msg'), counter = $('#wish-counter'), btn = $('#wish-submit');
-  msg.addEventListener('input', () => { counter.textContent = `${msg.value.length} / ${NOTE_MAX}`; });
-  form.addEventListener('submit', async e => {
-    e.preventDefault();
-    const isim = cleanName($('#wish-name').value);
-    const mesaj = msg.value.replace(/\r/g, '').replace(/\n{3,}/g, '\n\n').trim().slice(0, NOTE_MAX);
-    if (!isim) return shake('#wish-name', 'Lütfen adınızı yazın.');
-    if (mesaj.length < 2) return shake('#wish-msg', 'Lütfen bir dilek yazın.');
-    if (Date.now() - lastWishAt < 8000) return toast('Lütfen birkaç saniye bekleyip tekrar deneyin.', 'err');
-    const label = btn.querySelector('span'), old = label.textContent;
-    btn.disabled = true; label.textContent = 'Gönderiliyor…';
-    try {
-      await store.addNote(isim, mesaj);
-      lastWishAt = Date.now();
-      msg.value = ''; counter.textContent = `0 / ${NOTE_MAX}`;
-      toast('Dileğiniz deftere eklendi. Çok teşekkür ederiz!', 'ok');
-      await wishes.poll();
-      $('#wishes').firstElementChild?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } catch (err) {
-      console.warn('Dilek gönderilemedi:', err);
-      toast(friendlyError(err), 'err');
-    } finally { btn.disabled = false; label.textContent = old; }
-  });
 }
 
 /* =====================================================================
@@ -1830,7 +1981,10 @@ function photoFileName(r) {
   return `${String(r.id).padStart(4, '0')}_${d.slice(0, 10)}_${d.slice(11, 16).replace(':', '-')}_${slug(r.isim)}.jpg`;
 }
 function notesHtml(notes) {
-  const items = notes.map(r => `<article><p>${esc(r.mesaj)}</p><footer><b>${esc(r.isim)}</b><span>${esc(fmtFull.format(Date.parse(r.created_at)))}</span></footer></article>`).join('\n');
+  const items = notes.map(r => {
+    const foto = r.fotograflar?.length ? ` · ${r.fotograflar.length} fotoğraf` : '';
+    return `<article><p>${esc(r.mesaj)}</p><footer><b>${esc(r.isim)}</b><span>${esc(fmtFull.format(Date.parse(r.created_at)) + foto)}</span></footer></article>`;
+  }).join('\n');
   return `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Elif &amp; Yunus — Dilek Defteri</title>
 <style>body{margin:0;background:#FAF6EE;color:#24312A;font:18px/1.6 Georgia,'Times New Roman',serif}main{max-width:720px;margin:0 auto;padding:56px 20px}h1{margin:0;text-align:center;font-weight:400;font-size:46px}.sub{margin:8px 0 44px;text-align:center;color:#7A5B2F;font:13px/1.5 system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase}article{margin:0 0 14px;padding:20px 22px;background:#fff;border:1px solid #E6DCCB;border-radius:14px;break-inside:avoid}article p{margin:0;white-space:pre-line}footer{display:flex;justify-content:space-between;gap:12px;margin-top:12px;color:#7A5B2F;font:13px/1.4 system-ui,sans-serif}@media print{body{background:#fff}main{padding:0}}</style></head>
 <body><main><h1>Elif &amp; Yunus</h1><p class="sub">Dilek Defteri · 15 Kasım 2026 · ${notes.length} dilek</p>
@@ -1850,9 +2004,11 @@ function initArchive() {
     const [Z, notes, photos] = await Promise.all([jszip(), store.all('notlar'), store.all('fotograflar')]);
     const zip = new Z();
     zip.file('dilekler.html', notesHtml(notes));
-    zip.file('dilekler.csv', toCsv([['No', 'Tarih', 'İsim', 'Dilek'], ...notes.map((r, i) => [i + 1, fmtFull.format(Date.parse(r.created_at)), r.isim, r.mesaj])]));
-    zip.file('fotograflar.csv', toCsv([['No', 'Tarih', 'Paylaşan', 'Dosya adı', 'Genişlik', 'Yükseklik'],
-      ...photos.map((r, i) => [i + 1, fmtFull.format(Date.parse(r.created_at)), r.isim || '', photoFileName(r), r.genislik ?? '', r.yukseklik ?? ''])]));
+    // "Dilek no" ile fotoğraflar, birlikte gönderildikleri dileğe bağlanır.
+    zip.file('dilekler.csv', toCsv([['Dilek no', 'Tarih', 'İsim', 'Dilek', 'Fotoğraf sayısı'],
+      ...notes.map(r => [r.id, fmtFull.format(Date.parse(r.created_at)), r.isim, r.mesaj, r.fotograflar?.length || 0])]));
+    zip.file('fotograflar.csv', toCsv([['Fotoğraf no', 'Tarih', 'Paylaşan', 'Dosya adı', 'Genişlik', 'Yükseklik', 'Dilek no'],
+      ...photos.map(r => [r.id, fmtFull.format(Date.parse(r.created_at)), r.isim || '', photoFileName(r), r.genislik ?? '', r.yukseklik ?? '', r.not_id ?? ''])]));
     downloadBlob(await zip.generateAsync({ type: 'blob' }), 'elif-yunus-dilekler.zip');
     arcLog(`${notes.length} dilek indirildi (dilekler.html, dilekler.csv, fotograflar.csv).`);
   }));
@@ -2143,7 +2299,9 @@ function adminNoteItem(r) {
   setChecked(item, admin.selN.has(r.id));
   chk.addEventListener('change', () => { toggleSel(admin.selN, r.id, chk.checked); item.classList.toggle('sel', chk.checked); renderAdminBars(); });
   const show = () => body.replaceChildren(
-    h('p', { class: 'adm-note-head' }, h('b', { text: r.isim }), h('time', { datetime: r.created_at, text: fmtFull.format(Date.parse(r.created_at)) })),
+    h('p', { class: 'adm-note-head' },
+      h('span', {}, h('b', { text: r.isim }), r.fotograflar?.length ? h('span', { class: 'adm-note-photos', text: ` · ${r.fotograflar.length} fotoğraf` }) : null),
+      h('time', { datetime: r.created_at, text: fmtFull.format(Date.parse(r.created_at)) })),
     h('p', { class: 'adm-note-msg', text: r.mesaj }),
     h('div', { class: 'adm-note-actions' }, actionBtn('Düzenle', 'edit', 'btn-line', () => edit()), actionBtn('Sil', 'trash', 'btn-danger', () => removeNotes([r]))));
   const edit = () => {
@@ -2236,7 +2394,12 @@ async function removePhotos(rows) {
 async function removeNotes(rows) {
   const n = rows.length;
   if (!n) return;
-  const ok = await dialog({ title: n === 1 ? 'Dilek silinsin mi?' : `${n} dilek silinsin mi?`, text: 'Dilek defterinden kalıcı olarak silinir. Bu işlem geri alınamaz.', ok: 'Sil', danger: true });
+  const linked = rows.reduce((sum, r) => sum + (r.fotograflar?.length || 0), 0);
+  const ok = await dialog({
+    title: n === 1 ? 'Dilek silinsin mi?' : `${n} dilek silinsin mi?`,
+    text: 'Dilek defterinden kalıcı olarak silinir. Bu işlem geri alınamaz.' + (linked ? ` Dileğe bağlı ${linked} fotoğraf albümde kalır; isterseniz Fotoğraflar sekmesinden ayrıca silebilirsiniz.` : ''),
+    ok: 'Sil', danger: true,
+  });
   if (!ok) return;
   setBusy('#adm-n-count', 'Siliniyor…');
   try {
@@ -2275,7 +2438,10 @@ async function downloadSelected() {
 // Bir kayıt silinince/düzenlenince misafir görünümü, yönetim listeleri ve görüntüleyici birlikte güncellenir.
 function removeEverywhere(table, id) {
   const P = table === 'fotograflar', list = P ? admin.photos : admin.notes, i = list.findIndex(r => r.id === id);
-  if (P) { if (gallery?.remove(id)) { photoTotal = Math.max(0, photoTotal - 1); renderPhotoCount(); } }
+  if (P) {
+    if (gallery?.remove(id)) { photoTotal = Math.max(0, photoTotal - 1); renderPhotoCount(); }
+    linkPhotosToWishes([], id);
+  }
   else wishes?.remove(id);
   if (i >= 0) {
     list.splice(i, 1);
@@ -2370,7 +2536,6 @@ function initAdmin() {
     }
     if (e.key !== 'Escape') return;
     if (!$('#login-sheet').hidden) closeLogin(false);
-    else if (!$('#name-sheet').hidden) closeNameSheet();
     else if (admin.open) closeAdmin();
   });
   const route = () => { if (location.hash === '#yonetim' || location.hash === '#arsiv') openAdmin(location.hash === '#arsiv' ? 'archive' : 'photos'); };
@@ -2383,7 +2548,7 @@ function initAdmin() {
    ===================================================================== */
 let store = null;
 function init() {
-  initLinks(); initNames(); initSparks(); initScrollUi(); initUploader(); initLightbox(); initWishForm(); initDialog(); initMusic();
+  initLinks(); initNames(); initSparks(); initScrollUi(); initComposer(); initLightbox(); initDialog(); initMusic();
   const routeHash = initAdmin();
   tickCountdown();
   setInterval(tickCountdown, 250);
@@ -2403,7 +2568,7 @@ function init() {
     api: store.photos, list: $('#gallery'), empty: $('#gallery-empty'), error: $('#gallery-error'), more: $('#gallery-more'),
     limit: CONFIG.pageSize, render: photoTile, section: 'album',
     skeleton: () => Array.from({ length: 6 }, () => h('div', { class: 'tile skel' })),
-    onNew: rows => { photoTotal = Math.max(photoTotal + rows.length, gallery.rows.length); renderPhotoCount(); adminMerge('fotograflar', rows); },
+    onNew: rows => { photoTotal = Math.max(photoTotal + rows.length, gallery.rows.length); renderPhotoCount(); adminMerge('fotograflar', rows); linkPhotosToWishes(rows); },
   });
   wishes = createFeed({
     api: store.notes, list: $('#wishes'), empty: $('#wishes-empty'), error: $('#wishes-error'), more: $('#wishes-more'),
