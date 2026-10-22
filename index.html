@@ -176,6 +176,7 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 .card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); }
 .empty { margin: 30px 0 0; text-align: center; color: var(--ink-3); font: italic 400 21px/1.45 var(--serif); }
 .more { display: flex; justify-content: center; margin-top: 24px; }
+.more-hint { margin: 12px 0 0; text-align: center; font-size: 13.5px; line-height: 1.45; color: var(--ink-3); }
 
 /* Davetiye kartı */
 .invite-card { position: relative; padding: 46px 24px 38px; text-align: center; }
@@ -653,6 +654,7 @@ textarea.input { min-height: 132px; resize: vertical; }
       <p class="empty" id="gallery-empty" hidden>Henüz fotoğraf yok.<br><a href="#paylas">İlk anıyı siz paylaşın!</a></p>
       <p class="notice" id="gallery-error" hidden>Albüm şu anda yüklenemiyor. Birazdan kendiliğinden tekrar denenecek.</p>
       <div class="more"><button class="btn btn-line btn-sm" id="gallery-more" type="button" hidden>Daha Fazla Göster</button></div>
+      <p class="more-hint" id="gallery-hint" hidden>Tüm albümü gezmek için bir fotoğrafa dokunup yana kaydırın.</p>
     </div>
   </section>
 
@@ -1625,8 +1627,9 @@ function initComposer() {
    AKIŞ — galeri ve dilekler için ortak liste mantığı
    İlk açılışta son kayıtlar, sonra yalnızca yeni eklenenler sorgulanır.
    ===================================================================== */
-function createFeed({ api, list, empty, error, more, limit, render, section, skeleton, onNew }) {
-  const f = { rows: [], seen: new Set(), latest: null, oldest: null, loaded: false, exhausted: false, busy: false };
+// autoMax: kaydırırken kendiliğinden yüklemenin üst sınırı (sonrası düğmeyle); onLoaded: her yüklemeden sonra
+function createFeed({ api, list, empty, error, more, limit, render, section, skeleton, onNew, autoMax = Infinity, onLoaded }) {
+  const f = { rows: [], seen: new Set(), latest: null, oldest: null, loaded: false, exhausted: false, busy: false, autoMax };
   f.add = (rows, isNew) => {
     const added = [];
     for (const r of rows) {
@@ -1661,6 +1664,7 @@ function createFeed({ api, list, empty, error, more, limit, render, section, ske
       f.busy = false; more.disabled = false;
       more.hidden = !f.loaded || f.exhausted;
       empty.hidden = !f.loaded || f.rows.length > 0;
+      onLoaded?.();
       if (moreObserver && !more.hidden) { moreObserver.unobserve(more); moreObserver.observe(more); }
     }
   };
@@ -1693,9 +1697,13 @@ function createFeed({ api, list, empty, error, more, limit, render, section, ske
   moreObserver?.observe(more);
   return f;
 }
-// "Daha fazla" düğmesi ekrana yaklaşınca kendiliğinden yükler.
+// "Daha fazla" düğmesi ekrana yaklaşınca kendiliğinden yükler. Albümde bu, belli bir sayıdan sonra durur;
+// yoksa yüzlerce fotoğrafta sayfa durmadan uzar ve altındaki dilek defterine kaydırarak ulaşılamaz.
 const moreObserver = 'IntersectionObserver' in window
-  ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting && !e.target.hidden) e.target.feed?.load(true); }), { rootMargin: '600px 0px' })
+  ? new IntersectionObserver(es => es.forEach(e => {
+    const f = e.target.feed;
+    if (e.isIntersecting && !e.target.hidden && f && f.rows.length < f.autoMax) f.load(true);
+  }), { rootMargin: '600px 0px' })
   : null;
 
 /* =====================================================================
@@ -1717,6 +1725,14 @@ function renderPhotoCount() {
   const el = $('#photo-count');
   el.hidden = !photoTotal;
   el.textContent = photoTotal === 1 ? '1 anı paylaşıldı' : `${photoTotal} anı paylaşıldı`;
+  renderGalleryMore();
+}
+// "Daha Fazla Göster (kalan)" ve kendiliğinden yükleme durduktan sonra görüntüleyiciyle gezme ipucu
+function renderGalleryMore() {
+  if (!gallery) return;
+  const btn = $('#gallery-more'), rest = photoTotal - gallery.rows.length;
+  btn.textContent = rest > 0 ? `Daha Fazla Göster (${rest})` : 'Daha Fazla Göster';
+  $('#gallery-hint').hidden = btn.hidden || gallery.rows.length < gallery.autoMax;
 }
 
 /* =====================================================================
@@ -2855,7 +2871,7 @@ function init() {
   }
   gallery = createFeed({
     api: store.photos, list: $('#gallery'), empty: $('#gallery-empty'), error: $('#gallery-error'), more: $('#gallery-more'),
-    limit: CONFIG.pageSize, render: photoTile, section: 'album',
+    limit: CONFIG.pageSize, render: photoTile, section: 'album', autoMax: CONFIG.pageSize * 3, onLoaded: renderGalleryMore,
     skeleton: () => Array.from({ length: 6 }, () => h('div', { class: 'tile skel' })),
     onNew: rows => { photoTotal = Math.max(photoTotal + rows.length, gallery.rows.length); renderPhotoCount(); adminMerge('fotograflar', rows); linkPhotosToWishes(rows); },
   });
