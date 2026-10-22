@@ -352,6 +352,12 @@ textarea.input { min-height: 132px; resize: vertical; }
 .arc-hint { margin: 10px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--ink-3); text-align: center; }
 .arc-sep { margin: 24px 0 10px; text-align: center; font: 500 11px/1 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3); }
 .arc-more { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.arc-card { display: grid; grid-template-columns: 112px 1fr; gap: 16px; align-items: center; margin: 22px 0 0; padding: 16px; border-radius: 16px; background: var(--ivory); border: 1px solid var(--line); }
+.arc-card-prev { aspect-ratio: 2 / 3; border-radius: 6px; overflow: hidden; background: #FBF7F0; box-shadow: 0 10px 22px -14px rgba(28, 42, 35, .55); }
+.arc-card-prev canvas { display: block; width: 100%; height: 100%; }
+.arc-card h3 { margin: 0 0 4px; font: 500 21px/1.2 var(--serif); }
+.arc-card p { margin: 0 0 12px; font-size: 13.5px; line-height: 1.45; color: var(--ink-3); }
+.arc-card .btn + .btn { margin-top: 8px; }
 
 /* ===== Bildirimler ===== */
 .toasts { position: fixed; top: calc(12px + var(--safe-t)); left: 0; right: 0; z-index: 90; display: grid; justify-items: center; gap: 8px; padding: 0 14px; pointer-events: none; }
@@ -777,6 +783,15 @@ textarea.input { min-height: 132px; resize: vertical; }
         <button class="btn btn-line btn-sm" id="arc-photos-btn" type="button">Fotoğraflar</button>
       </div>
       <p class="arc-log" id="arc-log" aria-live="polite"></p>
+      <div class="arc-card">
+        <div class="arc-card-prev" id="arc-card-prev"></div>
+        <div>
+          <h3>Masa Kartı</h3>
+          <p id="arc-card-msg">Masalar için karekodlu kart; 10×15 cm fotoğraf baskısına hazır (1200×1800 piksel).</p>
+          <button class="btn btn-dark btn-sm btn-block" id="arc-card-btn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Kartı İndir</button>
+          <button class="btn btn-line btn-sm btn-block" id="arc-qr-btn" type="button">Yalnızca Karekod</button>
+        </div>
+      </div>
       <p class="adm-tips"><b>Hatırlatma:</b> Supabase’in ücretsiz projeleri bir hafta hiç kullanılmazsa duraklatılır. Düğünden sonraki birkaç gün içinde arşivi indirip saklayın.</p>
     </div>
   </div>
@@ -841,6 +856,7 @@ const CONFIG = {
 
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
 const JSZIP_JS = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+const QR_JS = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
 const NOTE_MAX = 600, NAME_MAX = 50;
 
 /* ---------- Yardımcılar ---------- */
@@ -1955,6 +1971,7 @@ const jszip = () => (JSZipP || (JSZipP = loadScript(JSZIP_JS).then(() => window.
 const arcLog = t => { $('#arc-log').textContent = t; };
 // Yönetim ekranında "Arşiv" sekmesi açılınca güncel sayıları gösterir.
 async function refreshArchiveStats() {
+  showCardPreview();
   $('#arc-photos').textContent = '…'; $('#arc-notes').textContent = '…';
   if (!arcBusy) arcLog(store.live ? '' : 'Önizleme modundasınız: yalnızca örnek veriler indirilir.');
   try {
@@ -2144,7 +2161,132 @@ async function downloadBook() {
   }
 }
 
+/* ---------- QR masa kartı: 10×15 cm (1200×1800 px), basılan kartla aynı tasarım ---------- */
+const siteLink = () => document.querySelector('meta[property="og:url"]')?.content || location.origin + location.pathname;
+let cardP = null;
+const tableCard = () => (cardP || (cardP = buildTableCard().catch(e => { cardP = null; throw e; })));
+// Karekodu (Q düzeyi: kart biraz lekelense de okunur) verilen kareye ortalayarak çizer.
+function paintQr(ctx, qr, left, top, size, margin) {
+  const n = qr.getModuleCount(), cell = Math.floor(size / (n + margin * 2)), dim = cell * (n + margin * 2);
+  // Tam piksele hizalı: kesirli konumda modüller arasında ince açık çizgiler oluşur ve okunması zorlaşır
+  const ox = Math.round(left + (size - dim) / 2), oy = Math.round(top + (size - dim) / 2);
+  ctx.fillStyle = '#FFFFFF'; ctx.fillRect(ox, oy, dim, dim);
+  ctx.fillStyle = '#1C2A23';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) ctx.fillRect(ox + (c + margin) * cell, oy + (r + margin) * cell, cell, cell);
+  return dim;
+}
+async function buildTableCard() {
+  const link = siteLink(), shown = link.replace(/^https?:\/\//, '').replace(/\/$/, '');
+  const day = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, day: 'numeric', month: 'long', year: 'numeric' }).format(WED);
+  const T = {
+    eyebrow: 'ANILARINIZI PAYLAŞIN', lead1: 'Bu gecenin fotoğraflarını albümümüze ekleyin,', lead2: 'bize birkaç satır dilek bırakın.',
+    s1: ' Telefonunuzun kamerasını karekoda tutun', s2a: ' Açılan sayfada ', s2b: 'Anı & Dilek Bırak', s2c: '’a dokunun', foot: `${day} · Nazar Düğün Salonu`,
+  };
+  const F = {
+    eyebrow: '500 30px Jost', names: '400 150px "Great Vibes"', amp: 'italic 400 60px "Cormorant Garamond"', lead: '500 46px "Cormorant Garamond"',
+    step: '400 33px Jost', stepB: '500 33px Jost', url: '400 28px Jost', foot: 'italic 400 36px "Cormorant Garamond"',
+  };
+  await loadScript(QR_JS);
+  // Yazı tipleri (Türkçe harfleri içeren parçalar dahil) yüklenmeden çizilirse kart yedek yazı tipiyle çıkar.
+  const sample = [...Object.values(T), 'Elif Yunus &', shown, '1.2.'].join(' ');
+  const loaded = await Promise.all(Object.values(F).map(f => document.fonts.load(f, sample)));
+  if (loaded.some(list => !list.length)) throw new UserError('Yazı tipleri yüklenemedi; internet bağlantınızı kontrol edip tekrar deneyin.');
+  const qr = window.qrcode(0, 'Q');
+  qr.addData(link); qr.make();
+
+  const card = document.createElement('canvas');
+  card.width = 1200; card.height = 1800;
+  const x = card.getContext('2d');
+  const GOLD = '#A88447', INK = '#1C2A23', BROWN = '#7A5B2F', STEP = '#3E4B43';
+  const round = (left, top, w, hgt, r) => { x.beginPath(); x.moveTo(left + r, top); x.arcTo(left + w, top, left + w, top + hgt, r); x.arcTo(left + w, top + hgt, left, top + hgt, r); x.arcTo(left, top + hgt, left, top, r); x.arcTo(left, top, left + w, top, r); x.closePath(); };
+  // Bir satırı parçalar halinde (farklı yazı tipi/renk) yatayda ortalayarak yazar; sp: harf aralığı, pad: iki yan boşluk.
+  const line = (y, ...parts) => {
+    const widthOf = p => { x.font = p.f; return (p.sp ? [...p.t].reduce((s, ch) => s + x.measureText(ch).width + p.sp, -p.sp) : x.measureText(p.t).width) + 2 * (p.pad || 0); };
+    const widths = parts.map(widthOf);
+    let px = 600 - widths.reduce((s, v) => s + v, 0) / 2;
+    parts.forEach((p, i) => {
+      x.font = p.f; x.fillStyle = p.c;
+      let cx = px + (p.pad || 0);
+      if (p.sp) for (const ch of p.t) { x.fillText(ch, cx, y); cx += x.measureText(ch).width + p.sp; }
+      else x.fillText(p.t, cx, y);
+      px += widths[i];
+    });
+  };
+
+  x.fillStyle = '#FBF7F0'; x.fillRect(0, 0, 1200, 1800);
+  x.lineWidth = 2; x.strokeStyle = 'rgba(168, 132, 71, .55)'; round(45, 45, 1110, 1710, 35); x.stroke();
+  x.lineWidth = 1; x.strokeStyle = 'rgba(168, 132, 71, .3)'; round(58.5, 58.5, 1083, 1683, 25.5); x.stroke();
+
+  // Köşelerdeki dal süsleri
+  const branch = document.createElement('canvas');
+  branch.width = branch.height = 235;
+  const b = branch.getContext('2d');
+  b.scale(235 / 210, 235 / 210);
+  b.strokeStyle = b.fillStyle = GOLD; b.lineCap = 'round';
+  b.lineWidth = 1.3; b.stroke(new Path2D('M20 190C60 150 100 110 180 20'));
+  b.lineWidth = 1.1;
+  for (const [ex, ey, rx, ry, a] of [[38.9, 156.8, 15, 5.4, -84], [53, 170, 15, 5.4, -4], [57.9, 138.1, 14.5, 5.2, -88], [71.5, 150.8, 14.5, 5.2, -8], [78.3, 117.4, 14, 5, -86], [91.5, 129.7, 14, 5, -6],
+    [101.4, 94.2, 13, 4.7, -90], [113.6, 105.6, 13, 4.7, -10], [127.5, 66.9, 12, 4.3, -88], [138.8, 77.4, 12, 4.3, -8], [157.6, 35, 10.5, 3.8, -92], [167.5, 44.2, 10.5, 3.8, -12], [186.7, 12.6, 10, 3.6, -48]]) {
+    const leaf = new Path2D();
+    leaf.ellipse(ex, ey, rx, ry, a * Math.PI / 180, 0, Math.PI * 2);
+    b.globalAlpha = .16; b.fill(leaf);
+    b.globalAlpha = 1; b.stroke(leaf);
+  }
+  b.globalAlpha = .55;
+  for (const [ex, ey, r] of [[64, 163, 3.2], [108, 118, 2.8], [146, 88, 2.4]]) { b.beginPath(); b.arc(ex, ey, r, 0, Math.PI * 2); b.fill(); }
+  x.globalAlpha = .55;
+  x.save(); x.translate(20, 255); x.scale(1, -1); x.drawImage(branch, 0, 0); x.restore();
+  x.save(); x.translate(1180, 1545); x.scale(-1, 1); x.drawImage(branch, 0, 0); x.restore();
+  x.globalAlpha = 1;
+
+  line(175, { f: F.eyebrow, c: BROWN, t: T.eyebrow, sp: 12.6 });
+  line(315, { f: F.names, c: INK, t: 'Elif' }, { f: F.amp, c: GOLD, t: '&', pad: 16.8 }, { f: F.names, c: INK, t: 'Yunus' });
+  // İsimlerin altındaki süs çizgisi
+  x.save(); x.translate(450, 382.75); x.scale(1.25, 1.25);
+  x.strokeStyle = x.fillStyle = GOLD; x.lineWidth = .9;
+  x.stroke(new Path2D('M10 9H98M142 9H230')); x.stroke(new Path2D('M120 2.5l6.5 6.5-6.5 6.5-6.5-6.5z'));
+  for (const ex of [106, 134]) { x.beginPath(); x.arc(ex, 9, 1.7, 0, Math.PI * 2); x.fill(); }
+  x.restore();
+  line(481, { f: F.lead, c: '#24312A', t: T.lead1 });
+  line(541.72, { f: F.lead, c: '#24312A', t: T.lead2 });
+
+  // Karekod paneli (gölgeli beyaz kart)
+  x.save(); x.shadowColor = 'rgba(28, 42, 35, .45)'; x.shadowBlur = 50; x.shadowOffsetY = 24; x.fillStyle = '#FFFFFF'; round(269, 641, 662, 662, 6); x.fill(); x.restore();
+  x.fillStyle = '#FFFFFF'; round(239, 611, 722, 722, 36); x.fill();
+  x.lineWidth = 2; x.strokeStyle = 'rgba(168, 132, 71, .45)'; round(240, 612, 720, 720, 35); x.stroke();
+  paintQr(x, qr, 267, 639, 666, 2);
+
+  line(1415.44, { f: F.stepB, c: BROWN, t: '1.' }, { f: F.step, c: STEP, t: T.s1 });
+  line(1464.94, { f: F.stepB, c: BROWN, t: '2.' }, { f: F.step, c: STEP, t: T.s2a }, { f: F.stepB, c: BROWN, t: T.s2b }, { f: F.step, c: STEP, t: T.s2c });
+  line(1517.44, { f: F.url, c: '#7C877F', t: shown, sp: 1.12 });
+  line(1689, { f: F.foot, c: '#56635B', t: T.foot });
+
+  // Yalın karekod (davetiye, pano vb. için)
+  const plain = document.createElement('canvas'), n = qr.getModuleCount();
+  plain.width = plain.height = Math.floor(1200 / (n + 8)) * (n + 8);
+  paintQr(plain.getContext('2d'), qr, 0, 0, plain.width, 4);
+  return { card, plain };
+}
+async function showCardPreview() {
+  const box = $('#arc-card-prev');
+  if (box.firstChild) return;
+  try {
+    const { card } = await tableCard();
+    card.setAttribute('role', 'img');
+    card.setAttribute('aria-label', 'Masa kartı önizlemesi');
+    box.replaceChildren(card);
+  } catch (e) { console.warn(e); $('#arc-card-msg').textContent = 'Kart hazırlanamadı: ' + friendlyError(e); }
+}
+async function saveCard(which, name) {
+  try {
+    const c = (await tableCard())[which];
+    downloadBlob(await new Promise((res, rej) => c.toBlob(bl => (bl ? res(bl) : rej(new Error('PNG oluşturulamadı'))), 'image/png')), name);
+  } catch (e) { console.warn(e); toast(friendlyError(e), 'err'); }
+}
+
 function initArchive() {
+  $('#arc-card-btn').addEventListener('click', () => saveCard('card', 'elif-yunus-qr-masa-karti-10x15cm.png'));
+  $('#arc-qr-btn').addEventListener('click', () => saveCard('plain', 'elif-yunus-qr-kod.png'));
   $('#arc-book-hint').textContent = 'Her dilek, birlikte gönderilen fotoğraflarıyla aynı sayfada. '
     + (canPickFolder() ? 'Kaydedeceğiniz klasörü seçin; sonradan tekrar indirirseniz yalnızca yeni fotoğraflar iner.'
       : 'ZIP olarak iner; 100’den fazla fotoğraf varsa birkaç parça halinde.');
