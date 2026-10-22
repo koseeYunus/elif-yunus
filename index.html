@@ -349,6 +349,9 @@ textarea.input { min-height: 132px; resize: vertical; }
 .arc-stat b { display: block; font: 500 34px/1 var(--serif); font-variant-numeric: lining-nums; }
 .arc-stat span { font: 500 10.5px/1 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3); }
 .arc-log { min-height: 1.5em; margin: 14px 0 0; font-size: 14px; color: var(--ink-2); text-align: center; }
+.arc-hint { margin: 10px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--ink-3); text-align: center; }
+.arc-sep { margin: 24px 0 10px; text-align: center; font: 500 11px/1 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3); }
+.arc-more { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
 /* ===== Bildirimler ===== */
 .toasts { position: fixed; top: calc(12px + var(--safe-t)); left: 0; right: 0; z-index: 90; display: grid; justify-items: center; gap: 8px; padding: 0 14px; pointer-events: none; }
@@ -761,14 +764,17 @@ textarea.input { min-height: 132px; resize: vertical; }
       <div class="adm-list" id="adm-notes"></div>
     </div>
     <div id="adm-pane-archive" class="adm-archive" role="tabpanel" aria-labelledby="adm-tab-archive" data-pane="archive" hidden>
-      <p class="adm-lead">Albümdeki tüm fotoğrafları ve dilek defterini bilgisayarınıza indirin. Bilgisayardan ve Wi-Fi ile yapmanız önerilir; fotoğraflar 100’erli ZIP dosyaları halinde iner.</p>
+      <p class="adm-lead">Biriken tüm anıları ve dilekleri bilgisayarınıza indirin. Bilgisayardan ve Wi-Fi ile yapmanız önerilir.</p>
       <div class="arc-stats">
         <div class="arc-stat"><b id="arc-photos">–</b><span>Fotoğraf</span></div>
         <div class="arc-stat"><b id="arc-notes">–</b><span>Dilek</span></div>
       </div>
-      <div class="sheet-btns">
-        <button class="btn btn-dark" id="arc-notes-btn" type="button">Dilekleri İndir</button>
-        <button class="btn btn-gold" id="arc-photos-btn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Tüm Fotoğrafları İndir</button>
+      <button class="btn btn-gold btn-block" id="arc-book-btn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Anı Defterini İndir</button>
+      <p class="arc-hint" id="arc-book-hint">Her dilek, birlikte gönderilen fotoğraflarıyla aynı sayfada.</p>
+      <p class="arc-sep">ya da ayrı ayrı indirin</p>
+      <div class="arc-more">
+        <button class="btn btn-line btn-sm" id="arc-notes-btn" type="button">Dilekler</button>
+        <button class="btn btn-line btn-sm" id="arc-photos-btn" type="button">Fotoğraflar</button>
       </div>
       <p class="arc-log" id="arc-log" aria-live="polite"></p>
       <p class="adm-tips"><b>Hatırlatma:</b> Supabase’in ücretsiz projeleri bir hafta hiç kullanılmazsa duraklatılır. Düğünden sonraki birkaç gün içinde arşivi indirip saklayın.</p>
@@ -1959,7 +1965,7 @@ async function refreshArchiveStats() {
 async function runArchive(job) {
   if (arcBusy) return;
   arcBusy = true;
-  const btns = [$('#arc-notes-btn'), $('#arc-photos-btn')];
+  const btns = [$('#arc-book-btn'), $('#arc-notes-btn'), $('#arc-photos-btn')];
   btns.forEach(b => { b.disabled = true; });
   try { await job(); } catch (e) { console.warn(e); arcLog('Hata: ' + friendlyError(e)); }
   finally { arcBusy = false; btns.forEach(b => { b.disabled = false; }); }
@@ -1998,17 +2004,158 @@ async function pool(items, size, fn) {
     while (next < items.length) { const k = next++; await fn(items[k], k); }
   }));
 }
+// "Dilek no" ile fotoğraflar, birlikte gönderildikleri dileğe bağlanır.
+const notesCsv = notes => toCsv([['Dilek no', 'Tarih', 'İsim', 'Dilek', 'Fotoğraf sayısı'],
+  ...notes.map(r => [r.id, fmtFull.format(Date.parse(r.created_at)), r.isim, r.mesaj, r.fotograflar?.length || 0])]);
+const photosCsv = photos => toCsv([['Fotoğraf no', 'Tarih', 'Paylaşan', 'Dosya adı', 'Genişlik', 'Yükseklik', 'Dilek no'],
+  ...photos.map(r => [r.id, fmtFull.format(Date.parse(r.created_at)), r.isim || '', photoFileName(r), r.genislik ?? '', r.yukseklik ?? '', r.not_id ?? ''])]);
+
+/* ---------- Anı Defteri: dilekler ve fotoğraflar bir arada ---------- */
+const BOOK_DIR = 'elif-yunus-ani-defteri';
+const canPickFolder = () => typeof window.showDirectoryPicker === 'function';
+// Her şeyi zaman sırasına dizer: dilek kendi fotoğraflarıyla tek kayıt olur; dileksiz fotoğraflardan
+// aynı kişinin 15 dakika içindeki paylaşımları da tek kayıtta toplanır.
+function bookEntries(notes, photos) {
+  const noteIds = new Set(notes.map(n => n.id)), byNote = new Map(), open = new Map(), entries = [];
+  for (const p of [...photos].sort((a, b) => a.id - b.id)) {
+    if (p.not_id && noteIds.has(p.not_id)) {
+      if (!byNote.has(p.not_id)) byNote.set(p.not_id, []);
+      byNote.get(p.not_id).push(p);
+      continue;
+    }
+    const key = p.isim || '', t = Date.parse(p.created_at), g = open.get(key);
+    if (g && t - g.last <= 15 * 60e3) { g.photos.push(p); g.last = t; continue; }
+    const e = { at: p.created_at, isim: p.isim, mesaj: '', photos: [p], last: t };
+    open.set(key, e);
+    entries.push(e);
+  }
+  for (const n of notes) entries.push({ at: n.created_at, isim: n.isim, mesaj: n.mesaj, photos: byNote.get(n.id) || [] });
+  return entries.sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+}
+// İndirilen klasördeki ani-defteri.html: internet olmadan açılır, yazdırılabilir.
+function bookHtml(entries, nNotes, nPhotos) {
+  const pic = (p, single) => {
+    const name = photoFileName(p), w = Number(p.genislik) || 0, hh = Number(p.yukseklik) || 0;
+    const img = single   // tek fotoğraf kendi oranıyla; tam boyu yoksa küçük resmi gösterir
+      ? `<img src="fotograflar/${name}"${w && hh ? ` width="${w}" height="${hh}"` : ''} alt="" loading="lazy" onerror="this.onerror=null;this.src='kucuk/${name}'">`
+      : `<img src="kucuk/${name}" alt="" loading="lazy">`;
+    return `<a href="fotograflar/${name}" target="_blank">${img}</a>`;
+  };
+  const items = entries.map(e => {
+    const n = e.photos.length;
+    const grid = n ? `<div class="ph${n === 1 ? ' one' : ''}">${e.photos.map(p => pic(p, n === 1)).join('')}</div>` : '';
+    const msg = e.mesaj ? `<p class="msg">${esc(e.mesaj)}</p>` : '';
+    const meta = fmtFull.format(Date.parse(e.at)) + (n ? ` · ${n} fotoğraf` : '');
+    return `<article>${grid}${msg}<footer><b>${esc(e.isim || 'Misafirlerimizden')}</b><span>${esc(meta)}</span></footer></article>`;
+  }).join('\n');
+  return `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Elif &amp; Yunus — Anı Defteri</title>
+<style>*{box-sizing:border-box}body{margin:0;background:#FAF6EE;color:#24312A;font:18px/1.6 Georgia,'Times New Roman',serif}main{max-width:860px;margin:0 auto;padding:56px 20px 72px}header{margin:0 0 44px;text-align:center}.eyebrow,.stats,footer,.end{font-family:system-ui,sans-serif}.eyebrow{margin:0;color:#7A5B2F;font-size:13px;letter-spacing:.28em;text-transform:uppercase}h1{margin:10px 0 6px;font-weight:400;font-size:54px;line-height:1.1}h1 i{padding:0 .18em;color:#A88447;font-size:.6em}.sub{margin:0;color:#56635B;font-style:italic}.stats{margin:14px 0 0;color:#7A5B2F;font-size:13px;letter-spacing:.14em;text-transform:uppercase}article{margin:0 0 18px;padding:22px;background:#fff;border:1px solid #E6DCCB;border-radius:16px;break-inside:avoid}.ph{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.ph a{display:block}.ph img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;background:#F1EADF}.ph.one{display:block;text-align:center}.ph.one a{display:inline-block;max-width:100%}.ph.one img{width:auto;max-width:100%;height:auto;max-height:640px;aspect-ratio:auto}.msg{margin:0;font-size:20px;white-space:pre-line;overflow-wrap:anywhere}.ph+.msg{margin-top:16px}footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;margin-top:14px;color:#7A5B2F;font-size:13px;line-height:1.4}.end{margin:40px 0 0;text-align:center;color:#6B756F;font-size:12.5px}@media (max-width:560px){main{padding:40px 14px 56px}h1{font-size:44px}article{padding:16px}.ph{grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:6px}.msg{font-size:18px}}@media print{body{background:#fff}main{padding:0}article{border-color:#ddd}}</style></head>
+<body><main><header><p class="eyebrow">Anı Defteri</p><h1>Elif<i>&amp;</i>Yunus</h1><p class="sub">15 Kasım 2026 · Nazar Düğün Salonu</p><p class="stats">${nNotes} dilek · ${nPhotos} fotoğraf</p></header>
+${items}
+<p class="end">${esc(fmtFull.format(Date.now()))} tarihinde indirildi. Tam boyutu görmek için fotoğrafa tıklayın.</p>
+</main></body></html>`;
+}
+// Seçilen klasöre doğrudan yazar (bilgisayardaki Chrome/Edge). Yollar "fotograflar/x.jpg" biçimindedir.
+async function folderTarget() {
+  const picked = await window.showDirectoryPicker({ id: 'elif-yunus-arsiv', mode: 'readwrite', startIn: 'documents' });
+  const root = picked.name === BOOK_DIR ? picked : await picked.getDirectoryHandle(BOOK_DIR, { create: true });
+  const dirs = new Map();
+  const locate = async path => {
+    const parts = path.split('/'), file = parts.pop(), key = parts.join('/');
+    if (!dirs.has(key)) dirs.set(key, parts.reduce(async (d, name) => (await d).getDirectoryHandle(name, { create: true }), Promise.resolve(root)));
+    return [await dirs.get(key), file];
+  };
+  return {
+    async has(path) {
+      try { const [d, f] = await locate(path); return (await (await d.getFileHandle(f)).getFile()).size > 0; } catch { return false; }
+    },
+    async write(path, data) {
+      const [d, f] = await locate(path);
+      const w = await (await d.getFileHandle(f, { create: true })).createWritable();
+      try { await w.write(data); await w.close(); } catch (e) { w.abort().catch(() => {}); throw e; }
+    },
+  };
+}
+// Klasöre: daha önce inmiş fotoğraflar atlanır, böylece sonradan yalnızca yeniler iner.
+async function bookToFolder(folder, photos, extras) {
+  let done = 0, skipped = 0, failed = 0;
+  await pool(photos, 4, async r => {
+    const name = photoFileName(r);
+    try {
+      for (const [dir, url] of [['fotograflar', store.largeUrl(r)], ['kucuk', store.thumbUrl(r)]]) {
+        if (await folder.has(`${dir}/${name}`)) { if (dir === 'fotograflar') skipped++; continue; }
+        await folder.write(`${dir}/${name}`, await fetchBlob(url));
+      }
+    } catch (e) { failed++; console.warn('Kaydedilemedi:', r, e); }
+    arcLog(`Fotoğraflar kaydediliyor: ${++done} / ${photos.length}`);
+  });
+  for (const [path, text] of Object.entries(extras)) await folder.write(path, new Blob([text], { type: path.endsWith('.html') ? 'text/html' : 'text/csv' }));
+  return { skipped, failed };
+}
+// ZIP'e: küçük resimler ve defter ilk parçada (tek başına açılınca da her şey görünür), tam boylar 100'erli parçalarda.
+async function bookToZip(photos, extras) {
+  const Z = await jszip(), PART = 100, parts = Math.max(1, Math.ceil(photos.length / PART));
+  let done = 0, failed = 0;
+  const add = async (dir, path, url) => {
+    try { dir.file(path, await fetchBlob(url), { binary: true }); return true; } catch (e) { console.warn('İndirilemedi:', path, e); return false; }
+  };
+  for (let p = 0; p < parts; p++) {
+    const zip = new Z(), root = zip.folder(BOOK_DIR);
+    if (p === 0) {
+      Object.entries(extras).forEach(([path, text]) => root.file(path, text));
+      arcLog('Küçük resimler hazırlanıyor…');
+      await pool(photos, 6, r => add(root, `kucuk/${photoFileName(r)}`, store.thumbUrl(r)));
+    }
+    await pool(photos.slice(p * PART, (p + 1) * PART), 4, async r => {
+      if (!(await add(root, `fotograflar/${photoFileName(r)}`, store.largeUrl(r)))) failed++;
+      arcLog(`Fotoğraflar indiriliyor: ${++done} / ${photos.length}` + (parts > 1 ? ` · parça ${p + 1}/${parts}` : ''));
+    });
+    arcLog(`ZIP dosyası hazırlanıyor${parts > 1 ? ` (parça ${p + 1}/${parts})` : ''}…`);
+    downloadBlob(await zip.generateAsync({ type: 'blob', compression: 'STORE' }), `${BOOK_DIR}${parts > 1 ? '-' + (p + 1) : ''}.zip`);
+    if (p < parts - 1) await sleep(1200);
+  }
+  return { parts, failed };
+}
+async function downloadBook() {
+  // Klasör seçimi tıklamanın hemen ardından açılmalı (tarayıcı kuralı); desteklenmiyorsa ZIP iner.
+  let folder = null;
+  if (canPickFolder()) {
+    try { folder = await folderTarget(); }
+    catch (e) {
+      if (e.name === 'AbortError') { arcLog('Klasör seçilmedi; indirme iptal edildi.'); return; }
+      console.warn('Klasöre yazılamıyor, ZIP iner:', e);
+    }
+  }
+  arcLog('Dilek ve fotoğraf listesi alınıyor…');
+  const [notes, photos] = await Promise.all([store.all('notlar'), store.all('fotograflar')]);
+  if (!notes.length && !photos.length) { arcLog('Henüz anı ya da dilek yok.'); return; }
+  const extras = {
+    'ani-defteri.html': bookHtml(bookEntries(notes, photos), notes.length, photos.length),
+    'dilekler.csv': notesCsv(notes),
+    'fotograflar.csv': photosCsv(photos),
+  };
+  const fail = n => (n ? ` ${n} fotoğraf alınamadı; tekrar indirirseniz eksikler tamamlanır.` : '');
+  if (folder) {
+    const { skipped, failed } = await bookToFolder(folder, photos, extras);
+    arcLog(`Tamamlandı: ${notes.length} dilek, ${photos.length} fotoğraf${skipped ? ` (${skipped} fotoğraf zaten vardı)` : ''}. “${BOOK_DIR}” klasöründeki ani-defteri.html dosyasını açın.${fail(failed)}`);
+  } else {
+    const { parts, failed } = await bookToZip(photos, extras);
+    arcLog(`Tamamlandı: ZIP’i açıp ani-defteri.html dosyasını açın.${parts > 1 ? ` ${parts} parça indi; hepsini aynı yere çıkarın.` : ''}${fail(failed)}`);
+  }
+}
+
 function initArchive() {
+  $('#arc-book-hint').textContent = 'Her dilek, birlikte gönderilen fotoğraflarıyla aynı sayfada. '
+    + (canPickFolder() ? 'Kaydedeceğiniz klasörü seçin; sonradan tekrar indirirseniz yalnızca yeni fotoğraflar iner.'
+      : 'ZIP olarak iner; 100’den fazla fotoğraf varsa birkaç parça halinde.');
+  $('#arc-book-btn').addEventListener('click', () => runArchive(downloadBook));
   $('#arc-notes-btn').addEventListener('click', () => runArchive(async () => {
     arcLog('Dilekler hazırlanıyor…');
     const [Z, notes, photos] = await Promise.all([jszip(), store.all('notlar'), store.all('fotograflar')]);
     const zip = new Z();
     zip.file('dilekler.html', notesHtml(notes));
-    // "Dilek no" ile fotoğraflar, birlikte gönderildikleri dileğe bağlanır.
-    zip.file('dilekler.csv', toCsv([['Dilek no', 'Tarih', 'İsim', 'Dilek', 'Fotoğraf sayısı'],
-      ...notes.map(r => [r.id, fmtFull.format(Date.parse(r.created_at)), r.isim, r.mesaj, r.fotograflar?.length || 0])]));
-    zip.file('fotograflar.csv', toCsv([['Fotoğraf no', 'Tarih', 'Paylaşan', 'Dosya adı', 'Genişlik', 'Yükseklik', 'Dilek no'],
-      ...photos.map(r => [r.id, fmtFull.format(Date.parse(r.created_at)), r.isim || '', photoFileName(r), r.genislik ?? '', r.yukseklik ?? '', r.not_id ?? ''])]));
+    zip.file('dilekler.csv', notesCsv(notes));
+    zip.file('fotograflar.csv', photosCsv(photos));
     downloadBlob(await zip.generateAsync({ type: 'blob' }), 'elif-yunus-dilekler.zip');
     arcLog(`${notes.length} dilek indirildi (dilekler.html, dilekler.csv, fotograflar.csv).`);
   }));
