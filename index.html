@@ -220,6 +220,8 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 .cal { margin-top: 30px; text-align: center; }
 .cal p { margin: 0 0 14px; font: italic 400 20px/1.4 var(--serif); color: var(--ink-2); }
 .cal-btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.cal .cal-alt { margin: 14px 0 0; font: 400 13.5px/1.6 var(--sans); color: var(--ink-3); }
+.cal-alt a { color: var(--gold-deep); text-underline-offset: 3px; white-space: nowrap; }
 
 /* Anı & dilek formu */
 .composer { padding: 26px 22px 22px; }
@@ -661,9 +663,9 @@ textarea.input { min-height: 132px; resize: vertical; }
       <div class="cal rv">
         <p>Bu tarihi takviminize ekleyin</p>
         <div class="cal-btns">
-          <a class="btn btn-dark btn-sm" id="cal-google" href="#" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg>Google Takvim</a>
-          <a class="btn btn-line btn-sm" href="dugun.ics">Apple · Diğer</a>
+          <a class="btn btn-dark btn-sm" id="cal-add" href="dugun.ics"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg>Takvime Ekle</a>
         </div>
+        <p class="cal-alt">Başka bir takvim mi kullanıyorsunuz? <a id="cal-google" href="#" target="_blank" rel="noopener">Google Takvim</a> · <a href="dugun.ics">Apple, Outlook (.ics)</a></p>
       </div>
     </div>
   </section>
@@ -1102,7 +1104,12 @@ function initLinks() {
     location: 'Nazar Düğün Salonu, Sarıcalı, Güven Sk. No:1, 55500 Çarşamba/Samsun',
     details: 'Gelin alma: 18.00 — Kirazlıkçay Mh. Zülal Işıl Çörtük Sk. Apt: 4\nDüğün: 19.00 — Nazar Düğün Salonu\n\n' + location.origin + location.pathname,
   });
-  $('#cal-google').href = 'https://calendar.google.com/calendar/render?' + q;
+  const google = 'https://calendar.google.com/calendar/render?' + q;
+  $('#cal-google').href = google;
+  // "Takvime Ekle" cihaza göre: iPhone/iPad/Mac'te .ics dosyası Takvim uygulamasının "Ekle" ekranını doğrudan açar.
+  // Android'de web'in telefon takvimine yazmasının standart yolu yok; Google Takvim'in doldurulmuş "Kaydet"
+  // ekranı açılır ve etkinlik telefondaki takvimle eşitlenir. Bilgisayarda .ics, takvim programında açılır.
+  if (/Android/i.test(navigator.userAgent)) Object.assign($('#cal-add'), { href: google, target: '_blank', rel: 'noopener' });
 }
 
 /* ---------- İsim: tüm alanlarda ortak, bu cihazda hatırlanır ---------- */
