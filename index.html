@@ -349,6 +349,15 @@ textarea.input { min-height: 132px; resize: vertical; }
 .arc-stat { padding: 16px 10px; border-radius: 14px; background: var(--ivory); border: 1px solid var(--line); text-align: center; }
 .arc-stat b { display: block; font: 500 34px/1 var(--serif); font-variant-numeric: lining-nums; }
 .arc-stat span { font: 500 10.5px/1 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3); }
+.arc-usage { margin: -6px 0 20px; padding: 14px 16px; border-radius: 14px; background: var(--ivory); border: 1px solid var(--line); --bar: #4E7A5C; }
+.arc-usage.warn { --bar: #B7791F; border-color: #E5C98F; }
+.arc-usage.full { --bar: #B4533E; border-color: #E2AFA3; background: #FBF1EE; }
+.arc-usage-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; font: 500 11px/1.2 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); }
+.arc-usage-head b { font: 600 15px/1.2 var(--sans); letter-spacing: 0; text-transform: none; color: var(--ink); font-variant-numeric: tabular-nums; }
+.arc-usage-bar { height: 6px; border-radius: 6px; background: rgba(122, 91, 47, .14); overflow: hidden; }
+.arc-usage-bar i { display: block; height: 100%; width: 0; border-radius: 6px; background: var(--bar); transition: width .6s var(--ease); }
+.arc-usage-note { margin: 8px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--ink-2); }
+.arc-usage.full .arc-usage-note { color: #8E3A2A; }
 .arc-log { min-height: 1.5em; margin: 14px 0 0; font-size: 14px; color: var(--ink-2); text-align: center; }
 .arc-hint { margin: 10px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--ink-3); text-align: center; }
 .arc-sep { margin: 24px 0 10px; text-align: center; font: 500 11px/1 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3); }
@@ -777,6 +786,11 @@ textarea.input { min-height: 132px; resize: vertical; }
         <div class="arc-stat"><b id="arc-photos">–</b><span>Fotoğraf</span></div>
         <div class="arc-stat"><b id="arc-notes">–</b><span>Dilek</span></div>
       </div>
+      <div class="arc-usage" id="arc-usage">
+        <div class="arc-usage-head"><span>Fotoğraf alanı</span><b id="arc-usage-text">–</b></div>
+        <div class="arc-usage-bar"><i id="arc-usage-bar"></i></div>
+        <p class="arc-usage-note" id="arc-usage-note">Ölçülüyor…</p>
+      </div>
       <button class="btn btn-gold btn-block" id="arc-book-btn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Anı Defterini İndir</button>
       <p class="arc-hint" id="arc-book-hint">Her dilek, birlikte gönderilen fotoğraflarıyla aynı sayfada.</p>
       <p class="arc-sep">ya da ayrı ayrı indirin</p>
@@ -848,6 +862,7 @@ const CONFIG = {
   thumbSize: 400,         // galerideki kare küçük sürüm (piksel)
   largeQuality: 0.82,
   thumbQuality: 0.72,
+  storageLimitGB: 1,      // Supabase fotoğraf alanı: ücretsiz plan 1 GB (Pro plana geçerseniz 100 yapın)
 
   // Arka plan müziği: "Davetiyeyi Aç"a dokununca başlar, sağ üstteki düğmeyle kapatılır. Hiç istemezseniz '' yapın.
   // Parça: Chopin – Nocturne Op. 9 No. 2 (Peter Johnston kaydı, CC0 / telifsiz, Wikimedia Commons)
@@ -1173,6 +1188,21 @@ function liveStore() {
       }
       return deleteRows('fotograflar', rows.map(r => r.id));
     },
+    // Depodaki dosyaların toplam boyutu (yalnızca yönetici listeleyebilir; misafire boş döner)
+    async storageUsage() {
+      await ready;
+      let bytes = 0, files = 0;
+      for (const dir of ['buyuk', 'kucuk']) {
+        for (let offset = 0; ;) {
+          const { data, error } = await sb.storage.from(CONFIG.bucket).list(dir, { limit: 1000, offset });
+          if (error) throw error;
+          if (!data?.length) break;
+          for (const o of data) { bytes += Number(o.metadata?.size) || 0; if (dir === 'buyuk' && o.id) files++; }
+          offset += data.length;
+        }
+      }
+      return { bytes, files };
+    },
     deleteNotes: ids => deleteRows('notlar', ids),
     updateNote: (id, fields) => updateRow('notlar', id, fields),
     updatePhoto: (id, fields) => updateRow('fotograflar', id, fields),
@@ -1244,6 +1274,8 @@ function previewStore() {
     thumbUrl: r => r.kucuk,
     largeUrl: r => r.buyuk,
     async count(table) { await photosReady; return (table === 'notlar' ? notes : photos).length; },
+    // Önizlemede gerçek telefon fotoğraflarının ortalamasıyla (≈ 420 KB) tahmin edilir
+    async storageUsage() { await photosReady; return { bytes: photos.length * 420e3, files: photos.length }; },
     async all(table) { await photosReady; return [...(table === 'notlar' ? notes : photos)].sort((a, b) => a.id - b.id).map(view(table)); },
     async byIds(table, ids) { return (table === 'notlar' ? notes : photos).filter(r => ids.includes(r.id)).map(view(table)); },
     // Önizlemede herhangi bir e-posta/şifre kabul edilir.
@@ -1986,8 +2018,31 @@ let JSZipP = null, arcBusy = false;
 const jszip = () => (JSZipP || (JSZipP = loadScript(JSZIP_JS).then(() => window.JSZip)));
 const arcLog = t => { $('#arc-log').textContent = t; };
 // Yönetim ekranında "Arşiv" sekmesi açılınca güncel sayıları gösterir.
+// Fotoğraf alanı göstergesi: dolmaya yaklaşınca ne yapılacağını söyler. Doluluk oranını döndürür.
+const fmtSize = b => (b >= 1024 ** 3 ? `${(b / 1024 ** 3).toLocaleString('tr-TR', { maximumFractionDigits: 2 })} GB` : `${Math.round(b / 1024 ** 2)} MB`);
+async function refreshUsage() {
+  const box = $('#arc-usage'), limit = CONFIG.storageLimitGB * 1024 ** 3;
+  try {
+    const { bytes, files } = await store.storageUsage();
+    const pct = bytes / limit, per = files >= 20 ? bytes / files : 420e3;
+    const left = Math.max(0, Math.floor((limit - bytes) / per)).toLocaleString('tr-TR');
+    $('#arc-usage-text').textContent = `${fmtSize(bytes)} / ${CONFIG.storageLimitGB} GB · %${Math.round(pct * 100)}`;
+    $('#arc-usage-bar').style.width = `${Math.min(100, pct * 100)}%`;
+    box.className = 'arc-usage' + (pct >= 0.9 ? ' full' : pct >= 0.7 ? ' warn' : '');
+    $('#arc-usage-note').textContent = pct >= 0.7
+      ? `Alan dolmak üzere (yaklaşık ${left} fotoğraf daha sığar). Supabase panelinde Organization › Billing’den Pro plana geçince alan hemen 100 GB olur; misafirler hiçbir şey fark etmez.`
+      : `Yaklaşık ${left} fotoğraf daha sığar.`;
+    return pct;
+  } catch (e) {
+    console.warn('Alan ölçülemedi:', e);
+    $('#arc-usage-text').textContent = '–';
+    $('#arc-usage-note').textContent = 'Alan şu anda ölçülemedi: ' + friendlyError(e);
+    return 0;
+  }
+}
 async function refreshArchiveStats() {
   showCardPreview();
+  refreshUsage();
   $('#arc-photos').textContent = '…'; $('#arc-notes').textContent = '…';
   if (!arcBusy) arcLog(store.live ? '' : 'Önizleme modundasınız: yalnızca örnek veriler indirilir.');
   try {
@@ -2568,6 +2623,8 @@ async function loadAdminData() {
     admin.selP.clear(); admin.selN.clear();
     admin.loaded = true;
     renderAdmin();
+    // Yönetim ekranı her açıldığında: alan %80'i geçtiyse hemen uyar
+    refreshUsage().then(pct => { if (pct >= 0.8) toast(`Fotoğraf alanı %${Math.round(pct * 100)} dolu. Ayrıntı ve çözüm Arşiv sekmesinde.`, 'err'); });
   } catch (e) {
     console.warn('Yönetim listesi alınamadı:', e);
     $('#adm-grid').replaceChildren(emptyNote('Liste alınamadı. Yenile düğmesiyle tekrar deneyin.'));
