@@ -2142,7 +2142,8 @@ async function refreshUsage() {
   const box = $('#arc-usage'), limit = CONFIG.storageLimitGB * 1024 ** 3;
   try {
     const { bytes, files } = await store.storageUsage();
-    const pct = bytes / limit, per = files >= 20 ? bytes / files : 420e3;
+    // Kalan fotoğraf tahmini: 100 fotoğraf birikene kadar gerçek telefon fotoğraflarının ortalaması (~420 KB)
+    const pct = bytes / limit, per = files >= 100 ? bytes / files : 420e3;
     const left = Math.max(0, Math.floor((limit - bytes) / per)).toLocaleString('tr-TR');
     $('#arc-usage-text').textContent = `${fmtSize(bytes)} / ${CONFIG.storageLimitGB} GB · %${Math.round(pct * 100)}`;
     $('#arc-usage-bar').style.width = `${Math.min(100, pct * 100)}%`;
