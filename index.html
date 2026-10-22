@@ -222,6 +222,8 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 .cal-btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 .cal .cal-alt { margin: 14px 0 0; font: 400 13.5px/1.6 var(--sans); color: var(--ink-3); }
 .cal-alt a { color: var(--gold-deep); text-underline-offset: 3px; white-space: nowrap; }
+.cal-alt b { font-weight: 600; color: var(--ink-2); }
+.cal #cal-android { max-width: 330px; margin: 12px auto 0; color: var(--ink-2); }
 
 /* Anı & dilek formu */
 .composer { padding: 26px 22px 22px; }
@@ -665,6 +667,7 @@ textarea.input { min-height: 132px; resize: vertical; }
         <div class="cal-btns">
           <a class="btn btn-dark btn-sm" id="cal-add" href="dugun.ics"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg>Takvime Ekle</a>
         </div>
+        <p class="cal-alt" id="cal-android" hidden>Dosya inince ekranın altındaki <b>Aç</b>’a dokunun; takvim uygulamanız açılır, <b>Kaydet</b> demeniz yeterli.</p>
         <p class="cal-alt">Başka bir takvim mi kullanıyorsunuz? <a id="cal-google" href="#" target="_blank" rel="noopener">Google Takvim</a> · <a href="dugun.ics">Apple, Outlook (.ics)</a></p>
       </div>
     </div>
@@ -1106,10 +1109,11 @@ function initLinks() {
   });
   const google = 'https://calendar.google.com/calendar/render?' + q;
   $('#cal-google').href = google;
-  // "Takvime Ekle" cihaza göre: iPhone/iPad/Mac'te .ics dosyası Takvim uygulamasının "Ekle" ekranını doğrudan açar.
-  // Android'de web'in telefon takvimine yazmasının standart yolu yok; Google Takvim'in doldurulmuş "Kaydet"
-  // ekranı açılır ve etkinlik telefondaki takvimle eşitlenir. Bilgisayarda .ics, takvim programında açılır.
-  if (/Android/i.test(navigator.userAgent)) Object.assign($('#cal-add'), { href: google, target: '_blank', rel: 'noopener' });
+  // "Takvime Ekle" her cihazda .ics dosyasını açar; böylece telefonun kendi takvim uygulaması kullanılır:
+  // iPhone/iPad/Mac'te Takvim'in "Ekle" ekranı doğrudan gelir. Android'de tarayıcılar takvim uygulamasını
+  // doğrudan açamaz (Chrome yalnızca "BROWSABLE" ekranları açabilir); dosya iner ve "Aç"a dokununca
+  // varsayılan takvim (Google/Samsung Takvim) etkinliği gösterip kaydetmeyi sorar. Bunun için kısa bir not gösterilir.
+  $('#cal-android').hidden = !/Android/i.test(navigator.userAgent);
 }
 
 /* ---------- İsim: tüm alanlarda ortak, bu cihazda hatırlanır ---------- */
