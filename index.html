@@ -20,7 +20,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Elif &amp; Yunus · Evleniyoruz · 15 Kasım 2026">
 <meta name="twitter:card" content="summary_large_image">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' blob: https://*.supabase.co; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' blob: https://*.supabase.co; media-src 'self' blob: https://*.supabase.co; object-src 'none'; base-uri 'none'; form-action 'none'">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Ccircle%20cx='32'%20cy='32'%20r='32'%20fill='%231C2A23'/%3E%3Ccircle%20cx='32'%20cy='32'%20r='27'%20fill='none'%20stroke='%23C9A464'%20stroke-width='1.5'/%3E%3Ctext%20x='32'%20y='40'%20text-anchor='middle'%20font-family='Georgia,serif'%20font-style='italic'%20font-size='21'%20fill='%23E2C994'%3EE%26amp;Y%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,6 +39,11 @@
     if (/^data:image\/svg\+xml,/.test(g.i || '')) document.querySelector('link[rel="icon"]').href = g.i;
     if (/^https:\/\/fonts\.googleapis\.com\/css2\?[\w+:,;@&=.-]+$/.test(g.f || '')) {
       l = document.createElement('link'); l.rel = 'stylesheet'; l.href = g.f; l.setAttribute('data-look-fonts', '');
+      document.head.appendChild(l);
+    }
+    // Kapak fotoğrafı sayfanın geri kalanından önce inmeye başlasın
+    if (/^https:\/\/[a-z0-9-]+\.supabase\.co\/storage\/v1\/object\/public\/site\/kapak\/[0-9a-f-]{36}\.jpg$/.test(g.p || '')) {
+      l = document.createElement('link'); l.rel = 'preload'; l.as = 'image'; l.href = g.p; l.setAttribute('fetchpriority', 'high');
       document.head.appendChild(l);
     }
   } catch (e) { /* önbellek yok ya da okunamadı: varsayılan görünüm */ }
@@ -198,6 +203,13 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 /* Yönetim › Görünüm › Kapak ve süslemeler: kapatılan süsler */
 .no-branch .branch, .no-sparks .sparks, .no-frame .hero-frame { display: none; }
 :root.no-texture { --noise: none; --noise-light: none; }
+/* Kapak fotoğrafı: renk geçişinin üstünde, süslerin altında; yazılar okunsun diye üstü temanın gece rengiyle karartılır */
+.hero-photo { display: none; }
+.kapak-foto .hero-photo { display: block; position: absolute; inset: 0; z-index: -2; background: var(--hero-2) var(--kapak-foto) 50% var(--kapak-odak, 50%) / cover no-repeat; }
+.kapak-foto .hero-photo::after { content: ""; position: absolute; inset: 0;
+  background:
+    radial-gradient(120% 70% at 50% 32%, rgba(var(--gold-light-rgb), .1), transparent 62%),
+    linear-gradient(180deg, rgba(var(--night-rgb), calc(var(--kapak-karartma, .55) + .08)) 0%, rgba(var(--night-rgb), calc(var(--kapak-karartma, .55) - .06)) 42%, rgba(var(--night-rgb), calc(var(--kapak-karartma, .55) + .14)) 100%); }
 
 /* Kapak giriş animasyonu */
 .in-1, .in-2, .in-3, .in-4, .in-5 { animation: enter 1.3s var(--ease) both; }
@@ -555,6 +567,7 @@ textarea.input { min-height: 132px; resize: vertical; }
 .lk-pv-hero, .lk-pv-card { display: grid; align-content: center; justify-items: center; gap: 3px; min-height: 132px; padding: 10px 8px; border-radius: 14px; text-align: center; overflow: hidden; }
 .lk-pv-hero { color: var(--cream); background: radial-gradient(120% 70% at 50% 32%, rgba(var(--gold-light-rgb), .17), transparent 62%), linear-gradient(180deg, var(--hero-1) 0%, var(--hero-2) 55%, var(--hero-3) 100%); }
 .lk-pv-card { background: var(--paper); border: 1px solid var(--line); }
+.kapak-foto .lk-pv-hero { background: linear-gradient(180deg, rgba(var(--night-rgb), calc(var(--kapak-karartma, .55) + .08)), rgba(var(--night-rgb), calc(var(--kapak-karartma, .55) - .06)) 42%, rgba(var(--night-rgb), calc(var(--kapak-karartma, .55) + .14))), var(--kapak-foto) 50% var(--kapak-odak, 50%) / cover no-repeat, var(--hero-2); }
 .lk-pv-hero p, .lk-pv-card p { margin: 0; max-width: 100%; }
 .lk-pv-eyebrow { font: 500 calc(7.5px * var(--fs-sans))/1.2 var(--sans); letter-spacing: .32em; text-transform: uppercase; color: var(--gold-light); }
 .lk-pv-names { font: 400 calc(27px * var(--fs-el))/1.15 var(--script); }
@@ -604,6 +617,15 @@ textarea.input { min-height: 132px; resize: vertical; }
 .lk-range output { font: 600 14px/1 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: var(--gold-deep); font-variant-numeric: tabular-nums; }
 .lk-range input { width: 100%; height: 34px; margin: 0; accent-color: var(--gold-deep); }
 .lk-range small { font-size: calc(12.5px * var(--fs-sans)); color: var(--ink-3); }
+.lk-sw-degrade { background: radial-gradient(120% 70% at 50% 30%, rgba(var(--gold-light-rgb), .35), transparent 62%), linear-gradient(180deg, var(--hero-1), var(--hero-2) 55%, var(--hero-3)); }
+.lk-sw-foto { background: var(--lk-foto, linear-gradient(135deg, #D9C9AE, #8E9C90 55%, #4B5B52)) 50% 50% / cover no-repeat; }
+.lk-note { margin: 10px 2px 0; font-size: calc(12.5px * var(--fs-sans)); line-height: 1.5; color: var(--ink-3); }
+.lk-media .lk-note { margin: 8px 0 0; }
+.lk-media { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 14px; align-items: center; margin: 12px 0 4px; }
+.lk-thumb { aspect-ratio: 3 / 4; border-radius: 10px; background: var(--sand) 50% 50% / cover no-repeat; border: 1px solid var(--line); box-shadow: 0 8px 18px -12px rgba(var(--forest-rgb), .5); }
+.lk-media .btn + .btn { margin-top: 8px; }
+.lk-track { display: flex; align-items: center; gap: 10px; margin: 6px 0 12px; padding: 12px 14px; border-radius: 12px; background: var(--ivory); border: 1px solid var(--line); color: var(--ink); font-size: calc(14.5px * var(--fs-sans)); line-height: 1.35; overflow-wrap: anywhere; }
+.lk-track .ic { color: var(--gold-deep); }
 .lk-actions { display: grid; gap: 10px; }
 .lk-state { margin: 0; text-align: center; font-size: calc(13.5px * var(--fs-sans)); color: var(--ink-3); }
 .lk-state.dirty { color: #8A5A12; font-weight: 500; }
@@ -728,6 +750,7 @@ textarea.input { min-height: 132px; resize: vertical; }
 
 <!-- ===== Kapak ===== -->
 <header class="hero" id="top">
+  <div class="hero-photo" aria-hidden="true"></div>
   <div class="hero-frame" aria-hidden="true"></div>
   <svg class="branch tl" aria-hidden="true"><use href="#branch"/></svg>
   <svg class="branch br" aria-hidden="true"><use href="#branch"/></svg>
@@ -1105,11 +1128,41 @@ textarea.input { min-height: 132px; resize: vertical; }
           <div class="lk-range"><span><label for="lk-olcek-el">İsimler ve başlıklar</label><output id="lk-olcek-el-out" for="lk-olcek-el"></output></span><input type="range" id="lk-olcek-el" min="85" max="115" step="5" aria-describedby="lk-olcek-el-not"><small id="lk-olcek-el-not">El yazısıyla yazılanlar; isimler ekrana sığmazsa kendiliğinden küçülür</small></div>
         </fieldset>
         <fieldset class="set-card">
+          <legend>Kapak arka planı</legend>
+          <div class="lk-grid" role="radiogroup" aria-label="Kapak arka planı">
+            <label class="lk-opt"><input type="radio" name="lk-kapak" value="degrade"><span><i class="lk-sw lk-sw-degrade"></i>Renk geçişi</span></label>
+            <label class="lk-opt"><input type="radio" name="lk-kapak" value="foto"><span><i class="lk-sw lk-sw-foto" id="lk-sw-foto"></i>Fotoğraf</span></label>
+          </div>
+          <div id="lk-foto-alan" hidden>
+            <div class="lk-media">
+              <div class="lk-thumb" id="lk-foto-onizleme"></div>
+              <div>
+                <button class="btn btn-dark btn-sm btn-block" type="button" id="lk-foto-sec"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg>Fotoğraf Seç</button>
+                <p class="lk-note">Telefonla çekilmiş bir fotoğraf yeterli; yüklenmeden önce küçültülür. Kapak telefonda dikey, bilgisayarda yatay görünür; ikisine de uyan bir fotoğraf seçin.</p>
+              </div>
+            </div>
+            <div class="lk-range"><span><label for="lk-karartma">Karartma</label><output id="lk-karartma-out" for="lk-karartma"></output></span><input type="range" id="lk-karartma" min="30" max="85" step="5" aria-describedby="lk-karartma-not"><small id="lk-karartma-not">Fotoğraf koyulaştıkça kapaktaki yazılar daha rahat okunur</small></div>
+            <div class="lk-range"><span><label for="lk-odak">Odak</label><output id="lk-odak-out" for="lk-odak"></output></span><input type="range" id="lk-odak" min="0" max="100" step="5" aria-describedby="lk-odak-not"><small id="lk-odak-not">Fotoğrafın hangi kısmı görünsün: üstü, ortası ya da altı</small></div>
+          </div>
+          <input type="file" id="lk-foto-dosya" class="sr-only" accept="image/*" tabindex="-1" aria-hidden="true">
+        </fieldset>
+        <fieldset class="set-card">
           <legend>Kapak ve süslemeler</legend>
           <label class="set-switch"><span>Kapaktaki dal süslemeleri</span><input type="checkbox" role="switch" id="lk-dallar"></label>
           <label class="set-switch"><span>Kapakta yükselen ışıltılar</span><input type="checkbox" role="switch" id="lk-isiltilar"></label>
           <label class="set-switch"><span>Kapaktaki ince çerçeve</span><input type="checkbox" role="switch" id="lk-cerceve"></label>
           <label class="set-switch"><span>Kâğıt dokusu</span><input type="checkbox" role="switch" id="lk-doku"></label>
+        </fieldset>
+        <fieldset class="set-card">
+          <legend>Arka plan müziği</legend>
+          <p class="lk-track"><svg class="ic" aria-hidden="true"><use href="#i-music"/></svg><span id="lk-muzik-ad"></span></p>
+          <div class="arc-more">
+            <button class="btn btn-line btn-sm" type="button" id="lk-muzik-dinle" aria-pressed="false">Dinle</button>
+            <button class="btn btn-dark btn-sm" type="button" id="lk-muzik-sec">Müzik Yükle</button>
+          </div>
+          <button class="ic-reset lk-default" type="button" id="lk-muzik-varsayilan" hidden>Varsayılan müziğe dön</button>
+          <p class="lk-note">MP3 ya da M4A, en çok 15 MB. Müzik, misafir “Davetiyeyi Aç”a dokununca başlar; tamamen kapatmak için Ayarlar sekmesini kullanın.</p>
+          <input type="file" id="lk-muzik-dosya" class="sr-only" accept=".mp3,.m4a,audio/mpeg,audio/mp4,audio/x-m4a" tabindex="-1" aria-hidden="true">
         </fieldset>
         <div class="lk-actions">
           <p class="lk-state" id="lk-state" aria-live="polite"></p>
@@ -1651,10 +1704,19 @@ const FONTS = Object.fromEntries(Object.entries({
     ['josefin', 'Josefin Sans', .95], ['nunito-sans', 'Nunito Sans', .97], ['quicksand', 'Quicksand', .98], ['outfit', 'Outfit', .97]],
 }).map(([g, list]) => [g, list.map(([k, ad, o]) => ({ k, ad, o }))]));
 const fontOf = (g, k) => FONTS[g].find(f => f.k === k) || FONTS[g][0];
-const LOOK_DEFAULT = Object.freeze({ tema: 'zumrut', koyu: '', vurgu: '', zemin: '', el: 'great-vibes', serif: 'cormorant', sans: 'jost', olcek: 100, olcek_el: 100, dallar: true, isiltilar: true, cerceve: true, doku: true });
-const LOOK_SCALES = { olcek: [90, 115], olcek_el: [85, 115] };
+const LOOK_DEFAULT = Object.freeze({
+  tema: 'zumrut', koyu: '', vurgu: '', zemin: '', el: 'great-vibes', serif: 'cormorant', sans: 'jost', olcek: 100, olcek_el: 100,
+  dallar: true, isiltilar: true, cerceve: true, doku: true,
+  kapak: 'degrade', kapak_foto: '', kapak_karartma: 55, kapak_odak: 50,   // kapak arka planı: renk geçişi ya da fotoğraf
+  muzik_dosya: '', muzik_ad: '',                                            // yüklenen müzik (yoksa sayfanın kendi müziği)
+});
+const LOOK_SCALES = { olcek: [90, 115], olcek_el: [85, 115], kapak_karartma: [30, 85], kapak_odak: [0, 100] };
 const LOOK_SWITCHES = { dallar: 'no-branch', isiltilar: 'no-sparks', cerceve: 'no-frame', doku: 'no-texture' };
-const HEX_RE = /^#[0-9a-f]{6}$/i;
+const LOOK_CLASSES = [...Object.values(LOOK_SWITCHES), 'kapak-foto'];
+const HEX_RE = /^#[0-9a-f]{6}$/i, KAPAK_RE = /^kapak\/[0-9a-f-]{36}\.jpg$/, MUZIK_RE = /^muzik\/[0-9a-f-]{36}\.(mp3|m4a)$/;
+// Yönetimden yüklenen dosyaların ("site" deposu) herkese açık adresi. Önizleme modunda yalnızca bu sekmede yaşarlar.
+const previewFiles = new Map();
+const siteUrl = p => (!p ? '' : LIVE ? `${CONFIG.supabaseUrl.trim().replace(/\/+$/, '')}/storage/v1/object/public/site/${p}` : previewFiles.get(p) || '');
 
 // Veritabanından gelen değer doğrulanır; tanınmayan her şey varsayılana döner.
 function cleanLook(g) {
@@ -1666,6 +1728,10 @@ function cleanLook(g) {
   for (const f of Object.keys(FONTS)) if (FONTS[f].some(x => x.k === g[f])) o[f] = g[f];
   for (const [k, [lo, hi]] of Object.entries(LOOK_SCALES)) { const n = Math.round(Number(g[k]) / 5) * 5; if (n >= lo && n <= hi) o[k] = n; }
   for (const k of Object.keys(LOOK_SWITCHES)) if (typeof g[k] === 'boolean') o[k] = g[k];
+  // Fotoğraf "renk geçişi" seçiliyken de saklanır: geri dönmek için yeniden yüklemek gerekmesin
+  if (KAPAK_RE.test(g.kapak_foto || '')) o.kapak_foto = g.kapak_foto;
+  if (g.kapak === 'foto' && o.kapak_foto) o.kapak = 'foto';
+  if (MUZIK_RE.test(g.muzik_dosya || '')) { o.muzik_dosya = g.muzik_dosya; o.muzik_ad = tidy(g.muzik_ad).replace(/\n/g, ' ').slice(0, 80); }
   return o;
 }
 // Saklanan hâli: yalnızca varsayılandan farklı olanlar
@@ -1755,10 +1821,16 @@ function lookOutput(g) {
     const n = Math.round(f.o * scale[grp] * 1000) / 1000;
     if (n !== 1) v['--fs-' + grp] = String(n);
   }
+  // Kapak fotoğrafı CSS değişkeniyle verilir; böylece <head>'deki betik de sayfa çizilmeden uygulayabilir
+  const foto = g.kapak === 'foto' ? siteUrl(g.kapak_foto) : '';
+  if (foto) Object.assign(v, { '--kapak-foto': `url("${foto}")`, '--kapak-karartma': String(g.kapak_karartma / 100), '--kapak-odak': g.kapak_odak + '%' });
+  const cls = Object.entries(LOOK_SWITCHES).filter(([k]) => !g[k]).map(([, c]) => c);
+  if (foto) cls.push('kapak-foto');
   return {
-    v, c: Object.entries(LOOK_SWITCHES).filter(([k]) => !g[k]).map(([, cls]) => cls).join(' '),
+    v, c: cls.join(' '),
     f: families.length ? `https://fonts.googleapis.com/css2?${families.join('&')}&display=swap` : '',
     t: v['--forest'] || '#1C2A23',
+    p: foto.startsWith('https:') ? foto : '',       // önceden indirilsin diye (blob: önizleme adresleri saklanmaz)
   };
 }
 let lookSaved = { ...LOOK_DEFAULT }, lookDraft = null, lookFontsP = Promise.resolve();
@@ -1769,7 +1841,7 @@ function applyLook() {
   for (const p of [...root.style]) if (p.startsWith('--') && !(p in out.v)) root.style.removeProperty(p);
   for (const [k, val] of Object.entries(out.v)) root.style.setProperty(k, val);
   const on = out.c.split(' ');
-  for (const cls of Object.values(LOOK_SWITCHES)) root.classList.toggle(cls, on.includes(cls));
+  for (const cls of LOOK_CLASSES) root.classList.toggle(cls, on.includes(cls));
   // Seçilen yazı tipleri (varsayılanlar zaten yüklü). Yeni bağlantı yüklenene kadar eskisi durur, böylece
   // yazılar arada yedek yazı tipine düşmez. Masa kartı çizimi bunların yüklenmesini bekler.
   const links = $$('link[data-look-fonts]'), cur = links.at(-1);
@@ -1787,6 +1859,7 @@ function applyLook() {
   $('link[rel="icon"]').href = out.i;
   lookFontsP.then(() => document.fonts?.ready).then(fitNames, () => {});
   fitNames();
+  syncMusicSrc();
   cardP = null; $('#arc-card-prev').replaceChildren();     // masa kartı yeni görünümle yeniden çizilsin
   return out;
 }
@@ -1794,6 +1867,10 @@ function applyLook() {
 function cacheLook() {
   const out = lookOutput(lookSaved);
   out.i = favicon(lookSaved);
+  if (!out.p) {   // önizlemedeki geçici (blob:) adres bir sonraki açılışta işe yaramaz
+    delete out.v['--kapak-foto'];
+    out.c = out.c.split(' ').filter(c => c && c !== 'kapak-foto').join(' ');
+  }
   if (Object.keys(out.v).length || out.c || out.f) ls.set(LOOK_KEY, JSON.stringify(out));
   else { try { localStorage.removeItem(LOOK_KEY); } catch { /* gizli sekme */ } }
 }
@@ -1984,6 +2061,20 @@ function liveStore() {
         return rows[0].veri;
       },
     },
+    // Yönetimden yüklenen kapak fotoğrafı ve müzik ("site" deposu; herkes okur, yalnızca yönetici yükler/siler).
+    // Dosya adları benzersiz olduğu için tarayıcılar bir yıl önbellekte tutabilir.
+    site: {
+      async upload(path, blob, contentType) {
+        await ready;
+        const { error } = await sb.storage.from('site').upload(path, blob, { contentType, cacheControl: '31536000', upsert: false });
+        if (error) throw error;
+      },
+      async remove(paths) {
+        await ready;
+        const { error } = await sb.storage.from('site').remove(paths);
+        if (error) throw error;
+      },
+    },
     // Depodaki dosyaların toplam boyutu (yalnızca yönetici listeleyebilir; misafire boş döner)
     async storageUsage() {
       await ready;
@@ -2077,6 +2168,11 @@ function previewStore() {
     settings: {
       async get() { return { ...ayarlar }; },
       async save(fields) { await sleep(300); ayarlar = { ...ayarlar, ...fields }; record('ayarlar', 1, 'duzenle'); return { ...ayarlar }; },
+    },
+    // Önizlemede yüklenen kapak/müzik yalnızca bu sekmede, tarayıcının belleğinde durur
+    site: {
+      async upload(path, blob) { await sleep(400); previewFiles.set(path, URL.createObjectURL(blob)); },
+      async remove(paths) { for (const p of paths) { const u = previewFiles.get(p); if (u) URL.revokeObjectURL(u); previewFiles.delete(p); } },
     },
     // Önizlemede gerçek telefon fotoğraflarının ortalamasıyla (≈ 420 KB) tahmin edilir
     async storageUsage() { await photosReady; return { bytes: photos.length * 420e3, files: photos.length }; },
@@ -3413,9 +3509,19 @@ function fadeMusic(to, ms, done) {
     if (i >= steps) { clearInterval(music.fade); done?.(); }
   }, 50);
 }
+// Yönetim › Görünüm'den müzik yüklendiyse o çalar, yoksa sayfanın kendi müziği
+const musicSrc = () => siteUrl(currentLook().muzik_dosya) || CONFIG.music;
+// Müzik değiştirildiyse (kaydedildi ya da yönetici deniyor) çalan parça yenisiyle değişir
+function syncMusicSrc() {
+  if (!music.el) return;
+  const src = new URL(musicSrc(), location.href).href;
+  if (music.el.src === src) return;
+  music.el.src = src;
+  if (music.on) music.el.play().catch(() => {});
+}
 function startMusic(auto = false) {
   if (!music.el) {
-    music.el = new Audio(CONFIG.music);
+    music.el = new Audio(musicSrc());
     music.el.loop = true;
   }
   clearInterval(music.fade);
@@ -3570,6 +3676,7 @@ async function submitLogin(e) {
 }
 async function logout() {
   if (!(await dialog({ title: 'Çıkış yapılsın mı?', text: 'Yönetim ekranına tekrar girmek için e-posta ve şifreniz gerekecek.', ok: 'Çıkış Yap' }))) return;
+  if (lookDraft) await cleanupLookFiles(lookSaved);   // kaydedilmeyen yüklemeler, oturum kapanmadan silinir
   setAdminActive(false);
   try { await store.auth.signOut(); } catch (e) { console.warn(e); }
   toast('Çıkış yapıldı.');
@@ -3595,6 +3702,7 @@ function closeAdmin(fromHistory = false) {
   admin.open = false;
   $('#adm').hidden = true;
   lockScroll(false);
+  stopLookAudio();
   renderAdmPill();
   fitSoon();   // panel açıkken pencere boyutu değişmiş olabilir
 }
@@ -3606,7 +3714,7 @@ function switchTab(tab) {
   if (tab === 'archive') refreshArchiveStats();
   if (tab === 'settings') { if (setDirty) renderSettingsStatus(); else fillSettingsForm(); }
   if (tab === 'content' && !icDirty) fillContentForm();
-  if (tab === 'look') { loadPickerFonts(); fillLookForm(); }
+  if (tab === 'look') { loadPickerFonts(); fillLookForm(); } else stopLookAudio();
 }
 
 /* ---------- Yönetim: İçerik sekmesi (sayfa metinleri) ---------- */
@@ -3742,6 +3850,10 @@ function loadPickerFonts() {
   const fams = Object.entries(FONTS).flatMap(([grp, list]) => list.slice(1).map(f => 'family=' + f.ad.replace(/ /g, '+') + (grp === 'el' ? '' : ':wght@500')));
   document.head.append(h('link', { rel: 'stylesheet', id: 'lk-picker-fonts', href: `https://fonts.googleapis.com/css2?${fams.join('&')}&display=swap` }));
 }
+// Formdaki dosyalar (kapak fotoğrafı, müzik) seçilince hemen yüklenir ama kaydedilene kadar taslaktır.
+// Kaydedilmeyen ya da artık kullanılmayan yüklemeler sonradan silinir; depo boşa dolmaz.
+const lookMedia = { kapak_foto: '', muzik_dosya: '', muzik_ad: '' };
+const lookUploads = new Set();
 function readLookForm() {
   const val = n => $(`#lk-form input[name="${n}"]:checked`)?.value;
   return cleanLook({
@@ -3749,6 +3861,8 @@ function readLookForm() {
     el: val('lk-el'), serif: val('lk-serif'), sans: val('lk-sans'),
     olcek: Number($('#lk-olcek').value), olcek_el: Number($('#lk-olcek-el').value),
     ...Object.fromEntries(Object.keys(LOOK_SWITCHES).map(k => [k, $('#lk-' + k).checked])),
+    kapak: val('lk-kapak'), kapak_karartma: Number($('#lk-karartma').value), kapak_odak: Number($('#lk-odak').value),
+    ...lookMedia,
   });
 }
 const setLookColors = p => { $('#lk-koyu').value = p.koyu.toLowerCase(); $('#lk-vurgu').value = p.vurgu.toLowerCase(); $('#lk-zemin').value = p.zemin.toLowerCase(); };
@@ -3759,6 +3873,10 @@ function fillLookForm(g = currentLook()) {
   $('#lk-olcek').value = g.olcek;
   $('#lk-olcek-el').value = g.olcek_el;
   for (const k of Object.keys(LOOK_SWITCHES)) $('#lk-' + k).checked = g[k];
+  $(`#lk-form input[name="lk-kapak"][value="${g.kapak}"]`).checked = true;
+  $('#lk-karartma').value = g.kapak_karartma;
+  $('#lk-odak').value = g.kapak_odak;
+  Object.assign(lookMedia, { kapak_foto: g.kapak_foto, muzik_dosya: g.muzik_dosya, muzik_ad: g.muzik_ad });
   $('#lk-missing').hidden = !contentMissing;
   // Önizleme ve örnekler sayfanın güncel yazılarıyla
   $('#lk-pv-ust').textContent = txt('kapak_ust');
@@ -3782,6 +3900,16 @@ function renderLookForm() {
     st.className = 'set-status ' + (w.length ? 'off' : 'on');
     st.textContent = w.length ? w.join(' ') : 'Renkler uyumlu: yazılar her yerde rahatça okunur.';
   }
+  // Kapak fotoğrafı: "Fotoğraf" seçilince yükleme alanı açılır (fotoğraf yüklenene kadar kapak renk geçişinde kalır)
+  const foto = siteUrl(lookMedia.kapak_foto), css = foto ? `url("${foto}")` : '';
+  $('#lk-foto-alan').hidden = $('#lk-form input[name="lk-kapak"]:checked')?.value !== 'foto';
+  $('#lk-foto-onizleme').style.backgroundImage = css;
+  $('#lk-sw-foto').style.setProperty('--lk-foto', css);
+  $('#lk-foto-sec').lastChild.textContent = foto ? 'Değiştir' : 'Fotoğraf Seç';
+  $('#lk-karartma-out').textContent = '%' + g.kapak_karartma;
+  $('#lk-odak-out').textContent = g.kapak_odak <= 10 ? 'Üst' : g.kapak_odak >= 90 ? 'Alt' : g.kapak_odak === 50 ? 'Orta' : '%' + g.kapak_odak;
+  $('#lk-muzik-ad').textContent = lookMedia.muzik_dosya ? lookMedia.muzik_ad || 'Yüklenen müzik' : 'Chopin – Nocturne Op. 9 No. 2 (varsayılan)';
+  $('#lk-muzik-varsayilan').hidden = !lookMedia.muzik_dosya;
   const dirty = lookDirty(), state = $('#lk-state');
   state.textContent = dirty ? 'Kaydedilmemiş değişiklik var; şu an yalnızca sizin ekranınızda görünüyor.'
     : Object.keys(lookDiff(lookSaved)).length ? 'Sayfa kayıtlı görünümle yayında.' : 'Sayfa varsayılan görünümle yayında.';
@@ -3789,17 +3917,100 @@ function renderLookForm() {
   $('#lk-save').disabled = !dirty;
   $('#lk-undo').disabled = !dirty;
 }
+function refreshLookDraft() { lookDraft = readLookForm(); applyLook(); renderLookForm(); }
 let lookFrame = 0;
 function onLookInput(e) {
   const t = e.target;
+  if (t.type === 'file') return;   // dosyalar kendi işleyicileriyle yüklenir
   if (t.type === 'color') $('#lk-form input[name="lk-tema"][value="ozel"]').checked = true;   // renk seçmek özel temaya geçirir
   else if (t.name === 'lk-tema' && t.value !== 'ozel') setLookColors(paletteOf({ tema: t.value }));  // özel renkler son temadan başlar
   cancelAnimationFrame(lookFrame);
-  lookFrame = requestAnimationFrame(() => { lookDraft = readLookForm(); applyLook(); renderLookForm(); });
+  lookFrame = requestAnimationFrame(refreshLookDraft);
+}
+const uploadError = e => (/bucket not found|not found|404/i.test(`${e?.message} ${e?.statusCode} ${e?.status}`)
+  ? 'Kapak ve müzik deposu henüz yok: güncel kurulum SQL’ini Supabase’de çalıştırın.' : friendlyError(e));
+async function pickCoverPhoto(file) {
+  const btn = $('#lk-foto-sec'), log = $('#lk-log');
+  let stage = 'hazirla';
+  btn.disabled = true;
+  try {
+    log.textContent = 'Fotoğraf hazırlanıyor…';
+    const { large } = await processImage(file);   // misafir fotoğraflarıyla aynı: döndürme düzeltilir, küçültülür, konum bilgisi silinir
+    stage = 'yukle';
+    log.textContent = 'Fotoğraf yükleniyor…';
+    const path = `kapak/${uuid()}.jpg`;
+    await store.site.upload(path, large, 'image/jpeg');
+    lookUploads.add(path);
+    lookMedia.kapak_foto = path;
+    $('#lk-form input[name="lk-kapak"][value="foto"]').checked = true;
+    refreshLookDraft();
+    log.textContent = 'Fotoğraf yüklendi ve kapakta deneniyor. Beğendiyseniz “Görünümü Kaydet”e dokunun.';
+  } catch (e) {
+    console.warn('Kapak fotoğrafı yüklenemedi:', e);
+    log.textContent = '';
+    toast(stage === 'hazirla' ? 'Bu fotoğraf açılamadı; başka bir fotoğraf deneyin.' : uploadError(e), 'err');
+  } finally { btn.disabled = false; }
+}
+// Müzik dosyası gerçekten çalınabiliyor mu (bozuk ya da tarayıcının açamadığı dosya yüklenmesin)
+function canPlayFile(file) {
+  return new Promise(res => {
+    const a = new Audio(), u = URL.createObjectURL(file);
+    let timer = 0;
+    const done = ok => { clearTimeout(timer); URL.revokeObjectURL(u); res(ok); };
+    timer = setTimeout(() => done(true), 8000);   // tarayıcı yavaşsa yüklemeyi engellemesin
+    a.preload = 'metadata';
+    a.onloadedmetadata = () => done(a.duration > 0);
+    a.onerror = () => done(false);
+    a.src = u;
+  });
+}
+async function pickMusic(file) {
+  const ext = (/\.(mp3|m4a)$/i.exec(file.name)?.[1] || (/mpeg|mp3/i.test(file.type) ? 'mp3' : /mp4|m4a|aac/i.test(file.type) ? 'm4a' : '')).toLowerCase();
+  if (!ext) { toast('Yalnızca MP3 ya da M4A müzik dosyası yüklenebilir.', 'err'); return; }
+  if (file.size > 15 * 1024 * 1024) { toast('Müzik dosyası en çok 15 MB olabilir.', 'err'); return; }
+  const btn = $('#lk-muzik-sec'), log = $('#lk-log');
+  btn.disabled = true;
+  try {
+    log.textContent = 'Müzik denetleniyor…';
+    if (!(await canPlayFile(file))) { log.textContent = ''; toast('Bu müzik dosyası çalınamadı; başka bir dosya deneyin.', 'err'); return; }
+    log.textContent = 'Müzik yükleniyor…';
+    const path = `muzik/${uuid()}.${ext}`;
+    await store.site.upload(path, file, ext === 'mp3' ? 'audio/mpeg' : 'audio/mp4');
+    lookUploads.add(path);
+    stopLookAudio();
+    Object.assign(lookMedia, { muzik_dosya: path, muzik_ad: file.name.replace(/\.[^.]+$/, '').replace(/_+/g, ' ').trim() || 'Yüklenen müzik' });
+    refreshLookDraft();
+    log.textContent = 'Müzik yüklendi. “Dinle” ile deneyebilir, beğendiyseniz “Görünümü Kaydet”e dokunabilirsiniz.';
+  } catch (e) {
+    console.warn('Müzik yüklenemedi:', e);
+    log.textContent = '';
+    toast(uploadError(e), 'err');
+  } finally { btn.disabled = false; }
+}
+// "Dinle": seçili müziği yalnızca yöneticinin cihazında çalar (sayfanın müziği o sırada susar)
+let lookAudio = null;
+function setListenUi(on) { const b = $('#lk-muzik-dinle'); b.textContent = on ? 'Durdur' : 'Dinle'; b.setAttribute('aria-pressed', String(on)); }
+function stopLookAudio() { if (lookAudio) { lookAudio.pause(); lookAudio = null; } setListenUi(false); }
+function toggleLookAudio() {
+  if (lookAudio) { stopLookAudio(); return; }
+  if (music.on) { music.on = false; setMusicUi(); fadeMusic(0, 300, () => { if (!music.on) music.el.pause(); }); }   // misafir tercihi değişmez
+  const a = new Audio(siteUrl(lookMedia.muzik_dosya) || CONFIG.music);
+  lookAudio = a;
+  a.onended = stopLookAudio;
+  setListenUi(true);
+  a.play().catch(e => { console.warn('Müzik çalınamadı:', e); if (lookAudio === a) stopLookAudio(); toast('Müzik çalınamadı.', 'err'); });
+}
+// Kaydettikten ya da vazgeçtikten sonra hiçbir yerde kullanılmayan yüklemeler silinir.
+// old: kaydetmeden önceki görünümün dosyaları (yeni görünüm kullanmıyorsa artık gereksiz)
+function cleanupLookFiles(keep, old = []) {
+  const used = new Set([keep.kapak_foto, keep.muzik_dosya].filter(Boolean));
+  const drop = [...new Set([...lookUploads, ...old.filter(Boolean)])].filter(p => !used.has(p));
+  lookUploads.clear();
+  return drop.length ? store.site.remove(drop).catch(e => console.warn('Kullanılmayan dosyalar silinemedi:', e)) : Promise.resolve();
 }
 async function saveLook(e) {
   e.preventDefault();
-  const g = readLookForm(), btn = $('#lk-save');
+  const g = readLookForm(), btn = $('#lk-save'), before = lookSaved;
   if (g.tema === 'ozel') {
     const w = paletteWarnings(paletteVars(g.koyu, g.vurgu, g.zemin));
     if (w.length && !(await dialog({ title: 'Renkler zor okunabilir', text: w.join(' ') + ' Yine de kaydedilsin mi?', ok: 'Yine de Kaydet' }))) return;
@@ -3808,6 +4019,7 @@ async function saveLook(e) {
   delete veri.gorunum;
   if (Object.keys(diff).length) veri.gorunum = diff;
   btn.disabled = true;
+  stopLookAudio();
   $('#lk-log').textContent = 'Kaydediliyor…';
   try {
     const saved = await store.content.save(veri);
@@ -3816,6 +4028,7 @@ async function saveLook(e) {
     ls.set(CONTENT_KEY, JSON.stringify(icerik));
     lookDraft = null;
     applyContent();
+    cleanupLookFiles(lookSaved, [before.kapak_foto, before.muzik_dosya]);
     fillLookForm();
     renderAdmPill();
     $('#lk-log').textContent = 'Kaydedildi. Açık olan sayfalar en geç yarım dakika içinde yeni görünüme geçer.';
@@ -3828,11 +4041,14 @@ async function saveLook(e) {
   }
 }
 function discardLook() {
+  stopLookAudio();
   if (!lookDraft) return;
   lookDraft = null;
+  cleanupLookFiles(lookSaved);
   applyLook();
   fillLookForm();
   renderAdmPill();
+  $('#lk-log').textContent = '';
 }
 // Kaydedilmemiş görünümle siteye dönülünce sağ üstteki düğme bunu hatırlatır ve Görünüm sekmesine geri götürür
 function renderAdmPill() {
@@ -3843,12 +4059,18 @@ function renderAdmPill() {
 }
 function initLookForm() {
   buildLookForm();
-  const form = $('#lk-form');
+  const form = $('#lk-form'), pick = id => () => { const fi = $(id); fi.value = ''; fi.click(); };
   form.addEventListener('submit', saveLook);
   form.addEventListener('input', onLookInput);
   $('#lk-undo').addEventListener('click', discardLook);
-  $('#lk-default').addEventListener('click', () => { lookDraft = { ...LOOK_DEFAULT }; applyLook(); fillLookForm(lookDraft); });
+  $('#lk-default').addEventListener('click', () => { stopLookAudio(); lookDraft = { ...LOOK_DEFAULT }; applyLook(); fillLookForm(lookDraft); });
   $('#lk-view').addEventListener('click', () => closeAdmin());
+  $('#lk-foto-sec').addEventListener('click', pick('#lk-foto-dosya'));
+  $('#lk-foto-dosya').addEventListener('change', e => { const f = e.target.files?.[0]; if (f) pickCoverPhoto(f); });
+  $('#lk-muzik-sec').addEventListener('click', pick('#lk-muzik-dosya'));
+  $('#lk-muzik-dosya').addEventListener('change', e => { const f = e.target.files?.[0]; if (f) pickMusic(f); });
+  $('#lk-muzik-dinle').addEventListener('click', toggleLookAudio);
+  $('#lk-muzik-varsayilan').addEventListener('click', () => { stopLookAudio(); Object.assign(lookMedia, { muzik_dosya: '', muzik_ad: '' }); refreshLookDraft(); });
 }
 
 /* ---------- Yönetim: Ayarlar sekmesi ---------- */
