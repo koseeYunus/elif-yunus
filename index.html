@@ -243,6 +243,12 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 @media (hover: hover) { .k-add:hover { border-color: var(--gold); background: #fff; } }
 .k-add .ic { width: 22px; height: 22px; }
 .k-progress { margin: 4px 0 16px; }
+.k-later { display: flex; align-items: flex-start; gap: 10px; margin: -4px 0 16px; padding: 12px 14px; border-radius: 14px; background: var(--ivory); border: 1px dashed var(--line-2); color: var(--ink-2); font-size: 14px; line-height: 1.5; }
+.k-later .ic, .k-closed .ic { flex: none; width: 18px; height: 18px; margin-top: 2px; color: var(--gold-deep); }
+.k-closed { display: flex; align-items: flex-start; justify-content: center; gap: 12px; padding: 26px 22px; text-align: left; }
+.k-closed p { margin: 0; max-width: 30em; font: italic 400 20px/1.45 var(--serif); color: var(--ink-2); }
+/* Albüm gizliyken dilek kartlarındaki fotoğraflar da gösterilmez */
+body.no-album .wish-photos { display: none; }
 .k-saved { display: flex; align-items: flex-start; gap: 8px; margin: -6px 0 14px; padding: 10px 12px; border-radius: 12px; background: #EEF4EF; color: #2F5A3E; font-size: 13.5px; line-height: 1.45; }
 .k-saved .ic { width: 16px; height: 16px; margin-top: 2px; flex: none; }
 .field { display: block; margin: 0 0 16px; text-align: left; }
@@ -408,7 +414,13 @@ textarea.input { min-height: 132px; resize: vertical; }
 .adm-title { margin: 0; font: 400 40px/1.1 var(--script); color: var(--gold-light); }
 .adm-user { display: block; margin-top: -2px; font-size: 12px; color: rgba(244, 236, 221, .6); overflow-wrap: anywhere; }
 .adm-actions { display: flex; gap: 6px; }
-.adm-tabs { display: flex; gap: 4px; padding: 8px 10px 0; background: var(--forest); }
+.adm-tabs { display: flex; gap: 4px; padding: 8px 10px 0; background: var(--forest); overflow-x: auto; scrollbar-width: none; }
+.adm-tabs::-webkit-scrollbar { display: none; }
+@media (max-width: 420px) {
+  .adm-tabs { gap: 0; padding: 8px 4px 0; }
+  .adm-tabs button { padding: 0 6px; font-size: 10.5px; letter-spacing: .02em; }
+  .adm-tabs button b { min-width: 20px; margin-left: 3px; padding: 3px 6px; }
+}
 .adm-tabs button { flex: 1 1 auto; min-height: 48px; padding: 0 10px; border: 0; border-radius: 14px 14px 0 0; background: transparent; color: rgba(244, 236, 221, .62); font: 500 11px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; transition: background-color .2s, color .2s; }
 @media (min-width: 760px) {
   .adm-top, .adm-tabs { padding-left: max(18px, calc((100% - 1180px) / 2)); padding-right: max(12px, calc((100% - 1180px) / 2)); }
@@ -463,6 +475,28 @@ textarea.input { min-height: 132px; resize: vertical; }
 .adm-empty { grid-column: 1 / -1; margin: 0; padding: 48px 16px; text-align: center; color: var(--ink-3); font: italic 400 20px/1.4 var(--serif); }
 .adm-archive { max-width: 540px; margin: 0 auto; padding: 22px 16px 32px; }
 .adm-lead { margin: 0 0 18px; color: var(--ink-2); }
+/* Ayarlar sekmesi */
+.set-form { display: grid; gap: 16px; }
+.set-form .adm-lead { margin: 0; }
+.set-missing { margin: 0; text-align: left; }
+.set-card { min-width: 0; margin: 0; padding: 8px 16px 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); }
+.set-card legend { padding: 0 6px; margin-left: -6px; font: 500 21px/1.2 var(--serif); color: var(--ink); }
+.set-switch { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 50px; font-size: 15.5px; color: var(--ink); cursor: pointer; }
+.set-switch + .set-switch { border-top: 1px solid var(--line); }
+.set-switch input { position: relative; flex: none; width: 50px; height: 30px; margin: 0; border-radius: 999px; background: #CFC6B6; cursor: pointer; transition: background-color .2s; -webkit-appearance: none; appearance: none; }
+.set-switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); transition: transform .2s var(--ease); }
+.set-switch input:checked { background: #4E7A5C; }
+.set-switch input:checked::after { transform: translateX(20px); }
+.set-switch input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.set-times { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+.set-times .field { margin: 0; }
+.set-times .input { min-height: 46px; padding: 10px 12px; font-size: 15px; }
+.set-quick { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.set-status { margin: 12px 0 0; padding: 10px 12px; border-radius: 12px; background: var(--ivory); color: var(--ink-2); font-size: 13.5px; line-height: 1.45; }
+.set-status.on { background: #EEF4EF; color: #2F5A3E; }
+.set-status.off { background: #FBEFEA; color: #7E3A2C; }
+.set-note { margin: -6px 2px 0; font-size: 12.5px; line-height: 1.5; color: var(--ink-3); }
+@media (max-width: 420px) { .set-times { grid-template-columns: 1fr; } }
 .adm-tips { margin: 22px 0 0; padding: 14px 16px; border-radius: 14px; background: var(--sand); color: var(--ink-2); font-size: 14px; line-height: 1.55; }
 .adm-pill { position: fixed; top: calc(14px + var(--safe-t)); right: 14px; z-index: 45; display: inline-flex; align-items: center; gap: 7px; padding: 9px 15px 9px 12px; border: 1px solid rgba(226, 201, 148, .35); border-radius: 999px; background: rgba(28, 42, 35, .92); color: var(--gold-light); font: 500 11px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; box-shadow: 0 8px 22px -8px rgba(0, 0, 0, .5); }
 .adm-pill .ic { width: 15px; height: 15px; }
@@ -676,27 +710,29 @@ textarea.input { min-height: 132px; resize: vertical; }
   <section class="section" id="paylas">
     <div class="wrap">
       <header class="sec-head rv">
-        <p class="eyebrow">Bir Fotoğraf, Bir Dilek</p>
-        <h2 class="sec-title">Anı &amp; Dilek Bırak</h2>
-        <p class="sec-sub">Bir fotoğraf, birkaç satır dilek ya da ikisi birden… Hepsi bu güzel günün hatırası olacak.</p>
+        <p class="eyebrow" id="paylas-eyebrow">Bir Fotoğraf, Bir Dilek</p>
+        <h2 class="sec-title" id="paylas-title">Anı &amp; Dilek Bırak</h2>
+        <p class="sec-sub" id="paylas-sub">Bir fotoğraf, birkaç satır dilek ya da ikisi birden… Hepsi bu güzel günün hatırası olacak.</p>
       </header>
       <form class="card composer rv" id="k-form" novalidate>
         <label class="field"><span>Adınız</span><input class="input" id="k-name" data-name maxlength="50" autocomplete="name" enterkeyhint="next" placeholder="Adınız ve soyadınız"></label>
-        <label class="field"><span>Dileğiniz <i>(isteğe bağlı)</i></span><textarea class="input" id="k-msg" maxlength="600" rows="4" placeholder="Elif ile Yunus’a dileklerinizi yazın…"></textarea><small class="counter" id="k-counter">0 / 600</small></label>
+        <label class="field" id="k-msg-field"><span>Dileğiniz <i class="opt">(isteğe bağlı)</i></span><textarea class="input" id="k-msg" maxlength="600" rows="4" placeholder="Elif ile Yunus’a dileklerinizi yazın…"></textarea><small class="counter" id="k-counter">0 / 600</small></label>
         <p class="k-saved" id="k-saved" hidden><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Dileğiniz kaydedildi. Kalan fotoğrafları yeniden göndermek için Gönder’e basın.</p>
-        <div class="field">
-          <span>Fotoğraflar <i>(isteğe bağlı)</i></span>
+        <div class="field" id="k-photo-field">
+          <span>Fotoğraflar <i class="opt">(isteğe bağlı)</i></span>
           <div class="k-photos" id="k-photos">
             <button class="k-add" id="k-add" type="button"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg><span>Fotoğraf Ekle</span></button>
           </div>
         </div>
+        <p class="k-later" id="k-photo-later" hidden><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span id="k-photo-later-text"></span></p>
         <div class="k-progress" id="k-progress" hidden>
           <div class="q-head"><span id="q-text" aria-live="polite">Gönderiliyor…</span><b id="q-count">0/0</b></div>
           <div class="q-bar"><i id="q-bar"></i></div>
         </div>
         <button class="btn btn-gold btn-block" type="submit" id="k-send"><svg class="ic" aria-hidden="true"><use href="#i-send"/></svg><span>Gönder</span></button>
-        <p class="hint">Yalnızca dilek, yalnızca fotoğraf ya da ikisini birden gönderebilirsiniz. Fotoğraflar yüklenmeden önce otomatik olarak küçültülür.</p>
+        <p class="hint" id="k-hint">Yalnızca dilek, yalnızca fotoğraf ya da ikisini birden gönderebilirsiniz. Fotoğraflar yüklenmeden önce otomatik olarak küçültülür.</p>
       </form>
+      <div class="card k-closed" id="k-closed" hidden><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><p id="k-closed-text"></p></div>
     </div>
   </section>
 
@@ -805,6 +841,7 @@ textarea.input { min-height: 132px; resize: vertical; }
     <button type="button" role="tab" id="adm-tab-photos" aria-controls="adm-pane-photos" data-tab="photos" aria-selected="true">Fotoğraflar <b id="adm-pc">0</b></button>
     <button type="button" role="tab" id="adm-tab-notes" aria-controls="adm-pane-notes" data-tab="notes" aria-selected="false">Dilekler <b id="adm-nc">0</b></button>
     <button type="button" role="tab" id="adm-tab-archive" aria-controls="adm-pane-archive" data-tab="archive" aria-selected="false">Arşiv</button>
+    <button type="button" role="tab" id="adm-tab-settings" aria-controls="adm-pane-settings" data-tab="settings" aria-selected="false">Ayarlar</button>
   </nav>
   <div class="adm-body" id="adm-body">
     <div id="adm-pane-photos" role="tabpanel" aria-labelledby="adm-tab-photos" data-pane="photos">
@@ -860,6 +897,46 @@ textarea.input { min-height: 132px; resize: vertical; }
         </div>
       </div>
       <p class="adm-tips"><b>Hatırlatma:</b> Supabase’in ücretsiz projeleri bir hafta hiç kullanılmazsa duraklatılır. Düğünden sonraki birkaç gün içinde arşivi indirip saklayın.</p>
+    </div>
+    <div id="adm-pane-settings" class="adm-archive" role="tabpanel" aria-labelledby="adm-tab-settings" data-pane="settings" hidden>
+      <form class="set-form" id="set-form" novalidate>
+        <p class="adm-lead">Misafirlerin neyi ne zaman paylaşabileceğini ve sayfada nelerin görüneceğini buradan yönetin. Kurallar sunucuda da uygulanır; değişiklikler açık olan tüm sayfalara en geç yarım dakika içinde yansır.</p>
+        <p class="notice set-missing" id="set-missing" hidden>Ayarlar veritabanında henüz yok. Güncel <b>supabase-kurulum.sql</b> dosyasını Supabase › SQL Editor’de çalıştırın; o zamana kadar varsayılanlar geçerlidir.</p>
+        <fieldset class="set-card">
+          <legend>Fotoğraf paylaşımı</legend>
+          <label class="set-switch"><span>Misafirler fotoğraf paylaşabilir</span><input type="checkbox" role="switch" id="set-foto-acik"></label>
+          <div class="set-times">
+            <label class="field"><span>Açılış</span><input class="input" type="datetime-local" id="set-foto-bas"></label>
+            <label class="field"><span>Kapanış</span><input class="input" type="datetime-local" id="set-foto-bit"></label>
+          </div>
+          <div class="set-quick">
+            <button class="btn btn-line btn-xs" type="button" data-preset="foto-dugun">Düğün günü 00.00</button>
+            <button class="btn btn-line btn-xs" type="button" data-preset="foto-simdi">Hemen aç</button>
+          </div>
+          <p class="set-status" id="set-foto-durum"></p>
+        </fieldset>
+        <fieldset class="set-card">
+          <legend>Dilek yazma</legend>
+          <label class="set-switch"><span>Misafirler dilek yazabilir</span><input type="checkbox" role="switch" id="set-dilek-acik"></label>
+          <div class="set-times">
+            <label class="field"><span>Açılış</span><input class="input" type="datetime-local" id="set-dilek-bas"></label>
+            <label class="field"><span>Kapanış</span><input class="input" type="datetime-local" id="set-dilek-bit"></label>
+          </div>
+          <div class="set-quick">
+            <button class="btn btn-line btn-xs" type="button" data-preset="dilek-simdi">Hemen aç</button>
+          </div>
+          <p class="set-status" id="set-dilek-durum"></p>
+        </fieldset>
+        <p class="set-note">Saatler Türkiye saatidir. Açılış boşsa hemen, kapanış boşsa süresiz geçerlidir.</p>
+        <fieldset class="set-card">
+          <legend>Sayfada görünenler</legend>
+          <label class="set-switch"><span>Anı Albümü</span><input type="checkbox" role="switch" id="set-album"></label>
+          <label class="set-switch"><span>Dilek Defteri</span><input type="checkbox" role="switch" id="set-dilekler"></label>
+          <label class="set-switch"><span>Arka plan müziği</span><input type="checkbox" role="switch" id="set-muzik"></label>
+        </fieldset>
+        <button class="btn btn-gold btn-block" type="submit" id="set-save">Ayarları Kaydet</button>
+        <p class="arc-log" id="set-log" aria-live="polite"></p>
+      </form>
     </div>
   </div>
 </div>
@@ -1010,6 +1087,32 @@ const TZ = 'Europe/Istanbul';
 const fmtClock = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, hour: '2-digit', minute: '2-digit' });
 const fmtDay = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, day: 'numeric', month: 'short' });
 const fmtFull = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+const fmtOpen = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, day: 'numeric', month: 'long', weekday: 'long', hour: '2-digit', minute: '2-digit' });
+
+/* ---------- Paylaşım ve görünürlük ayarları (yönetim ekranının "Ayarlar" sekmesi; veritabanında "ayarlar") ---------- */
+// Tablo henüz yoksa (kurulum SQL'i çalıştırılmadıysa) bunlar geçerlidir; SQL'deki varsayılanlarla aynıdır.
+const DEFAULT_SETTINGS = Object.freeze({
+  foto_acik: true, foto_baslangic: new Date(DAY_START).toISOString(), foto_bitis: null,   // fotoğraf: düğün günü açılır
+  dilek_acik: true, dilek_baslangic: null, dilek_bitis: null,                               // dilek: şimdiden açık
+  album_gorunur: true, dilekler_gorunur: true, muzik: true,
+});
+const SETTINGS_COLS = Object.keys(DEFAULT_SETTINGS).join(',');
+const SHARE_END = Date.parse('2027-01-01T00:00:00+03:00');   // sunucudaki kesin kapanışla aynı
+let ayar = { ...DEFAULT_SETTINGS }, settingsMissing = false, shareState = '';
+// Paylaşım ('foto' | 'dilek') şu an açık mı? Sunucudaki paylasim_acik() ile aynı kural.
+function shareOpen(kind, s = ayar, t = now()) {
+  const from = Date.parse(s[kind + '_baslangic'] || ''), to = Date.parse(s[kind + '_bitis'] || '');
+  return !!s[kind + '_acik'] && t < SHARE_END && !(from > t) && !(to <= t);
+}
+// Kapalıysa ve ileride açılacaksa açılış anı; yoksa null
+function opensAt(kind, s = ayar, t = now()) {
+  const from = Date.parse(s[kind + '_baslangic'] || '');
+  return s[kind + '_acik'] && from > t && from < SHARE_END ? from : null;
+}
+const shareLabel = () => {
+  const f = shareOpen('foto'), d = shareOpen('dilek');
+  return f && d ? 'Anı & Dilek Bırak' : d ? 'Dilek Bırak' : f ? 'Anı Paylaş' : '';
+};
 function ago(iso) {
   const t = Date.parse(iso), s = (now() - t) / 1000;
   if (s < 60) return 'az önce';
@@ -1039,15 +1142,17 @@ function applyPhase(p) {
   $('#hero-eyebrow').textContent = p === 'after' ? 'Evlendik' : p === 'live' ? 'Bugün Evleniyoruz' : 'Evleniyoruz';
   $('#cd-note').textContent = PHASE_TEXT[p];
   $('#cd').hidden = p === 'live' || p === 'after';
-  $('#hero-cta').replaceChildren(
-    p === 'before'
-      ? h('a', { class: 'btn btn-gold', href: '#davet', 'data-action': 'open-invite' }, 'Davetiyeyi Aç')
-      : h('a', { class: 'btn btn-gold', href: '#paylas' }, icon('camera'), 'Anı & Dilek Bırak'),
-    p === 'before'
-      ? h('a', { class: 'btn btn-line', href: '#paylas' }, 'Anı & Dilek Bırak')
-      : h('a', { class: 'btn btn-line', href: '#album' }, 'Albümü Gör'));
+  // Kapak düğmeleri ayarlara göre: paylaşım kapalıysa ya da albüm gizliyse ilgili düğme çıkmaz
+  const share = shareLabel(), album = !!ayar.album_gorunur;
+  $('#hero-cta').replaceChildren(...(p === 'before'
+    ? [h('a', { class: 'btn btn-gold', href: '#davet', 'data-action': 'open-invite' }, 'Davetiyeyi Aç'),
+      share && h('a', { class: 'btn btn-line', href: '#paylas' }, share)]
+    : [share && h('a', { class: 'btn btn-gold', href: '#paylas' }, icon(shareOpen('foto') ? 'camera' : 'edit'), share),
+      album && h('a', { class: 'btn ' + (share ? 'btn-line' : 'btn-gold'), href: '#album' }, 'Albümü Gör')]).filter(Boolean));
 }
 function tickCountdown() {
+  // Paylaşımın açılış/kapanış anı geldiyse sayfa yenilenmeden güncellenir
+  if (`${shareOpen('foto')}|${shareOpen('dilek')}` !== shareState) applySettings();
   const t = now(), p = phase(t);
   if (p !== currentPhase) applyPhase(p);
   if (p !== 'before' && p !== 'today') return;
@@ -1253,6 +1358,15 @@ function liveStore() {
       }
       return deleteRows('fotograflar', rows.map(r => r.id));
     },
+    // Paylaşım/görünürlük ayarları: herkes okur, yalnızca yönetici değiştirir (Supabase kuralları)
+    settings: {
+      get: () => run(db => db.from('ayarlar').select(SETTINGS_COLS).eq('id', 1).maybeSingle()),
+      async save(fields) {
+        const rows = await run(db => db.from('ayarlar').update(fields).eq('id', 1).select(SETTINGS_COLS));
+        if (!rows.length) throw new UserError('Ayarları değiştirme izniniz yok.');
+        return rows[0];
+      },
+    },
     // Depodaki dosyaların toplam boyutu (yalnızca yönetici listeleyebilir; misafire boş döner)
     async storageUsage() {
       await ready;
@@ -1296,7 +1410,7 @@ function liveStore() {
 // Önizleme: Supabase bilgileri girilmemişken tasarımı denemek için. Hiçbir şey kaydedilmez.
 function previewStore() {
   const notes = [], photos = [], log = [];
-  let nid = 0, pid = 0, cid = 0, user = null;
+  let nid = 0, pid = 0, cid = 0, user = null, ayarlar = { ...DEFAULT_SETTINGS };
   const record = (tablo, kayit_id, islem) => log.push({ id: ++cid, tablo, kayit_id, islem });
   const at = minsAgo => new Date(now() - minsAgo * 60e3).toISOString();
   [
@@ -1339,6 +1453,10 @@ function previewStore() {
     thumbUrl: r => r.kucuk,
     largeUrl: r => r.buyuk,
     async count(table) { await photosReady; return (table === 'notlar' ? notes : photos).length; },
+    settings: {
+      async get() { return { ...ayarlar }; },
+      async save(fields) { await sleep(300); ayarlar = { ...ayarlar, ...fields }; record('ayarlar', 1, 'duzenle'); return { ...ayarlar }; },
+    },
     // Önizlemede gerçek telefon fotoğraflarının ortalamasıyla (≈ 420 KB) tahmin edilir
     async storageUsage() { await photosReady; return { bytes: photos.length * 420e3, files: photos.length }; },
     async all(table) { await photosReady; return [...(table === 'notlar' ? notes : photos)].sort((a, b) => a.id - b.id).map(view(table)); },
@@ -1631,12 +1749,17 @@ function resetComposer() {
 async function sendComposer(e) {
   e.preventDefault();
   if (komp.sending) return;
+  // Yönetim ekranındaki ayarlara göre yalnızca açık olan paylaşım türü gönderilir
+  const fotoOk = shareOpen('foto'), dilekOk = shareOpen('dilek');
+  if (!fotoOk && !dilekOk) { applySettings(); toast('Paylaşım şu anda kapalı.', 'err'); return; }
   const isim = cleanName($('#k-name').value);
-  const mesaj = komp.noteSaved ? '' : $('#k-msg').value.replace(/\r/g, '').replace(/\n{3,}/g, '\n\n').trim().slice(0, NOTE_MAX);
-  const photos = pendingItems();
+  const mesaj = komp.noteSaved || !dilekOk ? '' : $('#k-msg').value.replace(/\r/g, '').replace(/\n{3,}/g, '\n\n').trim().slice(0, NOTE_MAX);
+  const photos = fotoOk ? pendingItems() : [];
+  if (!fotoOk && pendingItems().length) toast('Fotoğraf paylaşımı şu anda kapalı; seçtiğiniz fotoğraflar gönderilmeyecek.', 'err');
   if (!mesaj && !photos.length) {
     if (sentSome()) finishComposer();          // kalanların hepsi zaten gönderilmiş
-    else shake('#k-msg', 'Bir dilek yazın ya da fotoğraf ekleyin.');
+    else if (dilekOk) shake('#k-msg', fotoOk ? 'Bir dilek yazın ya da fotoğraf ekleyin.' : 'Lütfen bir dilek yazın.');
+    else toast('Lütfen fotoğraf ekleyin.', 'err');
     return;
   }
   if (mesaj && !isim) { shake('#k-name', 'Dileğinizin altında görünmesi için adınızı yazın.'); return; }
@@ -1646,7 +1769,7 @@ async function sendComposer(e) {
   holdScreen(true);
   $('#k-progress').hidden = !photos.length;
   renderProgress();
-  let sentNote = false, sentPhotos = 0;
+  let sentNote = false, sentPhotos = 0, policyHit = false;
   try {
     if (mesaj) {
       komp.notId = await store.addNote(isim, mesaj);
@@ -1667,18 +1790,20 @@ async function sendComposer(e) {
         pollSoon();
       } catch (err) {
         console.warn('Fotoğraf gönderilemedi:', err);
-        it.error = friendlyError(err);
+        if (isPolicyError(err)) { policyHit = true; it.error = 'Fotoğraf paylaşımı şu anda kapalı.'; } else it.error = friendlyError(err);
         setItemState(it, 'hata');
       }
     }
   } catch (err) {
     console.warn('Dilek gönderilemedi:', err);
+    if (isPolicyError(err)) { loadSettings(); toast('Dilek yazma şu anda kapalı.', 'err'); return; }
     toast(friendlyError(err), 'err');
     return;
   } finally {
     setSending(false);
     holdScreen(false);
   }
+  if (policyHit) loadSettings();               // ayarlar az önce değişmiş olabilir: sayfayı güncelle
   const failed = komp.items.filter(i => i.state === 'hata');
   if (failed.length) {
     $('#k-saved').hidden = !komp.noteSaved;
@@ -1733,16 +1858,101 @@ function initComposer() {
   $('#k-msg').addEventListener('input', () => { $('#k-counter').textContent = `${$('#k-msg').value.length} / ${NOTE_MAX}`; });
   $('#file-input').addEventListener('change', e => {
     if (!e.target.files?.length) return;
+    if (!shareOpen('foto')) { applySettings(); toast('Fotoğraf paylaşımı şu anda kapalı.', 'err'); return; }
     addFiles(e.target.files);
     $('#k-photos').scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
-  // Alt menüdeki kamera düğmesi: hemen fotoğraf seçtirir, seçilenler formda görünür.
+  // Alt menünün ortasındaki düğme: fotoğraf açıksa hemen fotoğraf seçtirir, yalnızca dilek açıksa forma götürür.
   document.addEventListener('click', e => {
     if (!e.target.closest('[data-action="upload"]')) return;
     if (komp.sending) { toast('Gönderim sürüyor, lütfen biraz bekleyin.'); return; }
+    if (!shareOpen('foto')) {
+      if (!shareOpen('dilek')) { toast('Paylaşım şu anda kapalı.'); return; }
+      $('#paylas').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => $('#k-msg').focus({ preventScroll: true }), 600);
+      return;
+    }
     pickFiles();
   });
   addEventListener('beforeunload', e => { if (komp.sending) { e.preventDefault(); e.returnValue = ''; } });
+}
+const isPolicyError = e => /row-level security|42501/i.test(`${e?.code} ${e?.message}`);
+
+/* =====================================================================
+   AYARLARIN SAYFAYA UYGULANMASI — paylaşım formu, başlıklar, alt menü, albüm/dilek defteri, müzik
+   ===================================================================== */
+function applySettings() {
+  const foto = shareOpen('foto'), dilek = shareOpen('dilek'), any = foto || dilek;
+  shareState = `${foto}|${dilek}`;
+  const later = kind => { const t = opensAt(kind); return t ? `${fmtOpen.format(t)} itibarıyla açılacak` : ''; };
+  const fotoLater = later('foto');
+  // Paylaşım bölümünün başlığı açık olan türe göre
+  const [eyebrow, title, sub] = foto && dilek
+    ? ['Bir Fotoğraf, Bir Dilek', 'Anı & Dilek Bırak', 'Bir fotoğraf, birkaç satır dilek ya da ikisi birden… Hepsi bu güzel günün hatırası olacak.']
+    : dilek ? ['Bize Birkaç Satır Bırakın', 'Dilek Bırak', 'Güzel dileklerinizi şimdiden yazabilirsiniz; yıllar sonra açıp okuyacağımız en kıymetli hatıralar olacak.']
+    : foto ? ['Bu Gecenin Anıları', 'Anı Paylaş', 'Bu güzel günün fotoğraflarını paylaşın; hepsi albümümüzde toplanacak.']
+    : ['Bir Fotoğraf, Bir Dilek', 'Anı & Dilek Bırak', 'Paylaşılan anılar ve dilekler aşağıda.'];
+  $('#paylas-eyebrow').textContent = eyebrow;
+  $('#paylas-title').textContent = title;
+  $('#paylas-sub').textContent = sub;
+  if (!komp.sending) {                         // gönderim sürerken form yerinden oynamasın
+    $('#k-form').hidden = !any;
+    $('#k-closed').hidden = any;
+    $('#k-msg-field').hidden = !dilek;
+    $('#k-photo-field').hidden = !foto;
+  }
+  $$('#k-form .opt').forEach(i => { i.hidden = !(foto && dilek); });
+  $('#k-photo-later').hidden = foto || !dilek;
+  $('#k-photo-later-text').textContent = fotoLater ? `Fotoğraf paylaşımı ${fotoLater}.` : 'Fotoğraf paylaşımı şu anda kapalı.';
+  $('#k-hint').textContent = foto && dilek ? 'Yalnızca dilek, yalnızca fotoğraf ya da ikisini birden gönderebilirsiniz. Fotoğraflar yüklenmeden önce otomatik olarak küçültülür.'
+    : dilek ? 'Dileğiniz gönderdiğiniz anda dilek defterinde görünür.'
+    : 'Birden fazla fotoğraf seçebilirsiniz. Fotoğraflar yüklenmeden önce otomatik olarak küçültülür.';
+  const next = [opensAt('foto'), opensAt('dilek')].filter(Boolean).sort((a, b) => a - b)[0];
+  $('#k-closed-text').textContent = next ? `Anı ve dilek paylaşımı ${fmtOpen.format(next)} itibarıyla açılacak.`
+    : 'Anı ve dilek paylaşımı şu anda kapalı. İlginiz için çok teşekkür ederiz.';
+  // Alt menünün ortasındaki düğme: fotoğraf açıksa kamera, yalnızca dilek açıksa kalem, ikisi de kapalıysa yok
+  const fab = $('#dock .fab');
+  fab.hidden = !any;
+  fab.querySelector('use').setAttribute('href', foto ? '#i-camera' : '#i-edit');
+  fab.setAttribute('aria-label', foto ? 'Fotoğraf ekle' : 'Dilek yaz');
+  // Albüm ve dilek defteri görünürlüğü
+  const showAlbum = !!ayar.album_gorunur, showWishes = !!ayar.dilekler_gorunur;
+  $('#album').hidden = !showAlbum;
+  $('#dock a[data-sec="album"]').hidden = !showAlbum;
+  $('#dilekler').hidden = !showWishes;
+  $('#dock a[data-sec="dilekler"]').hidden = !showWishes;
+  document.body.classList.toggle('no-album', !showAlbum);
+  $('#gallery-empty').replaceChildren(...(foto ? ['Henüz fotoğraf yok.', h('br'), h('a', { href: '#paylas' }, 'İlk anıyı siz paylaşın!')]
+    : fotoLater ? [`Fotoğraf paylaşımı ${fotoLater}.`, h('br'), 'Paylaşılan anılar burada toplanacak.'] : ['Henüz fotoğraf yok.']));
+  $('#wishes-empty').replaceChildren(dilek ? h('a', { href: '#paylas' }, 'İlk dileği siz yazın ♡') : 'Henüz dilek yok.');
+  if (currentPhase) applyPhase(currentPhase);   // kapaktaki düğmeler
+  applyMusicSetting();
+}
+// Müzik yönetimden kapatılırsa düğme gizlenir ve çalıyorsa susar (misafirin kendi tercihi değişmez).
+function applyMusicSetting() {
+  if (!CONFIG.music) return;
+  const allowed = !!ayar.muzik;
+  $('#music-btn').hidden = !allowed;
+  document.documentElement.classList.toggle('has-music', allowed);
+  if (!allowed && music.on) {
+    music.on = false;
+    setMusicUi();
+    fadeMusic(0, 600, () => { if (!music.on) music.el.pause(); });
+  }
+}
+// Ayarları veritabanından alır. Tablo yoksa (kurulum SQL'i çalıştırılmadıysa) varsayılanlarla devam eder.
+async function loadSettings() {
+  if (!store?.settings) return;
+  try {
+    const row = await store.settings.get();
+    settingsMissing = !row;
+    if (row) ayar = { ...DEFAULT_SETTINGS, ...row };
+  } catch (e) {
+    if (/PGRST205|42P01|ayarlar/i.test(`${e?.code} ${e?.message}`)) settingsMissing = true;
+    console.warn('Ayarlar alınamadı; varsayılanlar ya da son bilinen ayarlar kullanılıyor:', e);
+  }
+  applySettings();
+  if (!$('#adm-pane-settings').hidden && !setDirty) fillSettingsForm();
 }
 
 /* =====================================================================
@@ -2594,7 +2804,7 @@ function initMusic() {
   b.hidden = false;
   b.addEventListener('click', () => (music.on ? stopMusic() : startMusic()));
   document.addEventListener('click', e => {
-    if (e.target.closest('[data-action="open-invite"]') && !music.on && ls.get(MUSIC_KEY) !== 'kapali') startMusic(true);
+    if (e.target.closest('[data-action="open-invite"]') && ayar.muzik && !music.on && ls.get(MUSIC_KEY) !== 'kapali') startMusic(true);
   });
   // Telefonda başka uygulamaya geçilince susar, geri dönünce kaldığı yerden devam eder.
   document.addEventListener('visibilitychange', () => {
@@ -2745,9 +2955,93 @@ function closeAdmin(fromHistory = false) {
 }
 function switchTab(tab) {
   $$('#adm [data-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+  $(`#adm [data-tab="${tab}"]`)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });   // dar ekranda seçili sekme tam görünsün
   $$('#adm [data-pane]').forEach(p => { p.hidden = p.dataset.pane !== tab; });
   $('#adm-body').scrollTop = 0;
   if (tab === 'archive') refreshArchiveStats();
+  if (tab === 'settings') { if (setDirty) renderSettingsStatus(); else fillSettingsForm(); }
+}
+
+/* ---------- Yönetim: Ayarlar sekmesi ---------- */
+// Tarih alanları Türkiye saatidir (UTC+3; Türkiye yaz saati uygulamaz), cihazın saat diliminden bağımsız.
+const toTrInput = iso => (iso ? new Date(Date.parse(iso) + 3 * 3600e3).toISOString().slice(0, 16) : '');
+const fromTrInput = v => (v ? new Date(Date.parse(v + ':00+03:00')).toISOString() : null);
+let setDirty = false;                          // kaydedilmemiş değişiklik varken form dışarıdan yenilenmez
+function readSettingsForm() {
+  const v = id => $(id).value, c = id => $(id).checked;
+  return {
+    foto_acik: c('#set-foto-acik'), foto_baslangic: fromTrInput(v('#set-foto-bas')), foto_bitis: fromTrInput(v('#set-foto-bit')),
+    dilek_acik: c('#set-dilek-acik'), dilek_baslangic: fromTrInput(v('#set-dilek-bas')), dilek_bitis: fromTrInput(v('#set-dilek-bit')),
+    album_gorunur: c('#set-album'), dilekler_gorunur: c('#set-dilekler'), muzik: c('#set-muzik'),
+  };
+}
+function fillSettingsForm() {
+  for (const k of ['foto', 'dilek']) {
+    $(`#set-${k}-acik`).checked = !!ayar[k + '_acik'];
+    $(`#set-${k}-bas`).value = toTrInput(ayar[k + '_baslangic']);
+    $(`#set-${k}-bit`).value = toTrInput(ayar[k + '_bitis']);
+  }
+  $('#set-album').checked = !!ayar.album_gorunur;
+  $('#set-dilekler').checked = !!ayar.dilekler_gorunur;
+  $('#set-muzik').checked = !!ayar.muzik;
+  $('#set-missing').hidden = !settingsMissing;
+  setDirty = false;
+  renderSettingsStatus();
+}
+// Formdaki (henüz kaydedilmemiş) değerlerle şu anki durumu anlatır
+function shareStatus(kind, s) {
+  const t = now(), from = Date.parse(s[kind + '_baslangic'] || ''), to = Date.parse(s[kind + '_bitis'] || '');
+  if (from && to && to <= from) return [false, 'Kapanış, açılıştan sonra olmalı.'];
+  if (shareOpen(kind, s, t)) return [true, 'Şu an açık · ' + (to ? `kapanış: ${fmtOpen.format(to)}` : 'kapanış yok')];
+  if (!s[kind + '_acik']) return [false, 'Şu an kapalı (elle kapatıldı).'];
+  const at = opensAt(kind, s, t);
+  return [false, at ? `Şu an kapalı · ${fmtOpen.format(at)} itibarıyla açılacak.` : 'Şu an kapalı · açık kalma süresi doldu.'];
+}
+function renderSettingsStatus() {
+  const s = readSettingsForm();
+  for (const k of ['foto', 'dilek']) {
+    const [on, text] = shareStatus(k, s), el = $(`#set-${k}-durum`);
+    el.textContent = text;
+    el.className = 'set-status ' + (on ? 'on' : 'off');
+  }
+}
+async function saveSettings(e) {
+  e.preventDefault();
+  const s = readSettingsForm();
+  for (const [k, ad] of [['foto', 'Fotoğraf paylaşımı'], ['dilek', 'Dilek yazma']]) {
+    if (s[k + '_baslangic'] && s[k + '_bitis'] && Date.parse(s[k + '_bitis']) <= Date.parse(s[k + '_baslangic'])) {
+      toast(`${ad} için kapanış, açılıştan sonra olmalı.`, 'err');
+      return;
+    }
+  }
+  const btn = $('#set-save');
+  btn.disabled = true;
+  $('#set-log').textContent = 'Kaydediliyor…';
+  try {
+    ayar = { ...DEFAULT_SETTINGS, ...(await store.settings.save(s)) };
+    settingsMissing = false;
+    applySettings();
+    fillSettingsForm();
+    $('#set-log').textContent = 'Kaydedildi. Açık olan sayfalar en geç yarım dakika içinde güncellenir.';
+    toast('Ayarlar kaydedildi.', 'ok');
+  } catch (err) {
+    console.warn('Ayarlar kaydedilemedi:', err);
+    $('#set-log').textContent = '';
+    toast(/PGRST205|42P01|ayarlar/i.test(`${err?.code} ${err?.message}`) ? 'Ayarlar tablosu yok: önce güncel kurulum SQL’ini çalıştırın.' : friendlyError(err), 'err');
+  } finally { btn.disabled = false; }
+}
+function initSettingsForm() {
+  const form = $('#set-form'), changed = () => { setDirty = true; renderSettingsStatus(); };
+  form.addEventListener('submit', saveSettings);
+  form.addEventListener('input', changed);
+  form.addEventListener('change', changed);
+  // Hazır seçenekler: "Düğün günü 00.00" ve "Hemen aç"
+  $$('#set-form [data-preset]').forEach(b => b.addEventListener('click', () => {
+    const [kind, when] = b.dataset.preset.split('-');
+    $(`#set-${kind}-acik`).checked = true;
+    $(`#set-${kind}-bas`).value = when === 'dugun' ? toTrInput(new Date(DAY_START).toISOString()) : '';
+    changed();
+  }));
 }
 async function loadAdminData() {
   if (admin.loading) return;
@@ -2988,8 +3282,10 @@ async function pollChanges() {
   const rows = first ? (await store.changes.recent()).reverse() : await store.changes.since(changeLastId);
   if (first) changeLastId = 0;
   const refetch = { notlar: new Set(), fotograflar: new Set() };
+  let settingsChanged = false;
   for (const c of rows) {
     changeLastId = Math.max(changeLastId, c.id);
+    if (c.tablo === 'ayarlar') { settingsChanged = true; continue; }
     if (c.tablo !== 'notlar' && c.tablo !== 'fotograflar') continue;
     if (c.islem === 'sil') { refetch[c.tablo].delete(c.kayit_id); removeEverywhere(c.tablo, c.kayit_id); }
     else if (isShown(c.tablo, c.kayit_id)) refetch[c.tablo].add(c.kayit_id);
@@ -2997,6 +3293,7 @@ async function pollChanges() {
   for (const t of Object.keys(refetch)) {
     if (refetch[t].size) (await store.byIds(t, [...refetch[t]])).forEach(r => updateEverywhere(t, r));
   }
+  if (settingsChanged && !first) await loadSettings();   // yönetici ayarları değiştirdi
 }
 function isShown(table, id) {
   return table === 'notlar'
@@ -3020,6 +3317,7 @@ function initAdmin() {
   $('#adm-p-dl').addEventListener('click', downloadSelected);
   $('#adm-p-del').addEventListener('click', () => removePhotos(admin.photos.filter(r => admin.selP.has(r.id))));
   $('#adm-n-del').addEventListener('click', () => removeNotes(admin.notes.filter(r => admin.selN.has(r.id))));
+  initSettingsForm();
   // Geri tuşu ve Esc: en üstteki pencereyi kapatır
   addEventListener('popstate', () => {
     dlgClose?.(null);
@@ -3076,6 +3374,7 @@ function init() {
     onNew: rows => adminMerge('notlar', rows),
   });
   initArchive();
+  loadSettings();                              // yönetimden ayarlanan paylaşım/görünürlük kuralları
   gallery.load();
   wishes.load();
   store.count('fotograflar').then(c => { photoTotal = Math.max(c, gallery.rows.length); renderPhotoCount(); }).catch(e => console.warn(e));
