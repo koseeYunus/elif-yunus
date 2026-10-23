@@ -223,7 +223,7 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 .cal-btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 .cal .cal-alt { margin: 14px 0 0; font: 400 13.5px/1.6 var(--sans); color: var(--ink-3); }
 .cal-alt a { color: var(--gold-deep); text-underline-offset: 3px; white-space: nowrap; }
-.cal-alt b { font-weight: 600; color: var(--ink-2); }
+.cal-alt em { font-style: normal; font-weight: 600; color: var(--ink-2); }
 .cal #cal-android { max-width: 330px; margin: 12px auto 0; color: var(--ink-2); }
 
 /* Anı & dilek formu */
@@ -499,7 +499,17 @@ textarea.input { min-height: 132px; resize: vertical; }
 .set-note { margin: -6px 2px 0; font-size: 12.5px; line-height: 1.5; color: var(--ink-3); }
 @media (max-width: 420px) { .set-times { grid-template-columns: 1fr; } }
 /* İçerik sekmesi */
-.ic-groups { display: grid; gap: 16px; }
+.ic-groups { display: grid; gap: 12px; }
+.ic-search { margin: 0; }
+.ic-group { padding: 0 16px; }
+.ic-group[open] { padding-bottom: 16px; }
+.ic-group > summary { display: flex; align-items: center; gap: 10px; min-height: 56px; cursor: pointer; list-style: none; font: 500 21px/1.2 var(--serif); color: var(--ink); }
+.ic-group > summary::-webkit-details-marker { display: none; }
+.ic-group > summary small { margin-left: auto; font: 500 12px/1.2 var(--sans); color: var(--ink-3); white-space: nowrap; }
+.ic-group.degisti > summary small { color: #2F5A3E; }
+.ic-group > summary::after { content: ""; flex: none; width: 8px; height: 8px; margin: -4px 2px 0 4px; border-right: 1.6px solid var(--gold-deep); border-bottom: 1.6px solid var(--gold-deep); transform: rotate(45deg); transition: transform .2s; }
+.ic-group[open] > summary::after { margin-top: 4px; transform: rotate(225deg); }
+.ic-group .ic-field:first-of-type { margin-top: 0; }
 .ic-field { margin-top: 12px; }
 .ic-field .field { margin: 0; }
 .ic-field textarea.input { min-height: 96px; }
@@ -631,9 +641,9 @@ textarea.input { min-height: 132px; resize: vertical; }
   <div class="sparks" id="sparks" aria-hidden="true"></div>
   <div class="hero-inner">
     <p class="eyebrow in-1" id="hero-eyebrow">Evleniyoruz</p>
-    <h1 class="names in-2"><span>Elif</span><span class="amp">&amp;</span><span>Yunus</span></h1>
+    <h1 class="names in-2"><span data-c="gelin_adi">Elif</span><span class="amp">&amp;</span><span data-c="damat_adi">Yunus</span></h1>
     <svg class="orn in-3" aria-hidden="true"><use href="#orn"/></svg>
-    <p class="hero-date in-3">15 Kasım 2026<i>·</i>Pazar<i>·</i>19.00</p>
+    <p class="hero-date in-3"><span data-d="tarih">15 Kasım 2026</span><i>·</i><span data-d="gun">Pazar</span><i>·</i><span data-d="saat">19.00</span></p>
     <p class="hero-venue in-3" data-c="mekan_adi">Nazar Düğün Salonu</p>
     <p class="cd-note in-4" id="cd-note">Büyük güne kalan süre</p>
     <div class="cd in-4" id="cd" role="timer" aria-label="Düğüne kalan süre">
@@ -656,14 +666,14 @@ textarea.input { min-height: 132px; resize: vertical; }
     <h2 class="sr-only">Davetiye</h2>
     <div class="wrap">
       <div class="card invite-card rv">
-        <div class="monogram" aria-hidden="true">E<small>&amp;</small>Y</div>
+        <div class="monogram" aria-hidden="true"><span data-i="gelin_adi">E</span><small>&amp;</small><span data-i="damat_adi">Y</span></div>
         <p class="eyebrow" data-c="davet_ust">Davetlimizsiniz</p>
         <p class="invite-text" data-c="davet_metni">Hayatımızı birleştirdiğimiz bu özel günde mutluluğumuzu sevdiklerimizle paylaşmak istiyoruz. Sizleri de aramızda görmekten <em>onur ve mutluluk</em> duyarız.</p>
-        <p class="sr-only">15 Kasım 2026 Pazar, saat 19.00</p>
+        <p class="sr-only" data-d="tamCumle">15 Kasım 2026 Pazar, saat 19.00</p>
         <div class="date-block" aria-hidden="true">
-          <span class="side">Pazar</span><span class="day">15</span><span class="side">19.00</span>
+          <span class="side" data-d="gun">Pazar</span><span class="day" data-d="gunNo">15</span><span class="side" data-d="saat">19.00</span>
         </div>
-        <p class="date-month" aria-hidden="true">Kasım 2026</p>
+        <p class="date-month" aria-hidden="true" data-d="ayYil">Kasım 2026</p>
         <div class="venue">
           <p class="venue-name" data-c="mekan_adi">Nazar Düğün Salonu</p>
           <p class="venue-addr" data-c="mekan_adresi">Sarıcalı, Güven Sk. No: 1, Çarşamba / Samsun</p>
@@ -681,7 +691,7 @@ textarea.input { min-height: 132px; resize: vertical; }
   <section class="section alt" id="program">
     <div class="wrap">
       <header class="sec-head rv">
-        <p class="eyebrow">15 Kasım 2026 · Pazar</p>
+        <p class="eyebrow"><span data-d="tarih">15 Kasım 2026</span> · <span data-d="gun">Pazar</span></p>
         <h2 class="sec-title" data-c="program_baslik">Düğün Programı</h2>
       </header>
       <div class="card program rv">
@@ -697,7 +707,7 @@ textarea.input { min-height: 132px; resize: vertical; }
         <div class="pg-item">
           <div class="pg-dot"><svg class="ic" aria-hidden="true"><use href="#i-rings"/></svg></div>
           <div>
-            <p class="pg-time">19.00</p>
+            <p class="pg-time" data-d="saat">19.00</p>
             <h3 class="pg-title" data-c="toren_baslik">Düğün Töreni</h3>
             <p class="pg-desc" data-c="toren_aciklama">Mutluluğumuzu sizlerle paylaşacağımız düğün törenimiz.</p>
             <p class="addr"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span><span data-c="mekan_adi">Nazar Düğün Salonu</span><small data-c="mekan_adresi">Sarıcalı, Güven Sk. No: 1, Çarşamba / Samsun</small></span></p>
@@ -708,9 +718,9 @@ textarea.input { min-height: 132px; resize: vertical; }
       <div class="cal rv">
         <p data-c="takvim_cagri">Bu tarihi takviminize ekleyin</p>
         <div class="cal-btns">
-          <a class="btn btn-dark btn-sm" id="cal-add" href="dugun.ics"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg>Takvime Ekle</a>
+          <a class="btn btn-dark btn-sm" id="cal-add" href="dugun.ics"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg><span data-c="takvim_dugme">Takvime Ekle</span></a>
         </div>
-        <p class="cal-alt" id="cal-android" hidden>Açılan ekranda <b>Ekle</b> ya da <b>Kaydet</b>’e dokunmanız yeterli.</p>
+        <p class="cal-alt" id="cal-android" data-c="takvim_android" hidden>Açılan ekranda <em>Ekle</em> ya da <em>Kaydet</em>’e dokunmanız yeterli.</p>
         <p class="cal-alt">Başka bir takvim mi kullanıyorsunuz? <a id="cal-google" href="#" target="_blank" rel="noopener">Google Takvim</a> · <a href="dugun.ics">Apple, Outlook (.ics)</a></p>
       </div>
     </div>
@@ -724,13 +734,13 @@ textarea.input { min-height: 132px; resize: vertical; }
         <p class="sec-sub" id="paylas-sub">Bir fotoğraf, birkaç satır dilek ya da ikisi birden… Hepsi bu güzel günün hatırası olacak.</p>
       </header>
       <form class="card composer rv" id="k-form" novalidate>
-        <label class="field"><span>Adınız</span><input class="input" id="k-name" data-name maxlength="50" autocomplete="name" enterkeyhint="next" placeholder="Adınız ve soyadınız"></label>
-        <label class="field" id="k-msg-field"><span>Dileğiniz <i class="opt">(isteğe bağlı)</i></span><textarea class="input" id="k-msg" maxlength="600" rows="4" placeholder="Elif ile Yunus’a dileklerinizi yazın…"></textarea><small class="counter" id="k-counter">0 / 600</small></label>
+        <label class="field"><span data-c="form_ad_etiket">Adınız</span><input class="input" id="k-name" data-name data-cp="form_ad_ipucu" maxlength="50" autocomplete="name" enterkeyhint="next" placeholder="Adınız ve soyadınız"></label>
+        <label class="field" id="k-msg-field"><span><span data-c="form_dilek_etiket">Dileğiniz</span> <i class="opt">(isteğe bağlı)</i></span><textarea class="input" id="k-msg" data-cp="form_dilek_ipucu" maxlength="600" rows="4" placeholder="Elif ile Yunus’a dileklerinizi yazın…"></textarea><small class="counter" id="k-counter">0 / 600</small></label>
         <p class="k-saved" id="k-saved" hidden><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Dileğiniz kaydedildi. Kalan fotoğrafları yeniden göndermek için Gönder’e basın.</p>
         <div class="field" id="k-photo-field">
-          <span>Fotoğraflar <i class="opt">(isteğe bağlı)</i></span>
+          <span><span data-c="form_foto_etiket">Fotoğraflar</span> <i class="opt">(isteğe bağlı)</i></span>
           <div class="k-photos" id="k-photos">
-            <button class="k-add" id="k-add" type="button"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg><span>Fotoğraf Ekle</span></button>
+            <button class="k-add" id="k-add" type="button"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg><span data-c="form_foto_ekle">Fotoğraf Ekle</span></button>
           </div>
         </div>
         <p class="k-later" id="k-photo-later" hidden><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span id="k-photo-later-text"></span></p>
@@ -758,7 +768,7 @@ textarea.input { min-height: 132px; resize: vertical; }
       <p class="empty" id="gallery-empty" hidden>Henüz fotoğraf yok.<br><a href="#paylas">İlk anıyı siz paylaşın!</a></p>
       <p class="notice" id="gallery-error" hidden>Albüm şu anda yüklenemiyor. Birazdan kendiliğinden tekrar denenecek.</p>
       <div class="more"><button class="btn btn-line btn-sm" id="gallery-more" type="button" hidden>Daha Fazla Göster</button></div>
-      <p class="more-hint" id="gallery-hint" hidden>Tüm albümü gezmek için bir fotoğrafa dokunup yana kaydırın.</p>
+      <p class="more-hint" id="gallery-hint" data-c="album_ipucu" hidden>Tüm albümü gezmek için bir fotoğrafa dokunup yana kaydırın.</p>
     </div>
   </section>
 
@@ -773,15 +783,15 @@ textarea.input { min-height: 132px; resize: vertical; }
       <div class="wishes" id="wishes"></div>
       <p class="empty" id="wishes-empty" hidden><a href="#paylas">İlk dileği siz yazın ♡</a></p>
       <p class="notice" id="wishes-error" hidden>Dilekler şu anda yüklenemiyor. Birazdan kendiliğinden tekrar denenecek.</p>
-      <div class="more"><button class="btn btn-line btn-sm" id="wishes-more" type="button" hidden>Daha Fazla Dilek</button></div>
+      <div class="more"><button class="btn btn-line btn-sm" id="wishes-more" type="button" data-c="dilekler_daha" hidden>Daha Fazla Dilek</button></div>
     </div>
   </section>
 </main>
 
 <footer class="footer">
   <svg class="orn" aria-hidden="true"><use href="#orn"/></svg>
-  <p class="footer-names">Elif &amp; Yunus</p>
-  <p>15 Kasım 2026 · <span data-c="mekan_adi">Nazar Düğün Salonu</span></p>
+  <p class="footer-names"><span data-c="gelin_adi">Elif</span> &amp; <span data-c="damat_adi">Yunus</span></p>
+  <p><span data-d="tarih">15 Kasım 2026</span> · <span data-c="mekan_adi">Nazar Düğün Salonu</span></p>
   <p class="thanks" data-c="alt_tesekkur">Bu güzel günü bizimle paylaştığınız için teşekkür ederiz.</p>
   <small data-c="alt_imza">Sevgiyle ♡</small>
 </footer>
@@ -789,11 +799,11 @@ textarea.input { min-height: 132px; resize: vertical; }
 <!-- ===== Alt menü ===== -->
 <div class="progress" aria-hidden="true"></div>
 <nav class="dock" id="dock" aria-label="Sayfa bölümleri">
-  <a href="#davet" data-sec="davet"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg><span>Davet</span></a>
-  <a href="#program" data-sec="program"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span>Program</span></a>
+  <a href="#davet" data-sec="davet"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg><span data-c="menu_davet">Davet</span></a>
+  <a href="#program" data-sec="program"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span data-c="menu_program">Program</span></a>
   <button class="fab" type="button" data-action="upload" aria-label="Fotoğraf ekle"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg></button>
-  <a href="#album" data-sec="album"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg><span>Albüm</span><i class="dot" hidden></i></a>
-  <a href="#dilekler" data-sec="dilekler"><svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg><span>Dilekler</span><i class="dot" hidden></i></a>
+  <a href="#album" data-sec="album"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg><span data-c="menu_album">Albüm</span><i class="dot" hidden></i></a>
+  <a href="#dilekler" data-sec="dilekler"><svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg><span data-c="menu_dilekler">Dilekler</span><i class="dot" hidden></i></a>
 </nav>
 
 <!-- ===== Fotoğraf görüntüleyici ===== -->
@@ -952,6 +962,7 @@ textarea.input { min-height: 132px; resize: vertical; }
       <form class="set-form" id="ic-form" novalidate>
         <p class="adm-lead">Sayfadaki yazıları buradan değiştirebilirsiniz. Boş bırakılan alan sayfanın varsayılan metnine döner. Davet metninde bir sözü <b>*yıldız*</b> içine alırsanız altın renkli vurgulu görünür.</p>
         <p class="notice set-missing" id="ic-missing" hidden>Metinler veritabanında henüz yok. Güncel <b>supabase-kurulum.sql</b> dosyasını Supabase › SQL Editor’de çalıştırın; o zamana kadar sayfa varsayılan metinlerle görünür.</p>
+        <label class="adm-search ic-search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input id="ic-ara" type="search" placeholder="Alan ara (ör. salon, saat, düğme)" aria-label="İçerik alanlarında ara" autocomplete="off"></label>
         <div class="ic-groups" id="ic-groups"></div>
         <button class="btn btn-gold btn-block" type="submit" id="ic-save">Metinleri Kaydet</button>
         <p class="arc-log" id="ic-log" aria-live="polite"></p>
@@ -1100,8 +1111,10 @@ function lockScroll(on) {
 const simAt = Date.parse(new URLSearchParams(location.search).get('zaman') || '');
 const clockOffset = Number.isFinite(simAt) ? simAt - Date.now() : 0;
 const now = () => Date.now() + clockOffset;
-const WED = Date.parse(CONFIG.weddingAt);
-const DAY_START = Date.parse(CONFIG.weddingAt.slice(0, 10) + 'T00:00:00+03:00');
+// Düğün günü 00.00 (Türkiye saati, UTC+3)
+const dayStartOf = t => { const d = new Date(t + 3 * 3600e3); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) - 3 * 3600e3; };
+// Yönetimden (İçerik › Temel bilgiler) değiştirilebilir; applyWedding() günceller
+let WED = Date.parse(CONFIG.weddingAt), DAY_START = dayStartOf(WED);
 const TZ = 'Europe/Istanbul';
 const fmtClock = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, hour: '2-digit', minute: '2-digit' });
 const fmtDay = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, day: 'numeric', month: 'short' });
@@ -1128,10 +1141,9 @@ function opensAt(kind, s = ayar, t = now()) {
   const from = Date.parse(s[kind + '_baslangic'] || '');
   return s[kind + '_acik'] && from > t && from < SHARE_END ? from : null;
 }
-const shareLabel = () => {
-  const f = shareOpen('foto'), d = shareOpen('dilek');
-  return f && d ? 'Anı & Dilek Bırak' : d ? 'Dilek Bırak' : f ? 'Anı Paylaş' : '';
-};
+// Paylaşım türüne göre yazı anahtarı soneki: 'ikisi' | 'dilek' | 'foto' | '' (kapalı)
+const shareMode = () => { const f = shareOpen('foto'), d = shareOpen('dilek'); return f && d ? 'ikisi' : d ? 'dilek' : f ? 'foto' : ''; };
+const shareLabel = () => { const m = shareMode(); return m ? txt('paylas_baslik_' + m) : ''; };
 function ago(iso) {
   const t = Date.parse(iso), s = (now() - t) / 1000;
   if (s < 60) return 'az önce';
@@ -1142,7 +1154,7 @@ function ago(iso) {
 function phase(t = now()) {
   if (t < DAY_START) return 'before';
   if (t < WED) return 'today';
-  if (t < WED + CONFIG.partyHours * 3600e3) return 'live';
+  if (t < WED + partyHours() * 3600e3) return 'live';
   return 'after';
 }
 
@@ -1164,10 +1176,10 @@ function applyPhase(p) {
   // Kapak düğmeleri ayarlara göre: paylaşım kapalıysa ya da albüm gizliyse ilgili düğme çıkmaz
   const share = shareLabel(), album = !!ayar.album_gorunur;
   $('#hero-cta').replaceChildren(...(p === 'before'
-    ? [h('a', { class: 'btn btn-gold', href: '#davet', 'data-action': 'open-invite' }, 'Davetiyeyi Aç'),
+    ? [h('a', { class: 'btn btn-gold', href: '#davet', 'data-action': 'open-invite' }, txt('dugme_davetiye')),
       share && h('a', { class: 'btn btn-line', href: '#paylas' }, share)]
     : [share && h('a', { class: 'btn btn-gold', href: '#paylas' }, icon(shareOpen('foto') ? 'camera' : 'edit'), share),
-      album && h('a', { class: 'btn ' + (share ? 'btn-line' : 'btn-gold'), href: '#album' }, 'Albümü Gör')]).filter(Boolean));
+      album && h('a', { class: 'btn ' + (share ? 'btn-line' : 'btn-gold'), href: '#album' }, txt('dugme_album'))]).filter(Boolean));
 }
 function tickCountdown() {
   // Paylaşımın açılış/kapanış anı geldiyse sayfa yenilenmeden güncellenir
@@ -1225,7 +1237,36 @@ function markNew(sec) {
    kendisidir (data-c işaretli öğeler); veritabanında yalnızca değiştirilen metinler saklanır.
    Metinler her zaman düz metin olarak yazılır (HTML çalıştırılmaz); davet metninde *söz* vurgulanır.
    ===================================================================== */
+// Türkçe ekler: isim değişince "Yunus’a / Ali’ye", "Yunus’un / Ali’nin" kendiliğinden uyar
+const UNLU = 'aıoueiöüAIOUEİÖÜ';
+const sonKelime = s => String(s).trim().split(/\s+/).pop() || '';
+const sonUnlu = w => { for (let i = w.length - 1; i >= 0; i--) if (UNLU.includes(w[i])) return w[i].toLocaleLowerCase('tr-TR'); return 'e'; };
+const ekYonelme = ad => { const w = sonKelime(ad); return '’' + (UNLU.includes(w.slice(-1)) ? 'y' : '') + ('aıou'.includes(sonUnlu(w)) ? 'a' : 'e'); };
+const ekIlgi = ad => {
+  const w = sonKelime(ad), v = sonUnlu(w);
+  return '’' + (UNLU.includes(w.slice(-1)) ? 'n' : '') + ('aı'.includes(v) ? 'ı' : 'ei'.includes(v) ? 'i' : 'ou'.includes(v) ? 'u' : 'ü') + 'n';
+};
+const basHarf = ad => (String(ad).trim()[0] || '').toLocaleUpperCase('tr-TR');
+const cift = () => `${txt('gelin_adi')} & ${txt('damat_adi')}`;
+const doldur = (s, v) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+// Tarih yazıları tek bir düğün zamanından üretilir (kapak, davetiye, program, alt bilgi, QR kartı)
+const fmtTarih = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, day: 'numeric', month: 'long', year: 'numeric' });
+const fmtGun = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, weekday: 'long' });
+const fmtGunNo = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, day: 'numeric' });
+const fmtAyYil = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, month: 'long', year: 'numeric' });
+function dateText(kind, t = WED) {
+  const tarih = fmtTarih.format(t), gun = fmtGun.format(t), saat = fmtClock.format(t).replace(':', '.');
+  return { tarih, gun, saat, gunNo: fmtGunNo.format(t), ayYil: fmtAyYil.format(t), tamCumle: `${tarih} ${gun}, saat ${saat}` }[kind] ?? '';
+}
+const partyHours = () => Number(txt('dugun_suresi')) + 2;   // düğünden sonra 2 saat daha "düğün sürüyor" sayılır
+
 const CONTENT_GROUPS = [
+  ['Temel bilgiler', [
+    ['gelin_adi', 'Gelinin adı'],
+    ['damat_adi', 'Damadın adı'],
+    ['dugun_zamani', 'Düğün tarihi ve saati (Türkiye saati)', { type: 'datetime', def: CONFIG.weddingAt }],
+    ['dugun_suresi', 'Düğünün süresi (saat; takvime de bu süre yazılır)', { type: 'number', min: 1, max: 12, def: String(CONFIG.calendarHours) }],
+  ]],
   ['Kapak', [
     ['kapak_ust', 'Üst yazı (düğünden önce ve düğün günü)', { def: 'Evleniyoruz' }],
     ['kapak_ust_dugun', 'Üst yazı (düğün sırasında)', { def: 'Bugün Evleniyoruz' }],
@@ -1234,6 +1275,8 @@ const CONTENT_GROUPS = [
     ['sayac_bugun', 'Düğün günü, tören başlayana kadar', { def: PHASE_TEXT.today, area: true }],
     ['sayac_dugun', 'Düğün sırasında', { def: PHASE_TEXT.live, area: true }],
     ['sayac_sonra', 'Düğünden sonra', { def: PHASE_TEXT.after, area: true }],
+    ['dugme_davetiye', 'Davetiyeyi açma düğmesi', { def: 'Davetiyeyi Aç' }],
+    ['dugme_album', 'Albüme gitme düğmesi', { def: 'Albümü Gör' }],
   ]],
   ['Davetiye', [
     ['davet_ust', 'Üst yazı'],
@@ -1257,10 +1300,67 @@ const CONTENT_GROUPS = [
     ['toren_baslik', 'Tören başlığı'],
     ['toren_aciklama', 'Tören açıklaması', { area: true }],
     ['takvim_cagri', 'Takvim çağrısı'],
+    ['takvim_dugme', 'Takvim düğmesi'],
+    ['takvim_android', 'Android’de takvim düğmesinin altındaki not', { rich: true }],
   ]],
-  ['Anı Albümü', [['album_ust', 'Üst yazı'], ['album_baslik', 'Başlık'], ['album_aciklama', 'Açıklama', { area: true }]]],
-  ['Dilek Defteri', [['dilekler_ust', 'Üst yazı'], ['dilekler_baslik', 'Başlık'], ['dilekler_aciklama', 'Açıklama', { area: true }]]],
+  ['Anı & Dilek formu', [
+    ['paylas_ust_ikisi', 'Üst yazı (fotoğraf ve dilek açıkken)', { def: 'Bir Fotoğraf, Bir Dilek' }],
+    ['paylas_baslik_ikisi', 'Başlık ve kapak düğmesi (fotoğraf ve dilek açıkken)', { def: 'Anı & Dilek Bırak' }],
+    ['paylas_aciklama_ikisi', 'Açıklama (fotoğraf ve dilek açıkken)', { area: true, def: 'Bir fotoğraf, birkaç satır dilek ya da ikisi birden… Hepsi bu güzel günün hatırası olacak.' }],
+    ['paylas_ust_dilek', 'Üst yazı (yalnızca dilek açıkken)', { def: 'Bize Birkaç Satır Bırakın' }],
+    ['paylas_baslik_dilek', 'Başlık ve kapak düğmesi (yalnızca dilek açıkken)', { def: 'Dilek Bırak' }],
+    ['paylas_aciklama_dilek', 'Açıklama (yalnızca dilek açıkken)', { area: true, def: 'Güzel dileklerinizi şimdiden yazabilirsiniz; yıllar sonra açıp okuyacağımız en kıymetli hatıralar olacak.' }],
+    ['paylas_ust_foto', 'Üst yazı (yalnızca fotoğraf açıkken)', { def: 'Bu Gecenin Anıları' }],
+    ['paylas_baslik_foto', 'Başlık ve kapak düğmesi (yalnızca fotoğraf açıkken)', { def: 'Anı Paylaş' }],
+    ['paylas_aciklama_foto', 'Açıklama (yalnızca fotoğraf açıkken)', { area: true, def: 'Bu güzel günün fotoğraflarını paylaşın; hepsi albümümüzde toplanacak.' }],
+    ['paylas_aciklama_kapali', 'Açıklama (paylaşım kapalıyken)', { area: true, def: 'Paylaşılan anılar ve dilekler aşağıda.' }],
+    ['form_ad_etiket', 'Ad alanının başlığı'],
+    ['form_ad_ipucu', 'Ad alanının içindeki silik yazı'],
+    ['form_dilek_etiket', 'Dilek alanının başlığı'],
+    ['form_dilek_ipucu', 'Dilek alanının içindeki silik yazı', { def: () => `${txt('gelin_adi')} ile ${txt('damat_adi')}${ekYonelme(txt('damat_adi'))} dileklerinizi yazın…` }],
+    ['form_foto_etiket', 'Fotoğraf alanının başlığı'],
+    ['form_foto_ekle', 'Fotoğraf ekleme düğmesi'],
+    ['form_gonder', 'Gönder düğmesi', { def: 'Gönder' }],
+    ['form_not_ikisi', 'Formun altındaki not (fotoğraf ve dilek açıkken)', { area: true, def: 'Yalnızca dilek, yalnızca fotoğraf ya da ikisini birden gönderebilirsiniz. Fotoğraflar yüklenmeden önce otomatik olarak küçültülür.' }],
+    ['form_not_dilek', 'Formun altındaki not (yalnızca dilek açıkken)', { area: true, def: 'Dileğiniz gönderdiğiniz anda dilek defterinde görünür.' }],
+    ['form_not_foto', 'Formun altındaki not (yalnızca fotoğraf açıkken)', { area: true, def: 'Birden fazla fotoğraf seçebilirsiniz. Fotoğraflar yüklenmeden önce otomatik olarak küçültülür.' }],
+    ['foto_acilacak', 'Fotoğraf paylaşımı ileride açılacaksa ({tarih} yerine açılış zamanı yazılır)', { area: true, def: 'Fotoğraf paylaşımı {tarih} itibarıyla açılacak.' }],
+    ['foto_kapali', 'Fotoğraf paylaşımı kapalıysa', { def: 'Fotoğraf paylaşımı şu anda kapalı.' }],
+    ['paylasim_acilacak', 'Her şey kapalı ve ileride açılacaksa ({tarih} yerine açılış zamanı yazılır)', { area: true, def: 'Anı ve dilek paylaşımı {tarih} itibarıyla açılacak.' }],
+    ['paylasim_kapali', 'Her şey kapalıysa', { area: true, def: 'Anı ve dilek paylaşımı şu anda kapalı. İlginiz için çok teşekkür ederiz.' }],
+  ]],
+  ['Teşekkür ve uyarı mesajları', [
+    ['msg_ikisi', 'Fotoğraf ve dilek gönderilince', { def: 'Anınız ve dileğiniz eklendi. Çok teşekkür ederiz!' }],
+    ['msg_dilek', 'Dilek gönderilince', { def: 'Dileğiniz deftere eklendi. Çok teşekkür ederiz!' }],
+    ['msg_foto', 'Bir fotoğraf gönderilince', { def: 'Fotoğrafınız albüme eklendi. Teşekkürler!' }],
+    ['msg_fotolar', 'Birden çok fotoğraf gönderilince ({sayi} yerine sayı yazılır)', { def: '{sayi} fotoğrafınız albüme eklendi. Teşekkürler!' }],
+    ['msg_bos', 'Boş gönderilmeye çalışılınca', { def: 'Bir dilek yazın ya da fotoğraf ekleyin.' }],
+    ['msg_ad', 'Dilekte ad yazılmayınca', { def: 'Dileğinizin altında görünmesi için adınızı yazın.' }],
+    ['msg_muzik', 'Müzik ilk kez başlayınca', { def: 'Müziği sağ üstteki düğmeden kapatabilirsiniz.' }],
+  ]],
+  ['Anı Albümü', [
+    ['album_ust', 'Üst yazı'], ['album_baslik', 'Başlık'], ['album_aciklama', 'Açıklama', { area: true }],
+    ['album_bos', 'Albüm boşken', { def: 'Henüz fotoğraf yok.' }],
+    ['album_ilk', 'Albüm boşken davet bağlantısı', { def: 'İlk anıyı siz paylaşın!' }],
+    ['album_toplanacak', 'Fotoğraf paylaşımı açılmadan önce', { def: 'Paylaşılan anılar burada toplanacak.' }],
+    ['album_daha', 'Daha fazla göster düğmesi', { def: 'Daha Fazla Göster' }],
+    ['album_ipucu', 'Albümün altındaki ipucu', { area: true }],
+    ['album_isimsiz', 'İsimsiz paylaşılan fotoğrafın altındaki yazı', { def: 'Misafirlerimizden' }],
+  ]],
+  ['Dilek Defteri', [
+    ['dilekler_ust', 'Üst yazı'], ['dilekler_baslik', 'Başlık'], ['dilekler_aciklama', 'Açıklama', { area: true }],
+    ['dilekler_ilk', 'Defter boşken davet bağlantısı', { def: 'İlk dileği siz yazın ♡' }],
+    ['dilekler_bos', 'Defter boşken (dilek yazma kapalıyken)', { def: 'Henüz dilek yok.' }],
+    ['dilekler_daha', 'Daha fazla dilek düğmesi'],
+  ]],
+  ['Alt menü', [['menu_davet', 'Davet'], ['menu_program', 'Program'], ['menu_album', 'Albüm'], ['menu_dilekler', 'Dilekler']]],
   ['Alt bilgi', [['alt_tesekkur', 'Teşekkür yazısı', { area: true }], ['alt_imza', 'İmza']]],
+  ['QR masa kartı', [
+    ['kart_ust', 'Üst yazı', { def: 'Anılarınızı Paylaşın' }],
+    ['kart_metin', 'Açıklama (en çok 2 satır)', { area: true, def: 'Bu gecenin fotoğraflarını albümümüze ekleyin,\nbize birkaç satır dilek bırakın.' }],
+    ['kart_adim1', '1. adım', { def: 'Telefonunuzun kamerasını karekoda tutun' }],
+    ['kart_adim2', '2. adım (*yıldızlı* söz koyu yazılır)', { rich: true, def: 'Açılan sayfada *Anı & Dilek Bırak*’a dokunun' }],
+  ]],
 ];
 const CONTENT_FIELDS = CONTENT_GROUPS.flatMap(([g, list]) => list.map(([k, l, o = {}]) => ({ k, l, g, ...o })));
 const CONTENT_FIELD = Object.fromEntries(CONTENT_FIELDS.map(f => [f.k, f]));
@@ -1273,21 +1373,44 @@ const richToText = el => tidy([...el.childNodes].map(n => (n.nodeName === 'EM' ?
 const setRich = (el, v) => el.replaceChildren(...v.split(/\*([^*\n]+)\*/).map((part, i) => (i % 2 ? h('em', { text: part }) : part)).filter(Boolean));
 function captureContentDefaults() {
   for (const f of CONTENT_FIELDS) {
-    const el = document.querySelector(`[data-c="${f.k}"]`);
-    contentDefaults[f.k] = f.def ?? (el ? (f.rich ? richToText(el) : tidy(el.textContent.replace(/\s+/g, ' '))) : '');
+    if (f.def != null) { contentDefaults[f.k] = f.def; continue; }
+    const el = document.querySelector(`[data-c="${f.k}"]`), ph = document.querySelector(`[data-cp="${f.k}"]`);
+    contentDefaults[f.k] = el ? (f.rich ? richToText(el) : tidy(el.textContent.replace(/\s+/g, ' '))) : ph ? ph.getAttribute('placeholder') || '' : '';
   }
 }
-// Geçerli metin: değiştirildiyse o, değilse varsayılan. Bağlantılar yalnızca https olabilir.
+// Varsayılan bir işlev de olabilir (ör. dilek ipucu isimlerden üretilir)
+const defOf = k => { const d = contentDefaults[k]; return typeof d === 'function' ? d() : d ?? ''; };
+function validValue(f, v) {
+  if (f?.url) return /^https:\/\/\S+$/i.test(v);
+  if (f?.type === 'datetime') return Number.isFinite(Date.parse(v));
+  if (f?.type === 'number') { const n = Number(v); return Number.isFinite(n) && n >= f.min && n <= f.max; }
+  return true;
+}
+// Geçerli metin: değiştirildiyse o, değilse varsayılan. Geçersiz değer (ör. https olmayan bağlantı) yok sayılır.
 function txt(k) {
   const v = tidy(icerik[k]);
-  if (!v || (CONTENT_FIELD[k]?.url && !/^https:\/\/\S+$/i.test(v))) return contentDefaults[k] ?? '';
-  return v;
+  return v && validValue(CONTENT_FIELD[k], v) ? v : defOf(k);
+}
+// Düğün zamanı değişirse geri sayım, aşama ve tüm tarih yazıları yeniden hesaplanır
+function applyWedding() {
+  const t = Date.parse(txt('dugun_zamani'));
+  if (!Number.isFinite(t) || t === WED) return;
+  WED = t;
+  DAY_START = dayStartOf(t);
+  currentPhase = null;                      // tickCountdown aşamayı yeniden uygular
 }
 function applyContent() {
+  applyWedding();
   $$('[data-c]').forEach(el => { const k = el.dataset.c; if (CONTENT_FIELD[k]?.rich) setRich(el, txt(k)); else el.textContent = txt(k); });
+  $$('[data-cp]').forEach(el => { el.placeholder = txt(el.dataset.cp); });
+  $$('[data-i]').forEach(el => { el.textContent = basHarf(txt(el.dataset.i)); });   // monogram baş harfleri
+  $$('[data-d]').forEach(el => { el.textContent = dateText(el.dataset.d); });
+  document.title = `${cift()} · ${txt('kapak_ust')} · ${dateText('tarih')}`;
   updateLinks();
+  applySettings();                                      // paylaşım formu, kapak düğmeleri, boş albüm yazıları
   if (currentPhase) applyPhase(currentPhase);          // kapaktaki üst yazı ve geri sayım notu
-  cardP = null; $('#arc-card-prev').replaceChildren();  // QR kartı yeni salon adıyla yeniden çizilsin
+  renderGalleryMore();
+  cardP = null; $('#arc-card-prev').replaceChildren();  // QR kartı yeni metinlerle yeniden çizilsin
 }
 // Önce bu cihazda saklanan son metinler (sayfa açılırken eski metin görünüp değişmesin), sonra veritabanı
 function initContent() {
@@ -1316,8 +1439,8 @@ function updateLinks() {
   const stamp = t => new Date(t).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const q = new URLSearchParams({
     action: 'TEMPLATE',
-    text: 'Elif & Yunus’un Düğünü',
-    dates: stamp(WED) + '/' + stamp(WED + CONFIG.calendarHours * 3600e3),
+    text: `${cift()}${ekIlgi(txt('damat_adi'))} Düğünü`,
+    dates: stamp(WED) + '/' + stamp(WED + Number(txt('dugun_suresi')) * 3600e3),
     location: `${txt('mekan_adi')}, ${txt('mekan_adresi')}`,
     details: `${txt('gelin_alma_baslik')}: ${txt('gelin_alma_saat')} — ${txt('gelin_alma_aciklama')}\n`
       + `${txt('toren_baslik')}: ${fmtClock.format(WED).replace(':', '.')} — ${txt('mekan_adi')}\n\n${location.origin + location.pathname}`,
@@ -1850,7 +1973,7 @@ function setSending(on) {
   komp.sending = on;
   $('#k-send').disabled = on;
   $('#k-add').disabled = on;
-  $('#k-send span').textContent = on ? 'Gönderiliyor…' : 'Gönder';
+  $('#k-send span').textContent = on ? 'Gönderiliyor…' : txt('form_gonder');
   komp.items.forEach(it => { it.el.querySelector('.k-remove').hidden = on || it.state === 'tamam'; });
   renderProgress();
 }
@@ -1881,11 +2004,11 @@ async function sendComposer(e) {
   if (!fotoOk && pendingItems().length) toast('Fotoğraf paylaşımı şu anda kapalı; seçtiğiniz fotoğraflar gönderilmeyecek.', 'err');
   if (!mesaj && !photos.length) {
     if (sentSome()) finishComposer();          // kalanların hepsi zaten gönderilmiş
-    else if (dilekOk) shake('#k-msg', fotoOk ? 'Bir dilek yazın ya da fotoğraf ekleyin.' : 'Lütfen bir dilek yazın.');
+    else if (dilekOk) shake('#k-msg', fotoOk ? txt('msg_bos') : 'Lütfen bir dilek yazın.');
     else toast('Lütfen fotoğraf ekleyin.', 'err');
     return;
   }
-  if (mesaj && !isim) { shake('#k-name', 'Dileğinizin altında görünmesi için adınızı yazın.'); return; }
+  if (mesaj && !isim) { shake('#k-name', txt('msg_ad')); return; }
   if (mesaj && mesaj.length < 2) { shake('#k-msg', 'Dileğiniz çok kısa.'); return; }
   if (mesaj && Date.now() - lastNoteAt < 8000) { toast('Lütfen birkaç saniye bekleyip tekrar deneyin.', 'err'); return; }
   setSending(true);
@@ -1936,9 +2059,8 @@ async function sendComposer(e) {
   // Seçilen fotoğrafların hiçbiri açılamadıysa (her biri için uyarı zaten gösterildi) form olduğu gibi kalır.
   if (!sentNote && !sentPhotos) { $('#k-progress').hidden = true; return; }
   celebrate($('#k-send'));
-  toast(sentNote && sentPhotos ? 'Anınız ve dileğiniz eklendi. Çok teşekkür ederiz!'
-    : sentNote ? 'Dileğiniz deftere eklendi. Çok teşekkür ederiz!'
-    : sentPhotos === 1 ? 'Fotoğrafınız albüme eklendi. Teşekkürler!' : `${sentPhotos} fotoğrafınız albüme eklendi. Teşekkürler!`, 'ok');
+  toast(sentNote && sentPhotos ? txt('msg_ikisi') : sentNote ? txt('msg_dilek')
+    : sentPhotos === 1 ? txt('msg_foto') : doldur(txt('msg_fotolar'), { sayi: sentPhotos }), 'ok');
   resetComposer();
 }
 // Gönderim kutlaması: düğmeden saçılan yapraklar (Web Animations API) ve kısa titreşim (destekleyen telefonlarda)
@@ -2007,32 +2129,26 @@ const isPolicyError = e => /row-level security|42501/i.test(`${e?.code} ${e?.mes
 function applySettings() {
   const foto = shareOpen('foto'), dilek = shareOpen('dilek'), any = foto || dilek;
   shareState = `${foto}|${dilek}`;
-  const later = kind => { const t = opensAt(kind); return t ? `${fmtOpen.format(t)} itibarıyla açılacak` : ''; };
-  const fotoLater = later('foto');
-  // Paylaşım bölümünün başlığı açık olan türe göre
-  const [eyebrow, title, sub] = foto && dilek
-    ? ['Bir Fotoğraf, Bir Dilek', 'Anı & Dilek Bırak', 'Bir fotoğraf, birkaç satır dilek ya da ikisi birden… Hepsi bu güzel günün hatırası olacak.']
-    : dilek ? ['Bize Birkaç Satır Bırakın', 'Dilek Bırak', 'Güzel dileklerinizi şimdiden yazabilirsiniz; yıllar sonra açıp okuyacağımız en kıymetli hatıralar olacak.']
-    : foto ? ['Bu Gecenin Anıları', 'Anı Paylaş', 'Bu güzel günün fotoğraflarını paylaşın; hepsi albümümüzde toplanacak.']
-    : ['Bir Fotoğraf, Bir Dilek', 'Anı & Dilek Bırak', 'Paylaşılan anılar ve dilekler aşağıda.'];
-  $('#paylas-eyebrow').textContent = eyebrow;
-  $('#paylas-title').textContent = title;
-  $('#paylas-sub').textContent = sub;
+  const fotoAt = opensAt('foto');
+  const fotoText = fotoAt ? doldur(txt('foto_acilacak'), { tarih: fmtOpen.format(fotoAt) }) : txt('foto_kapali');
+  // Paylaşım bölümünün yazıları açık olan türe göre (İçerik › Anı & Dilek formu)
+  const m = shareMode();
+  $('#paylas-eyebrow').textContent = txt('paylas_ust_' + (m || 'ikisi'));
+  $('#paylas-title').textContent = txt('paylas_baslik_' + (m || 'ikisi'));
+  $('#paylas-sub').textContent = txt(m ? 'paylas_aciklama_' + m : 'paylas_aciklama_kapali');
   if (!komp.sending) {                         // gönderim sürerken form yerinden oynamasın
     $('#k-form').hidden = !any;
     $('#k-closed').hidden = any;
     $('#k-msg-field').hidden = !dilek;
     $('#k-photo-field').hidden = !foto;
+    $('#k-send span').textContent = txt('form_gonder');
   }
   $$('#k-form .opt').forEach(i => { i.hidden = !(foto && dilek); });
   $('#k-photo-later').hidden = foto || !dilek;
-  $('#k-photo-later-text').textContent = fotoLater ? `Fotoğraf paylaşımı ${fotoLater}.` : 'Fotoğraf paylaşımı şu anda kapalı.';
-  $('#k-hint').textContent = foto && dilek ? 'Yalnızca dilek, yalnızca fotoğraf ya da ikisini birden gönderebilirsiniz. Fotoğraflar yüklenmeden önce otomatik olarak küçültülür.'
-    : dilek ? 'Dileğiniz gönderdiğiniz anda dilek defterinde görünür.'
-    : 'Birden fazla fotoğraf seçebilirsiniz. Fotoğraflar yüklenmeden önce otomatik olarak küçültülür.';
+  $('#k-photo-later-text').textContent = fotoText;
+  $('#k-hint').textContent = txt('form_not_' + (m || 'ikisi'));
   const next = [opensAt('foto'), opensAt('dilek')].filter(Boolean).sort((a, b) => a - b)[0];
-  $('#k-closed-text').textContent = next ? `Anı ve dilek paylaşımı ${fmtOpen.format(next)} itibarıyla açılacak.`
-    : 'Anı ve dilek paylaşımı şu anda kapalı. İlginiz için çok teşekkür ederiz.';
+  $('#k-closed-text').textContent = next ? doldur(txt('paylasim_acilacak'), { tarih: fmtOpen.format(next) }) : txt('paylasim_kapali');
   // Alt menünün ortasındaki düğme: fotoğraf açıksa kamera, yalnızca dilek açıksa kalem, ikisi de kapalıysa yok
   const fab = $('#dock .fab');
   fab.hidden = !any;
@@ -2045,9 +2161,9 @@ function applySettings() {
   $('#dilekler').hidden = !showWishes;
   $('#dock a[data-sec="dilekler"]').hidden = !showWishes;
   document.body.classList.toggle('no-album', !showAlbum);
-  $('#gallery-empty').replaceChildren(...(foto ? ['Henüz fotoğraf yok.', h('br'), h('a', { href: '#paylas' }, 'İlk anıyı siz paylaşın!')]
-    : fotoLater ? [`Fotoğraf paylaşımı ${fotoLater}.`, h('br'), 'Paylaşılan anılar burada toplanacak.'] : ['Henüz fotoğraf yok.']));
-  $('#wishes-empty').replaceChildren(dilek ? h('a', { href: '#paylas' }, 'İlk dileği siz yazın ♡') : 'Henüz dilek yok.');
+  $('#gallery-empty').replaceChildren(...(foto ? [txt('album_bos'), h('br'), h('a', { href: '#paylas' }, txt('album_ilk'))]
+    : fotoAt ? [fotoText, h('br'), txt('album_toplanacak')] : [txt('album_bos')]));
+  $('#wishes-empty').replaceChildren(dilek ? h('a', { href: '#paylas' }, txt('dilekler_ilk')) : txt('dilekler_bos'));
   if (currentPhase) applyPhase(currentPhase);   // kapaktaki düğmeler
   applyMusicSetting();
 }
@@ -2186,7 +2302,7 @@ function renderPhotoCount() {
 function renderGalleryMore() {
   if (!gallery) return;
   const btn = $('#gallery-more'), rest = photoTotal - gallery.rows.length;
-  btn.textContent = rest > 0 ? `Daha Fazla Göster (${rest})` : 'Daha Fazla Göster';
+  btn.textContent = rest > 0 ? `${txt('album_daha')} (${rest})` : txt('album_daha');
   $('#gallery-hint').hidden = btn.hidden || gallery.rows.length < gallery.autoMax;
 }
 
@@ -2262,7 +2378,7 @@ function lbMeta() {
   $('#lb-count').textContent = `${i + 1} / ${lb.fromGallery ? Math.max(rows.length, photoTotal) : rows.length}`;
   const msg = msgOf(r);
   $('#lb-cap').replaceChildren(...[
-    r.isim || 'Misafirlerimizden',
+    r.isim || txt('album_isimsiz'),
     msg ? h('q', { class: 'lb-msg', text: msg.length > 160 ? msg.slice(0, 157) + '…' : msg }) : null,
     h('small', { text: fmtFull.format(Date.parse(r.created_at)) }),
   ].filter(Boolean));
@@ -2550,9 +2666,9 @@ function notesHtml(notes) {
     const foto = r.fotograflar?.length ? ` · ${r.fotograflar.length} fotoğraf` : '';
     return `<article><p>${esc(r.mesaj)}</p><footer><b>${esc(r.isim)}</b><span>${esc(fmtFull.format(Date.parse(r.created_at)) + foto)}</span></footer></article>`;
   }).join('\n');
-  return `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Elif &amp; Yunus — Dilek Defteri</title>
+  return `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(cift())} — Dilek Defteri</title>
 <style>body{margin:0;background:#FAF6EE;color:#24312A;font:18px/1.6 Georgia,'Times New Roman',serif}main{max-width:720px;margin:0 auto;padding:56px 20px}h1{margin:0;text-align:center;font-weight:400;font-size:46px}.sub{margin:8px 0 44px;text-align:center;color:#7A5B2F;font:13px/1.5 system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase}article{margin:0 0 14px;padding:20px 22px;background:#fff;border:1px solid #E6DCCB;border-radius:14px;break-inside:avoid}article p{margin:0;white-space:pre-line}footer{display:flex;justify-content:space-between;gap:12px;margin-top:12px;color:#7A5B2F;font:13px/1.4 system-ui,sans-serif}@media print{body{background:#fff}main{padding:0}}</style></head>
-<body><main><h1>Elif &amp; Yunus</h1><p class="sub">Dilek Defteri · 15 Kasım 2026 · ${notes.length} dilek</p>
+<body><main><h1>${esc(cift())}</h1><p class="sub">Dilek Defteri · ${esc(dateText('tarih'))} · ${notes.length} dilek</p>
 ${items}
 </main></body></html>`;
 }
@@ -2607,9 +2723,9 @@ function bookHtml(entries, nNotes, nPhotos) {
     const meta = fmtFull.format(Date.parse(e.at)) + (n ? ` · ${n} fotoğraf` : '');
     return `<article>${grid}${msg}<footer><b>${esc(e.isim || 'Misafirlerimizden')}</b><span>${esc(meta)}</span></footer></article>`;
   }).join('\n');
-  return `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Elif &amp; Yunus — Anı Defteri</title>
+  return `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(cift())} — Anı Defteri</title>
 <style>*{box-sizing:border-box}body{margin:0;background:#FAF6EE;color:#24312A;font:18px/1.6 Georgia,'Times New Roman',serif}main{max-width:860px;margin:0 auto;padding:56px 20px 72px}header{margin:0 0 44px;text-align:center}.eyebrow,.stats,footer,.end{font-family:system-ui,sans-serif}.eyebrow{margin:0;color:#7A5B2F;font-size:13px;letter-spacing:.28em;text-transform:uppercase}h1{margin:10px 0 6px;font-weight:400;font-size:54px;line-height:1.1}h1 i{padding:0 .18em;color:#A88447;font-size:.6em}.sub{margin:0;color:#56635B;font-style:italic}.stats{margin:14px 0 0;color:#7A5B2F;font-size:13px;letter-spacing:.14em;text-transform:uppercase}article{margin:0 0 18px;padding:22px;background:#fff;border:1px solid #E6DCCB;border-radius:16px;break-inside:avoid}.ph{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.ph a{display:block}.ph img{display:block;width:100%;aspect-ratio:1;object-fit:cover;object-position:50% 30%;border-radius:10px;background:#F1EADF}.ph.one{display:block;text-align:center}.ph.one a{display:inline-block;max-width:100%}.ph.one img{width:auto;max-width:100%;height:auto;max-height:640px;aspect-ratio:auto}.msg{margin:0;font-size:20px;white-space:pre-line;overflow-wrap:anywhere}.ph+.msg{margin-top:16px}footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;margin-top:14px;color:#7A5B2F;font-size:13px;line-height:1.4}.end{margin:40px 0 0;text-align:center;color:#6B756F;font-size:12.5px}@media (max-width:560px){main{padding:40px 14px 56px}h1{font-size:44px}article{padding:16px}.ph{grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:6px}.msg{font-size:18px}}@media print{body{background:#fff}main{padding:0}article{border-color:#ddd}}</style></head>
-<body><main><header><p class="eyebrow">Anı Defteri</p><h1>Elif<i>&amp;</i>Yunus</h1><p class="sub">15 Kasım 2026 · ${esc(txt('mekan_adi'))}</p><p class="stats">${nNotes} dilek · ${nPhotos} fotoğraf</p></header>
+<body><main><header><p class="eyebrow">Anı Defteri</p><h1>${esc(txt('gelin_adi'))}<i>&amp;</i>${esc(txt('damat_adi'))}</h1><p class="sub">${esc(dateText('tarih'))} · ${esc(txt('mekan_adi'))}</p><p class="stats">${nNotes} dilek · ${nPhotos} fotoğraf</p></header>
 ${items}
 <p class="end">${esc(fmtFull.format(Date.now()))} tarihinde indirildi. Tam boyutu görmek için fotoğrafa tıklayın.</p>
 </main></body></html>`;
@@ -2719,10 +2835,10 @@ function paintQr(ctx, qr, left, top, size, margin) {
 }
 async function buildTableCard() {
   const link = siteLink(), shown = link.replace(/^https?:\/\//, '').replace(/\/$/, '');
-  const day = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, day: 'numeric', month: 'long', year: 'numeric' }).format(WED);
+  // Kart yazıları İçerik › QR masa kartı'ndan; isimler ve tarih Temel bilgiler'den
   const T = {
-    eyebrow: 'ANILARINIZI PAYLAŞIN', lead1: 'Bu gecenin fotoğraflarını albümümüze ekleyin,', lead2: 'bize birkaç satır dilek bırakın.',
-    s1: ' Telefonunuzun kamerasını karekoda tutun', s2a: ' Açılan sayfada ', s2b: 'Anı & Dilek Bırak', s2c: '’a dokunun', foot: `${day} · ${txt('mekan_adi')}`,
+    eyebrow: txt('kart_ust').toLocaleUpperCase('tr-TR'), lead: txt('kart_metin'), s1: ' ' + txt('kart_adim1'), s2: txt('kart_adim2'),
+    gelin: txt('gelin_adi'), damat: txt('damat_adi'), foot: `${dateText('tarih')} · ${txt('mekan_adi')}`,
   };
   const F = {
     eyebrow: '500 30px Jost', names: '400 150px "Great Vibes"', amp: 'italic 400 60px "Cormorant Garamond"', lead: '500 46px "Cormorant Garamond"',
@@ -2730,7 +2846,7 @@ async function buildTableCard() {
   };
   await loadScript(QR_JS);
   // Yazı tipleri (Türkçe harfleri içeren parçalar dahil) yüklenmeden çizilirse kart yedek yazı tipiyle çıkar.
-  const sample = [...Object.values(T), 'Elif Yunus &', shown, '1.2.'].join(' ');
+  const sample = [...Object.values(T), '&', shown, '1.2.'].join(' ');
   const loaded = await Promise.all(Object.values(F).map(f => document.fonts.load(f, sample)));
   if (loaded.some(list => !list.length)) throw new UserError('Yazı tipleri yüklenemedi; internet bağlantınızı kontrol edip tekrar deneyin.');
   const qr = window.qrcode(0, 'Q');
@@ -2742,8 +2858,14 @@ async function buildTableCard() {
   const GOLD = '#A88447', INK = '#1C2A23', BROWN = '#7A5B2F', STEP = '#3E4B43';
   const round = (left, top, w, hgt, r) => { x.beginPath(); x.moveTo(left + r, top); x.arcTo(left + w, top, left + w, top + hgt, r); x.arcTo(left + w, top + hgt, left, top + hgt, r); x.arcTo(left, top + hgt, left, top, r); x.arcTo(left, top, left + w, top, r); x.closePath(); };
   // Bir satırı parçalar halinde (farklı yazı tipi/renk) yatayda ortalayarak yazar; sp: harf aralığı, pad: iki yan boşluk.
-  const line = (y, ...parts) => {
-    const widthOf = p => { x.font = p.f; return (p.sp ? [...p.t].reduce((s, ch) => s + x.measureText(ch).width + p.sp, -p.sp) : x.measureText(p.t).width) + 2 * (p.pad || 0); };
+  // Satır kartın içine (en çok 1000 px) sığmazsa tüm parçalar aynı oranda küçültülür.
+  const MAXW = 1000;
+  const scaleFont = (f, k) => f.replace(/(\d+(?:\.\d+)?)px/, (m, n) => `${(n * k).toFixed(1)}px`);
+  const widthOf = p => { x.font = p.f; return (p.sp ? [...p.t].reduce((s, ch) => s + x.measureText(ch).width + p.sp, -p.sp) : x.measureText(p.t).width) + 2 * (p.pad || 0); };
+  const fitK = parts => Math.min(1, MAXW / parts.reduce((s, p) => s + widthOf(p), 0));
+  const scaled = (parts, k) => (k < 1 ? parts.map(p => ({ ...p, f: scaleFont(p.f, k), sp: p.sp && p.sp * k, pad: p.pad && p.pad * k })) : parts);
+  const line = (y, ...given) => {
+    const parts = scaled(given, fitK(given));
     const widths = parts.map(widthOf);
     let px = 600 - widths.reduce((s, v) => s + v, 0) / 2;
     parts.forEach((p, i) => {
@@ -2782,15 +2904,28 @@ async function buildTableCard() {
   x.globalAlpha = 1;
 
   line(175, { f: F.eyebrow, c: BROWN, t: T.eyebrow, sp: 12.6 });
-  line(315, { f: F.names, c: INK, t: 'Elif' }, { f: F.amp, c: GOLD, t: '&', pad: 16.8 }, { f: F.names, c: INK, t: 'Yunus' });
+  line(315, { f: F.names, c: INK, t: T.gelin }, { f: F.amp, c: GOLD, t: '&', pad: 16.8 }, { f: F.names, c: INK, t: T.damat });
   // İsimlerin altındaki süs çizgisi
   x.save(); x.translate(450, 382.75); x.scale(1.25, 1.25);
   x.strokeStyle = x.fillStyle = GOLD; x.lineWidth = .9;
   x.stroke(new Path2D('M10 9H98M142 9H230')); x.stroke(new Path2D('M120 2.5l6.5 6.5-6.5 6.5-6.5-6.5z'));
   for (const ex of [106, 134]) { x.beginPath(); x.arc(ex, 9, 1.7, 0, Math.PI * 2); x.fill(); }
   x.restore();
-  line(481, { f: F.lead, c: '#24312A', t: T.lead1 });
-  line(541.72, { f: F.lead, c: '#24312A', t: T.lead2 });
+  // Açıklama en çok iki satır: tek satır sığmıyorsa sözcüklerden dengeli bölünür; iki satır aynı boyutta yazılır
+  let leadLines = T.lead.split('\n').map(s => s.trim()).filter(Boolean);
+  if (leadLines.length > 2) leadLines = [leadLines[0], leadLines.slice(1).join(' ')];
+  if (leadLines.length === 1 && fitK([{ f: F.lead, t: leadLines[0] }]) < 1) {
+    const w = leadLines[0].split(' ');
+    let best = null;
+    for (let i = 1; i < w.length; i++) {
+      const a = w.slice(0, i).join(' '), z = w.slice(i).join(' '), worst = Math.max(widthOf({ f: F.lead, t: a }), widthOf({ f: F.lead, t: z }));
+      if (!best || worst < best.worst) best = { a, z, worst };
+    }
+    if (best) leadLines = [best.a, best.z];
+  }
+  const leadK = Math.min(...leadLines.map(l => fitK([{ f: F.lead, t: l }])));
+  const leadFont = scaleFont(F.lead, leadK);
+  leadLines.forEach((l, i) => line(leadLines.length === 1 ? 511 : 481 + i * 60.72, { f: leadFont, c: '#24312A', t: l }));
 
   // Karekod paneli (gölgeli beyaz kart)
   x.save(); x.shadowColor = 'rgba(28, 42, 35, .45)'; x.shadowBlur = 50; x.shadowOffsetY = 24; x.fillStyle = '#FFFFFF'; round(269, 641, 662, 662, 6); x.fill(); x.restore();
@@ -2799,7 +2934,9 @@ async function buildTableCard() {
   paintQr(x, qr, 267, 639, 666, 2);
 
   line(1415.44, { f: F.stepB, c: BROWN, t: '1.' }, { f: F.step, c: STEP, t: T.s1 });
-  line(1464.94, { f: F.stepB, c: BROWN, t: '2.' }, { f: F.step, c: STEP, t: T.s2a }, { f: F.stepB, c: BROWN, t: T.s2b }, { f: F.step, c: STEP, t: T.s2c });
+  // 2. adımdaki *yıldızlı* söz koyu ve kahverengi yazılır
+  const s2 = T.s2.split(/\*([^*\n]+)\*/).map((t, i) => ({ f: i % 2 ? F.stepB : F.step, c: i % 2 ? BROWN : STEP, t })).filter(p => p.t);
+  line(1464.94, { f: F.stepB, c: BROWN, t: '2.' }, { f: F.step, c: STEP, t: ' ' }, ...s2);
   line(1517.44, { f: F.url, c: '#7C877F', t: shown, sp: 1.12 });
   line(1689, { f: F.foot, c: '#56635B', t: T.foot });
 
@@ -2906,7 +3043,7 @@ function startMusic(auto = false) {
   Promise.resolve(playing).then(() => {
     fadeMusic(CONFIG.musicVolume, 2500);
     ls.set(MUSIC_KEY, 'acik');
-    if (auto && !ls.get(MUSIC_TIP_KEY)) { ls.set(MUSIC_TIP_KEY, '1'); toast('Müziği sağ üstteki düğmeden kapatabilirsiniz.'); }
+    if (auto && !ls.get(MUSIC_TIP_KEY)) { ls.set(MUSIC_TIP_KEY, '1'); toast(txt('msg_muzik')); }
   }).catch(e => {
     console.warn('Müzik başlatılamadı:', e);
     music.on = false;
@@ -3087,11 +3224,19 @@ function switchTab(tab) {
 }
 
 /* ---------- Yönetim: İçerik sekmesi (sayfa metinleri) ---------- */
+// Tarih/saat alanları formda Türkiye saatiyle gösterilir, veritabanında ISO zaman olarak saklanır
+const icInputVal = f => { const v = $('#ic-' + f.k).value; return f.type === 'datetime' ? (v ? fromTrInput(v) : '') : tidy(v); };
+const icShow = (f, v) => (f.type === 'datetime' ? toTrInput(v) : v);
+const icSameAsDefault = (f, v) => (f.type === 'datetime' ? Date.parse(v) === Date.parse(defOf(f.k)) : v === defOf(f.k));
 function buildContentForm() {
-  $('#ic-groups').replaceChildren(...CONTENT_GROUPS.map(([g, list]) => h('fieldset', { class: 'set-card' }, h('legend', { text: g }),
+  $('#ic-groups').replaceChildren(...CONTENT_GROUPS.map(([g, list], gi) => h('details', { class: 'set-card ic-group', open: gi === 0, 'data-g': g },
+    h('summary', {}, h('span', { text: g }), h('small', { class: 'ic-count', text: `${list.length} alan` })),
     ...list.map(([k, l, o = {}]) => {
-      const attrs = { class: 'input', id: 'ic-' + k, maxlength: o.area ? 1000 : o.url ? 600 : 160, autocomplete: 'off', spellcheck: o.url ? 'false' : 'true' };
-      const input = o.area ? h('textarea', { ...attrs, rows: 3 }) : h('input', { ...attrs, type: o.url ? 'url' : 'text', inputmode: o.url ? 'url' : null });
+      const attrs = { class: 'input', id: 'ic-' + k, autocomplete: 'off' };
+      const input = o.area ? h('textarea', { ...attrs, rows: 3, maxlength: 1000 })
+        : o.type === 'datetime' ? h('input', { ...attrs, type: 'datetime-local' })
+        : o.type === 'number' ? h('input', { ...attrs, type: 'number', min: o.min, max: o.max, step: 1, inputmode: 'numeric' })
+        : h('input', { ...attrs, type: o.url ? 'url' : 'text', maxlength: o.url ? 600 : 160, inputmode: o.url ? 'url' : null, spellcheck: o.url ? 'false' : null });
       return h('div', { class: 'ic-field', 'data-k': k },
         h('label', { class: 'field' }, h('span', { text: l }), input),
         h('div', { class: 'ic-meta' },
@@ -3100,26 +3245,53 @@ function buildContentForm() {
     }))));
 }
 function fillContentForm() {
-  for (const f of CONTENT_FIELDS) $('#ic-' + f.k).value = txt(f.k);
+  for (const f of CONTENT_FIELDS) $('#ic-' + f.k).value = icShow(f, txt(f.k));
   $('#ic-missing').hidden = !contentMissing;
   icDirty = false;
   renderContentMarks();
 }
-// Varsayılandan farklı alanlar "Değiştirildi" olarak işaretlenir ve varsayılana döndürülebilir
+// Varsayılandan farklı alanlar "Değiştirildi" olarak işaretlenir; grup başlığında kaç tane olduğu yazar
 function renderContentMarks() {
-  $$('#ic-groups .ic-field').forEach(row => {
-    const k = row.dataset.k, v = tidy(row.querySelector('.input').value), changed = !!v && v !== contentDefaults[k];
-    row.querySelector('.ic-mark').hidden = !changed;
-    row.querySelector('.ic-reset').hidden = !changed;
+  $$('#ic-groups .ic-group').forEach(group => {
+    let changedCount = 0;
+    group.querySelectorAll('.ic-field').forEach(row => {
+      const f = CONTENT_FIELD[row.dataset.k], v = icInputVal(f), changed = !!v && !icSameAsDefault(f, v);
+      row.querySelector('.ic-mark').hidden = !changed;
+      row.querySelector('.ic-reset').hidden = !changed;
+      changedCount += changed;
+    });
+    const total = group.querySelectorAll('.ic-field').length;
+    group.querySelector('.ic-count').textContent = changedCount ? `${changedCount} / ${total} değiştirildi` : `${total} alan`;
+    group.classList.toggle('degisti', changedCount > 0);
+  });
+}
+// Alan arama: başlığında ya da içeriğinde aranan söz geçen alanlar gösterilir
+function filterContentForm(q) {
+  const n = s => s.toLocaleLowerCase('tr-TR');
+  const query = n(q.trim());
+  $$('#ic-groups .ic-group').forEach(group => {
+    let any = false;
+    group.querySelectorAll('.ic-field').forEach(row => {
+      const hit = !query || n(row.querySelector('.field > span').textContent + ' ' + row.querySelector('.input').value).includes(query);
+      row.hidden = !hit;
+      any ||= hit;
+    });
+    group.hidden = !any;
+    if (query && any) group.open = true;
   });
 }
 async function saveContent(e) {
   e.preventDefault();
   const veri = {};
   for (const f of CONTENT_FIELDS) {
-    const input = $('#ic-' + f.k), v = tidy(input.value);
-    if (!v || v === contentDefaults[f.k]) continue;   // boş ya da varsayılanla aynı: saklanmaz
-    if (f.url && !/^https:\/\/\S+$/i.test(v)) { toast(`“${f.l}” https:// ile başlayan bir bağlantı olmalı.`, 'err'); input.focus(); return; }
+    const input = $('#ic-' + f.k), v = icInputVal(f);
+    if (!v || icSameAsDefault(f, v)) continue;   // boş ya da varsayılanla aynı: saklanmaz
+    if (!validValue(f, v)) {
+      toast(f.url ? `“${f.l}” https:// ile başlayan bir bağlantı olmalı.` : f.type === 'number' ? `“${f.l}” ${f.min} ile ${f.max} arasında olmalı.` : `“${f.l}” geçerli değil.`, 'err');
+      input.closest('details').open = true;
+      input.focus();
+      return;
+    }
     veri[f.k] = v;
   }
   const btn = $('#ic-save');
@@ -3145,12 +3317,17 @@ function initContentForm() {
   buildContentForm();
   const form = $('#ic-form');
   form.addEventListener('submit', saveContent);
-  form.addEventListener('input', () => { icDirty = true; renderContentMarks(); });
+  $('#ic-ara').addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });   // aramada Enter formu kaydetmesin
+  form.addEventListener('input', e => {
+    if (e.target.id === 'ic-ara') { filterContentForm(e.target.value); return; }
+    icDirty = true;
+    renderContentMarks();
+  });
   $('#ic-groups').addEventListener('click', e => {
     const b = e.target.closest('.ic-reset');
     if (!b) return;
-    const k = b.closest('.ic-field').dataset.k, input = $('#ic-' + k);
-    input.value = contentDefaults[k];
+    const f = CONTENT_FIELD[b.closest('.ic-field').dataset.k], input = $('#ic-' + f.k);
+    input.value = icShow(f, defOf(f.k));
     icDirty = true;
     renderContentMarks();
     input.focus();
