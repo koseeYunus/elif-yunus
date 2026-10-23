@@ -60,6 +60,7 @@ button, input, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 a { color: inherit; -webkit-tap-highlight-color: transparent; }
 [hidden] { display: none !important; }
+[data-c] { white-space: pre-line; }   /* yönetimden girilen metinlerde satır sonları korunur */
 .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; opacity: 0; }
 .ic { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
@@ -497,6 +498,14 @@ textarea.input { min-height: 132px; resize: vertical; }
 .set-status.off { background: #FBEFEA; color: #7E3A2C; }
 .set-note { margin: -6px 2px 0; font-size: 12.5px; line-height: 1.5; color: var(--ink-3); }
 @media (max-width: 420px) { .set-times { grid-template-columns: 1fr; } }
+/* İçerik sekmesi */
+.ic-groups { display: grid; gap: 16px; }
+.ic-field { margin-top: 12px; }
+.ic-field .field { margin: 0; }
+.ic-field textarea.input { min-height: 96px; }
+.ic-meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 26px; margin-top: 4px; font-size: 12px; color: var(--ink-3); }
+.ic-meta .ic-mark { color: #2F5A3E; font-weight: 500; }
+.ic-reset { padding: 4px 0; border: 0; background: none; color: var(--gold-deep); font: 500 12px/1 var(--sans); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .adm-tips { margin: 22px 0 0; padding: 14px 16px; border-radius: 14px; background: var(--sand); color: var(--ink-2); font-size: 14px; line-height: 1.55; }
 .adm-pill { position: fixed; top: calc(14px + var(--safe-t)); right: 14px; z-index: 45; display: inline-flex; align-items: center; gap: 7px; padding: 9px 15px 9px 12px; border: 1px solid rgba(226, 201, 148, .35); border-radius: 999px; background: rgba(28, 42, 35, .92); color: var(--gold-light); font: 500 11px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; box-shadow: 0 8px 22px -8px rgba(0, 0, 0, .5); }
 .adm-pill .ic { width: 15px; height: 15px; }
@@ -625,7 +634,7 @@ textarea.input { min-height: 132px; resize: vertical; }
     <h1 class="names in-2"><span>Elif</span><span class="amp">&amp;</span><span>Yunus</span></h1>
     <svg class="orn in-3" aria-hidden="true"><use href="#orn"/></svg>
     <p class="hero-date in-3">15 Kasım 2026<i>·</i>Pazar<i>·</i>19.00</p>
-    <p class="hero-venue in-3">Nazar Düğün Salonu</p>
+    <p class="hero-venue in-3" data-c="mekan_adi">Nazar Düğün Salonu</p>
     <p class="cd-note in-4" id="cd-note">Büyük güne kalan süre</p>
     <div class="cd in-4" id="cd" role="timer" aria-label="Düğüne kalan süre">
       <div class="cd-cell"><b class="cd-num" data-u="d">00</b><span class="cd-lbl">Gün</span></div>
@@ -648,21 +657,21 @@ textarea.input { min-height: 132px; resize: vertical; }
     <div class="wrap">
       <div class="card invite-card rv">
         <div class="monogram" aria-hidden="true">E<small>&amp;</small>Y</div>
-        <p class="eyebrow">Davetlimizsiniz</p>
-        <p class="invite-text">Hayatımızı birleştirdiğimiz bu özel günde mutluluğumuzu sevdiklerimizle paylaşmak istiyoruz. Sizleri de aramızda görmekten <em>onur ve mutluluk</em> duyarız.</p>
+        <p class="eyebrow" data-c="davet_ust">Davetlimizsiniz</p>
+        <p class="invite-text" data-c="davet_metni">Hayatımızı birleştirdiğimiz bu özel günde mutluluğumuzu sevdiklerimizle paylaşmak istiyoruz. Sizleri de aramızda görmekten <em>onur ve mutluluk</em> duyarız.</p>
         <p class="sr-only">15 Kasım 2026 Pazar, saat 19.00</p>
         <div class="date-block" aria-hidden="true">
           <span class="side">Pazar</span><span class="day">15</span><span class="side">19.00</span>
         </div>
         <p class="date-month" aria-hidden="true">Kasım 2026</p>
         <div class="venue">
-          <p class="venue-name">Nazar Düğün Salonu</p>
-          <p class="venue-addr">Sarıcalı, Güven Sk. No: 1, Çarşamba / Samsun</p>
+          <p class="venue-name" data-c="mekan_adi">Nazar Düğün Salonu</p>
+          <p class="venue-addr" data-c="mekan_adresi">Sarıcalı, Güven Sk. No: 1, Çarşamba / Samsun</p>
           <a class="btn btn-line btn-sm" data-map="venue" href="#" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Yol Tarifi</a>
         </div>
         <div class="families">
-          <div><p class="fam-name">Fadime &amp; Faik <b>ARI</b></p><p class="fam-role">Gelinin Ailesi</p></div>
-          <div><p class="fam-name">Huriye &amp; İsmail <b>KÖSE</b></p><p class="fam-role">Damadın Ailesi</p></div>
+          <div><p class="fam-name"><span data-c="gelin_aile">Fadime &amp; Faik</span> <b data-c="gelin_soyad">ARI</b></p><p class="fam-role" data-c="gelin_aile_rol">Gelinin Ailesi</p></div>
+          <div><p class="fam-name"><span data-c="damat_aile">Huriye &amp; İsmail</span> <b data-c="damat_soyad">KÖSE</b></p><p class="fam-role" data-c="damat_aile_rol">Damadın Ailesi</p></div>
         </div>
       </div>
     </div>
@@ -673,15 +682,15 @@ textarea.input { min-height: 132px; resize: vertical; }
     <div class="wrap">
       <header class="sec-head rv">
         <p class="eyebrow">15 Kasım 2026 · Pazar</p>
-        <h2 class="sec-title">Düğün Programı</h2>
+        <h2 class="sec-title" data-c="program_baslik">Düğün Programı</h2>
       </header>
       <div class="card program rv">
         <div class="pg-item">
           <div class="pg-dot"><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg></div>
           <div>
-            <p class="pg-time">18.00</p>
-            <h3 class="pg-title">Gelin Alma</h3>
-            <p class="pg-desc">Kirazlıkçay Mh. Zülal Işıl Çörtük Sk. Apt: 4, Aykul Elektronik’in aşağısındaki erkek evinden kız almaya gidilecektir.</p>
+            <p class="pg-time" data-c="gelin_alma_saat">18.00</p>
+            <h3 class="pg-title" data-c="gelin_alma_baslik">Gelin Alma</h3>
+            <p class="pg-desc" data-c="gelin_alma_aciklama">Kirazlıkçay Mh. Zülal Işıl Çörtük Sk. Apt: 4, Aykul Elektronik’in aşağısındaki erkek evinden kız almaya gidilecektir.</p>
             <a class="btn btn-line btn-sm" data-map="home" href="#" target="_blank" rel="noopener">Yol Tarifi</a>
           </div>
         </div>
@@ -689,15 +698,15 @@ textarea.input { min-height: 132px; resize: vertical; }
           <div class="pg-dot"><svg class="ic" aria-hidden="true"><use href="#i-rings"/></svg></div>
           <div>
             <p class="pg-time">19.00</p>
-            <h3 class="pg-title">Düğün Töreni</h3>
-            <p class="pg-desc">Mutluluğumuzu sizlerle paylaşacağımız düğün törenimiz.</p>
-            <p class="addr"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span>Nazar Düğün Salonu<small>Sarıcalı, Güven Sk. No: 1, Çarşamba / Samsun</small></span></p>
+            <h3 class="pg-title" data-c="toren_baslik">Düğün Töreni</h3>
+            <p class="pg-desc" data-c="toren_aciklama">Mutluluğumuzu sizlerle paylaşacağımız düğün törenimiz.</p>
+            <p class="addr"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span><span data-c="mekan_adi">Nazar Düğün Salonu</span><small data-c="mekan_adresi">Sarıcalı, Güven Sk. No: 1, Çarşamba / Samsun</small></span></p>
             <a class="btn btn-line btn-sm" data-map="venue" href="#" target="_blank" rel="noopener">Yol Tarifi</a>
           </div>
         </div>
       </div>
       <div class="cal rv">
-        <p>Bu tarihi takviminize ekleyin</p>
+        <p data-c="takvim_cagri">Bu tarihi takviminize ekleyin</p>
         <div class="cal-btns">
           <a class="btn btn-dark btn-sm" id="cal-add" href="dugun.ics"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg>Takvime Ekle</a>
         </div>
@@ -740,9 +749,9 @@ textarea.input { min-height: 132px; resize: vertical; }
   <section class="section alt" id="album">
     <div class="wrap-wide">
       <header class="sec-head rv">
-        <p class="eyebrow">Misafirlerimizin Gözünden</p>
-        <h2 class="sec-title">Anı Albümü</h2>
-        <p class="sec-sub">Paylaşılan tüm fotoğraflar burada toplanıyor; büyütmek için fotoğrafa dokunun.</p>
+        <p class="eyebrow" data-c="album_ust">Misafirlerimizin Gözünden</p>
+        <h2 class="sec-title" data-c="album_baslik">Anı Albümü</h2>
+        <p class="sec-sub" data-c="album_aciklama">Paylaşılan tüm fotoğraflar burada toplanıyor; büyütmek için fotoğrafa dokunun.</p>
       </header>
       <p class="count-line" id="photo-count" hidden></p>
       <div class="gallery" id="gallery"></div>
@@ -757,9 +766,9 @@ textarea.input { min-height: 132px; resize: vertical; }
   <section class="section" id="dilekler">
     <div class="wrap">
       <header class="sec-head rv">
-        <p class="eyebrow">Sevgiyle Yazılanlar</p>
-        <h2 class="sec-title">Dilek Defteri</h2>
-        <p class="sec-sub">Güzel dilekleriniz, yıllar sonra da açıp okuyacağımız en kıymetli hatıramız olacak.</p>
+        <p class="eyebrow" data-c="dilekler_ust">Sevgiyle Yazılanlar</p>
+        <h2 class="sec-title" data-c="dilekler_baslik">Dilek Defteri</h2>
+        <p class="sec-sub" data-c="dilekler_aciklama">Güzel dilekleriniz, yıllar sonra da açıp okuyacağımız en kıymetli hatıramız olacak.</p>
       </header>
       <div class="wishes" id="wishes"></div>
       <p class="empty" id="wishes-empty" hidden><a href="#paylas">İlk dileği siz yazın ♡</a></p>
@@ -772,9 +781,9 @@ textarea.input { min-height: 132px; resize: vertical; }
 <footer class="footer">
   <svg class="orn" aria-hidden="true"><use href="#orn"/></svg>
   <p class="footer-names">Elif &amp; Yunus</p>
-  <p>15 Kasım 2026 · Nazar Düğün Salonu</p>
-  <p class="thanks">Bu güzel günü bizimle paylaştığınız için teşekkür ederiz.</p>
-  <small>Sevgiyle ♡</small>
+  <p>15 Kasım 2026 · <span data-c="mekan_adi">Nazar Düğün Salonu</span></p>
+  <p class="thanks" data-c="alt_tesekkur">Bu güzel günü bizimle paylaştığınız için teşekkür ederiz.</p>
+  <small data-c="alt_imza">Sevgiyle ♡</small>
 </footer>
 
 <!-- ===== Alt menü ===== -->
@@ -842,6 +851,7 @@ textarea.input { min-height: 132px; resize: vertical; }
     <button type="button" role="tab" id="adm-tab-notes" aria-controls="adm-pane-notes" data-tab="notes" aria-selected="false">Dilekler <b id="adm-nc">0</b></button>
     <button type="button" role="tab" id="adm-tab-archive" aria-controls="adm-pane-archive" data-tab="archive" aria-selected="false">Arşiv</button>
     <button type="button" role="tab" id="adm-tab-settings" aria-controls="adm-pane-settings" data-tab="settings" aria-selected="false">Ayarlar</button>
+    <button type="button" role="tab" id="adm-tab-content" aria-controls="adm-pane-content" data-tab="content" aria-selected="false">İçerik</button>
   </nav>
   <div class="adm-body" id="adm-body">
     <div id="adm-pane-photos" role="tabpanel" aria-labelledby="adm-tab-photos" data-pane="photos">
@@ -936,6 +946,15 @@ textarea.input { min-height: 132px; resize: vertical; }
         </fieldset>
         <button class="btn btn-gold btn-block" type="submit" id="set-save">Ayarları Kaydet</button>
         <p class="arc-log" id="set-log" aria-live="polite"></p>
+      </form>
+    </div>
+    <div id="adm-pane-content" class="adm-archive" role="tabpanel" aria-labelledby="adm-tab-content" data-pane="content" hidden>
+      <form class="set-form" id="ic-form" novalidate>
+        <p class="adm-lead">Sayfadaki yazıları buradan değiştirebilirsiniz. Boş bırakılan alan sayfanın varsayılan metnine döner. Davet metninde bir sözü <b>*yıldız*</b> içine alırsanız altın renkli vurgulu görünür.</p>
+        <p class="notice set-missing" id="ic-missing" hidden>Metinler veritabanında henüz yok. Güncel <b>supabase-kurulum.sql</b> dosyasını Supabase › SQL Editor’de çalıştırın; o zamana kadar sayfa varsayılan metinlerle görünür.</p>
+        <div class="ic-groups" id="ic-groups"></div>
+        <button class="btn btn-gold btn-block" type="submit" id="ic-save">Metinleri Kaydet</button>
+        <p class="arc-log" id="ic-log" aria-live="polite"></p>
       </form>
     </div>
   </div>
@@ -1139,8 +1158,8 @@ let currentPhase = null;
 function applyPhase(p) {
   currentPhase = p;
   document.body.dataset.phase = p;
-  $('#hero-eyebrow').textContent = p === 'after' ? 'Evlendik' : p === 'live' ? 'Bugün Evleniyoruz' : 'Evleniyoruz';
-  $('#cd-note').textContent = PHASE_TEXT[p];
+  $('#hero-eyebrow').textContent = txt(p === 'after' ? 'kapak_ust_sonra' : p === 'live' ? 'kapak_ust_dugun' : 'kapak_ust');
+  $('#cd-note').textContent = txt({ before: 'sayac_once', today: 'sayac_bugun', live: 'sayac_dugun', after: 'sayac_sonra' }[p]);
   $('#cd').hidden = p === 'live' || p === 'after';
   // Kapak düğmeleri ayarlara göre: paylaşım kapalıysa ya da albüm gizliyse ilgili düğme çıkmaz
   const share = shareLabel(), album = !!ayar.album_gorunur;
@@ -1159,8 +1178,8 @@ function tickCountdown() {
   const s = Math.max(0, Math.floor((WED - t) / 1000));
   const v = { d: Math.floor(s / 86400), h: Math.floor(s % 86400 / 3600), m: Math.floor(s % 3600 / 60), s: s % 60 };
   for (const k in v) {
-    const txt = String(v[k]).padStart(2, '0'), n = cdNums[k];
-    if (n.textContent !== txt) { n.textContent = txt; n.classList.remove('tick'); void n.offsetWidth; n.classList.add('tick'); }
+    const val = String(v[k]).padStart(2, '0'), n = cdNums[k];
+    if (n.textContent !== val) { n.textContent = val; n.classList.remove('tick'); void n.offsetWidth; n.classList.add('tick'); }
   }
 }
 
@@ -1201,16 +1220,107 @@ function markNew(sec) {
   if (dot) dot.hidden = false;
 }
 
-/* ---------- Harita ve takvim bağlantıları ---------- */
-function initLinks() {
-  $$('[data-map]').forEach(a => { a.href = a.dataset.map === 'home' ? CONFIG.mapHome : CONFIG.mapVenue; });
+/* =====================================================================
+   SAYFA METİNLERİ — yönetim ekranının "İçerik" sekmesinden değiştirilir. Varsayılanlar sayfanın
+   kendisidir (data-c işaretli öğeler); veritabanında yalnızca değiştirilen metinler saklanır.
+   Metinler her zaman düz metin olarak yazılır (HTML çalıştırılmaz); davet metninde *söz* vurgulanır.
+   ===================================================================== */
+const CONTENT_GROUPS = [
+  ['Kapak', [
+    ['kapak_ust', 'Üst yazı (düğünden önce ve düğün günü)', { def: 'Evleniyoruz' }],
+    ['kapak_ust_dugun', 'Üst yazı (düğün sırasında)', { def: 'Bugün Evleniyoruz' }],
+    ['kapak_ust_sonra', 'Üst yazı (düğünden sonra)', { def: 'Evlendik' }],
+    ['sayac_once', 'Geri sayımın üstündeki yazı', { def: PHASE_TEXT.before }],
+    ['sayac_bugun', 'Düğün günü, tören başlayana kadar', { def: PHASE_TEXT.today, area: true }],
+    ['sayac_dugun', 'Düğün sırasında', { def: PHASE_TEXT.live, area: true }],
+    ['sayac_sonra', 'Düğünden sonra', { def: PHASE_TEXT.after, area: true }],
+  ]],
+  ['Davetiye', [
+    ['davet_ust', 'Üst yazı'],
+    ['davet_metni', 'Davet metni', { area: true, rich: true }],
+    ['mekan_adi', 'Salon adı (kapak, davetiye, program, alt bilgi ve QR kartında)'],
+    ['mekan_adresi', 'Salon adresi'],
+    ['harita_salon', 'Salonun Google Haritalar bağlantısı', { url: true, def: CONFIG.mapVenue }],
+    ['gelin_aile', 'Gelinin ailesi: isimler'],
+    ['gelin_soyad', 'Gelinin ailesi: soyadı'],
+    ['gelin_aile_rol', 'Gelinin ailesi: unvan'],
+    ['damat_aile', 'Damadın ailesi: isimler'],
+    ['damat_soyad', 'Damadın ailesi: soyadı'],
+    ['damat_aile_rol', 'Damadın ailesi: unvan'],
+  ]],
+  ['Program', [
+    ['program_baslik', 'Başlık'],
+    ['gelin_alma_saat', 'Gelin alma saati'],
+    ['gelin_alma_baslik', 'Gelin alma başlığı'],
+    ['gelin_alma_aciklama', 'Gelin alma açıklaması', { area: true }],
+    ['harita_ev', 'Gelin alma evinin Google Haritalar bağlantısı', { url: true, def: CONFIG.mapHome }],
+    ['toren_baslik', 'Tören başlığı'],
+    ['toren_aciklama', 'Tören açıklaması', { area: true }],
+    ['takvim_cagri', 'Takvim çağrısı'],
+  ]],
+  ['Anı Albümü', [['album_ust', 'Üst yazı'], ['album_baslik', 'Başlık'], ['album_aciklama', 'Açıklama', { area: true }]]],
+  ['Dilek Defteri', [['dilekler_ust', 'Üst yazı'], ['dilekler_baslik', 'Başlık'], ['dilekler_aciklama', 'Açıklama', { area: true }]]],
+  ['Alt bilgi', [['alt_tesekkur', 'Teşekkür yazısı', { area: true }], ['alt_imza', 'İmza']]],
+];
+const CONTENT_FIELDS = CONTENT_GROUPS.flatMap(([g, list]) => list.map(([k, l, o = {}]) => ({ k, l, g, ...o })));
+const CONTENT_FIELD = Object.fromEntries(CONTENT_FIELDS.map(f => [f.k, f]));
+const CONTENT_KEY = 'elif-yunus:icerik';
+const contentDefaults = {};
+let icerik = {}, contentMissing = false, icDirty = false;
+const tidy = s => String(s ?? '').replace(/\r/g, '').replace(/[^\S\n]+/g, ' ').replace(/ *\n */g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+// *söz* → <em>söz</em>; öğeler tek tek kurulur, metin hiçbir zaman HTML olarak yorumlanmaz
+const richToText = el => tidy([...el.childNodes].map(n => (n.nodeName === 'EM' ? `*${n.textContent}*` : n.textContent)).join('').replace(/\s+/g, ' '));
+const setRich = (el, v) => el.replaceChildren(...v.split(/\*([^*\n]+)\*/).map((part, i) => (i % 2 ? h('em', { text: part }) : part)).filter(Boolean));
+function captureContentDefaults() {
+  for (const f of CONTENT_FIELDS) {
+    const el = document.querySelector(`[data-c="${f.k}"]`);
+    contentDefaults[f.k] = f.def ?? (el ? (f.rich ? richToText(el) : tidy(el.textContent.replace(/\s+/g, ' '))) : '');
+  }
+}
+// Geçerli metin: değiştirildiyse o, değilse varsayılan. Bağlantılar yalnızca https olabilir.
+function txt(k) {
+  const v = tidy(icerik[k]);
+  if (!v || (CONTENT_FIELD[k]?.url && !/^https:\/\/\S+$/i.test(v))) return contentDefaults[k] ?? '';
+  return v;
+}
+function applyContent() {
+  $$('[data-c]').forEach(el => { const k = el.dataset.c; if (CONTENT_FIELD[k]?.rich) setRich(el, txt(k)); else el.textContent = txt(k); });
+  updateLinks();
+  if (currentPhase) applyPhase(currentPhase);          // kapaktaki üst yazı ve geri sayım notu
+  cardP = null; $('#arc-card-prev').replaceChildren();  // QR kartı yeni salon adıyla yeniden çizilsin
+}
+// Önce bu cihazda saklanan son metinler (sayfa açılırken eski metin görünüp değişmesin), sonra veritabanı
+function initContent() {
+  captureContentDefaults();
+  try { const c = JSON.parse(ls.get(CONTENT_KEY) || '{}'); if (c && typeof c === 'object' && !Array.isArray(c)) icerik = c; } catch { /* bozuk önbellek */ }
+  applyContent();
+}
+async function loadContent() {
+  if (!store?.content) return;
+  try {
+    const veri = await store.content.get();
+    contentMissing = veri == null;
+    icerik = veri && typeof veri === 'object' && !Array.isArray(veri) ? veri : {};
+    ls.set(CONTENT_KEY, JSON.stringify(icerik));
+  } catch (e) {
+    if (/PGRST205|42P01|icerik/i.test(`${e?.code} ${e?.message}`)) contentMissing = true;
+    console.warn('Metinler alınamadı; varsayılan ya da son bilinen metinler kullanılıyor:', e);
+  }
+  applyContent();
+  if (!$('#adm-pane-content').hidden && !icDirty) fillContentForm();
+}
+
+/* ---------- Harita ve takvim bağlantıları (İçerik sekmesindeki salon/program bilgileriyle) ---------- */
+function updateLinks() {
+  $$('[data-map]').forEach(a => { a.href = txt(a.dataset.map === 'home' ? 'harita_ev' : 'harita_salon'); });
   const stamp = t => new Date(t).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const q = new URLSearchParams({
     action: 'TEMPLATE',
     text: 'Elif & Yunus’un Düğünü',
     dates: stamp(WED) + '/' + stamp(WED + CONFIG.calendarHours * 3600e3),
-    location: 'Nazar Düğün Salonu, Sarıcalı, Güven Sk. No:1, 55500 Çarşamba/Samsun',
-    details: 'Gelin alma: 18.00 — Kirazlıkçay Mh. Zülal Işıl Çörtük Sk. Apt: 4\nDüğün: 19.00 — Nazar Düğün Salonu\n\n' + location.origin + location.pathname,
+    location: `${txt('mekan_adi')}, ${txt('mekan_adresi')}`,
+    details: `${txt('gelin_alma_baslik')}: ${txt('gelin_alma_saat')} — ${txt('gelin_alma_aciklama')}\n`
+      + `${txt('toren_baslik')}: ${fmtClock.format(WED).replace(':', '.')} — ${txt('mekan_adi')}\n\n${location.origin + location.pathname}`,
   });
   const google = 'https://calendar.google.com/calendar/render?' + q;
   $('#cal-google').href = google;
@@ -1367,6 +1477,15 @@ function liveStore() {
         return rows[0];
       },
     },
+    // Sayfa metinleri: yalnızca değiştirilenler (anahtar → metin); herkes okur, yalnızca yönetici yazar
+    content: {
+      get: () => run(db => db.from('icerik').select('veri').eq('id', 1).maybeSingle()).then(r => r?.veri ?? null),
+      async save(veri) {
+        const rows = await run(db => db.from('icerik').update({ veri }).eq('id', 1).select('veri'));
+        if (!rows.length) throw new UserError('Metinleri değiştirme izniniz yok.');
+        return rows[0].veri;
+      },
+    },
     // Depodaki dosyaların toplam boyutu (yalnızca yönetici listeleyebilir; misafire boş döner)
     async storageUsage() {
       await ready;
@@ -1410,7 +1529,7 @@ function liveStore() {
 // Önizleme: Supabase bilgileri girilmemişken tasarımı denemek için. Hiçbir şey kaydedilmez.
 function previewStore() {
   const notes = [], photos = [], log = [];
-  let nid = 0, pid = 0, cid = 0, user = null, ayarlar = { ...DEFAULT_SETTINGS };
+  let nid = 0, pid = 0, cid = 0, user = null, ayarlar = { ...DEFAULT_SETTINGS }, metinler = {};
   const record = (tablo, kayit_id, islem) => log.push({ id: ++cid, tablo, kayit_id, islem });
   const at = minsAgo => new Date(now() - minsAgo * 60e3).toISOString();
   [
@@ -1453,6 +1572,10 @@ function previewStore() {
     thumbUrl: r => r.kucuk,
     largeUrl: r => r.buyuk,
     async count(table) { await photosReady; return (table === 'notlar' ? notes : photos).length; },
+    content: {
+      async get() { return { ...metinler }; },
+      async save(veri) { await sleep(300); metinler = { ...veri }; record('icerik', 1, 'duzenle'); return { ...metinler }; },
+    },
     settings: {
       async get() { return { ...ayarlar }; },
       async save(fields) { await sleep(300); ayarlar = { ...ayarlar, ...fields }; record('ayarlar', 1, 'duzenle'); return { ...ayarlar }; },
@@ -2486,7 +2609,7 @@ function bookHtml(entries, nNotes, nPhotos) {
   }).join('\n');
   return `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Elif &amp; Yunus — Anı Defteri</title>
 <style>*{box-sizing:border-box}body{margin:0;background:#FAF6EE;color:#24312A;font:18px/1.6 Georgia,'Times New Roman',serif}main{max-width:860px;margin:0 auto;padding:56px 20px 72px}header{margin:0 0 44px;text-align:center}.eyebrow,.stats,footer,.end{font-family:system-ui,sans-serif}.eyebrow{margin:0;color:#7A5B2F;font-size:13px;letter-spacing:.28em;text-transform:uppercase}h1{margin:10px 0 6px;font-weight:400;font-size:54px;line-height:1.1}h1 i{padding:0 .18em;color:#A88447;font-size:.6em}.sub{margin:0;color:#56635B;font-style:italic}.stats{margin:14px 0 0;color:#7A5B2F;font-size:13px;letter-spacing:.14em;text-transform:uppercase}article{margin:0 0 18px;padding:22px;background:#fff;border:1px solid #E6DCCB;border-radius:16px;break-inside:avoid}.ph{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.ph a{display:block}.ph img{display:block;width:100%;aspect-ratio:1;object-fit:cover;object-position:50% 30%;border-radius:10px;background:#F1EADF}.ph.one{display:block;text-align:center}.ph.one a{display:inline-block;max-width:100%}.ph.one img{width:auto;max-width:100%;height:auto;max-height:640px;aspect-ratio:auto}.msg{margin:0;font-size:20px;white-space:pre-line;overflow-wrap:anywhere}.ph+.msg{margin-top:16px}footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;margin-top:14px;color:#7A5B2F;font-size:13px;line-height:1.4}.end{margin:40px 0 0;text-align:center;color:#6B756F;font-size:12.5px}@media (max-width:560px){main{padding:40px 14px 56px}h1{font-size:44px}article{padding:16px}.ph{grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:6px}.msg{font-size:18px}}@media print{body{background:#fff}main{padding:0}article{border-color:#ddd}}</style></head>
-<body><main><header><p class="eyebrow">Anı Defteri</p><h1>Elif<i>&amp;</i>Yunus</h1><p class="sub">15 Kasım 2026 · Nazar Düğün Salonu</p><p class="stats">${nNotes} dilek · ${nPhotos} fotoğraf</p></header>
+<body><main><header><p class="eyebrow">Anı Defteri</p><h1>Elif<i>&amp;</i>Yunus</h1><p class="sub">15 Kasım 2026 · ${esc(txt('mekan_adi'))}</p><p class="stats">${nNotes} dilek · ${nPhotos} fotoğraf</p></header>
 ${items}
 <p class="end">${esc(fmtFull.format(Date.now()))} tarihinde indirildi. Tam boyutu görmek için fotoğrafa tıklayın.</p>
 </main></body></html>`;
@@ -2599,7 +2722,7 @@ async function buildTableCard() {
   const day = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, day: 'numeric', month: 'long', year: 'numeric' }).format(WED);
   const T = {
     eyebrow: 'ANILARINIZI PAYLAŞIN', lead1: 'Bu gecenin fotoğraflarını albümümüze ekleyin,', lead2: 'bize birkaç satır dilek bırakın.',
-    s1: ' Telefonunuzun kamerasını karekoda tutun', s2a: ' Açılan sayfada ', s2b: 'Anı & Dilek Bırak', s2c: '’a dokunun', foot: `${day} · Nazar Düğün Salonu`,
+    s1: ' Telefonunuzun kamerasını karekoda tutun', s2a: ' Açılan sayfada ', s2b: 'Anı & Dilek Bırak', s2c: '’a dokunun', foot: `${day} · ${txt('mekan_adi')}`,
   };
   const F = {
     eyebrow: '500 30px Jost', names: '400 150px "Great Vibes"', amp: 'italic 400 60px "Cormorant Garamond"', lead: '500 46px "Cormorant Garamond"',
@@ -2960,6 +3083,78 @@ function switchTab(tab) {
   $('#adm-body').scrollTop = 0;
   if (tab === 'archive') refreshArchiveStats();
   if (tab === 'settings') { if (setDirty) renderSettingsStatus(); else fillSettingsForm(); }
+  if (tab === 'content' && !icDirty) fillContentForm();
+}
+
+/* ---------- Yönetim: İçerik sekmesi (sayfa metinleri) ---------- */
+function buildContentForm() {
+  $('#ic-groups').replaceChildren(...CONTENT_GROUPS.map(([g, list]) => h('fieldset', { class: 'set-card' }, h('legend', { text: g }),
+    ...list.map(([k, l, o = {}]) => {
+      const attrs = { class: 'input', id: 'ic-' + k, maxlength: o.area ? 1000 : o.url ? 600 : 160, autocomplete: 'off', spellcheck: o.url ? 'false' : 'true' };
+      const input = o.area ? h('textarea', { ...attrs, rows: 3 }) : h('input', { ...attrs, type: o.url ? 'url' : 'text', inputmode: o.url ? 'url' : null });
+      return h('div', { class: 'ic-field', 'data-k': k },
+        h('label', { class: 'field' }, h('span', { text: l }), input),
+        h('div', { class: 'ic-meta' },
+          h('span', { class: 'ic-mark', text: 'Değiştirildi', hidden: true }),
+          h('button', { class: 'ic-reset', type: 'button', text: 'Varsayılana dön', hidden: true })));
+    }))));
+}
+function fillContentForm() {
+  for (const f of CONTENT_FIELDS) $('#ic-' + f.k).value = txt(f.k);
+  $('#ic-missing').hidden = !contentMissing;
+  icDirty = false;
+  renderContentMarks();
+}
+// Varsayılandan farklı alanlar "Değiştirildi" olarak işaretlenir ve varsayılana döndürülebilir
+function renderContentMarks() {
+  $$('#ic-groups .ic-field').forEach(row => {
+    const k = row.dataset.k, v = tidy(row.querySelector('.input').value), changed = !!v && v !== contentDefaults[k];
+    row.querySelector('.ic-mark').hidden = !changed;
+    row.querySelector('.ic-reset').hidden = !changed;
+  });
+}
+async function saveContent(e) {
+  e.preventDefault();
+  const veri = {};
+  for (const f of CONTENT_FIELDS) {
+    const input = $('#ic-' + f.k), v = tidy(input.value);
+    if (!v || v === contentDefaults[f.k]) continue;   // boş ya da varsayılanla aynı: saklanmaz
+    if (f.url && !/^https:\/\/\S+$/i.test(v)) { toast(`“${f.l}” https:// ile başlayan bir bağlantı olmalı.`, 'err'); input.focus(); return; }
+    veri[f.k] = v;
+  }
+  const btn = $('#ic-save');
+  btn.disabled = true;
+  $('#ic-log').textContent = 'Kaydediliyor…';
+  try {
+    const saved = await store.content.save(veri);
+    icerik = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
+    contentMissing = false;
+    ls.set(CONTENT_KEY, JSON.stringify(icerik));
+    applyContent();
+    fillContentForm();
+    const n = Object.keys(icerik).length;
+    $('#ic-log').textContent = `Kaydedildi (${n ? n + ' metin değiştirilmiş' : 'tüm metinler varsayılan'}). Açık olan sayfalar en geç yarım dakika içinde güncellenir.`;
+    toast('Metinler kaydedildi.', 'ok');
+  } catch (err) {
+    console.warn('Metinler kaydedilemedi:', err);
+    $('#ic-log').textContent = '';
+    toast(/PGRST205|42P01|icerik/i.test(`${err?.code} ${err?.message}`) ? 'Metinler tablosu yok: önce güncel kurulum SQL’ini çalıştırın.' : friendlyError(err), 'err');
+  } finally { btn.disabled = false; }
+}
+function initContentForm() {
+  buildContentForm();
+  const form = $('#ic-form');
+  form.addEventListener('submit', saveContent);
+  form.addEventListener('input', () => { icDirty = true; renderContentMarks(); });
+  $('#ic-groups').addEventListener('click', e => {
+    const b = e.target.closest('.ic-reset');
+    if (!b) return;
+    const k = b.closest('.ic-field').dataset.k, input = $('#ic-' + k);
+    input.value = contentDefaults[k];
+    icDirty = true;
+    renderContentMarks();
+    input.focus();
+  });
 }
 
 /* ---------- Yönetim: Ayarlar sekmesi ---------- */
@@ -3282,10 +3477,11 @@ async function pollChanges() {
   const rows = first ? (await store.changes.recent()).reverse() : await store.changes.since(changeLastId);
   if (first) changeLastId = 0;
   const refetch = { notlar: new Set(), fotograflar: new Set() };
-  let settingsChanged = false;
+  let settingsChanged = false, contentChanged = false;
   for (const c of rows) {
     changeLastId = Math.max(changeLastId, c.id);
     if (c.tablo === 'ayarlar') { settingsChanged = true; continue; }
+    if (c.tablo === 'icerik') { contentChanged = true; continue; }
     if (c.tablo !== 'notlar' && c.tablo !== 'fotograflar') continue;
     if (c.islem === 'sil') { refetch[c.tablo].delete(c.kayit_id); removeEverywhere(c.tablo, c.kayit_id); }
     else if (isShown(c.tablo, c.kayit_id)) refetch[c.tablo].add(c.kayit_id);
@@ -3294,6 +3490,7 @@ async function pollChanges() {
     if (refetch[t].size) (await store.byIds(t, [...refetch[t]])).forEach(r => updateEverywhere(t, r));
   }
   if (settingsChanged && !first) await loadSettings();   // yönetici ayarları değiştirdi
+  if (contentChanged && !first) await loadContent();     // yönetici metinleri değiştirdi
 }
 function isShown(table, id) {
   return table === 'notlar'
@@ -3318,6 +3515,7 @@ function initAdmin() {
   $('#adm-p-del').addEventListener('click', () => removePhotos(admin.photos.filter(r => admin.selP.has(r.id))));
   $('#adm-n-del').addEventListener('click', () => removeNotes(admin.notes.filter(r => admin.selN.has(r.id))));
   initSettingsForm();
+  initContentForm();
   // Geri tuşu ve Esc: en üstteki pencereyi kapatır
   addEventListener('popstate', () => {
     dlgClose?.(null);
@@ -3346,7 +3544,7 @@ function initAdmin() {
    ===================================================================== */
 let store = null;
 function init() {
-  initLinks(); initNames(); initSparks(); initScrollUi(); initComposer(); initLightbox(); initDialog(); initMusic();
+  initContent(); initNames(); initSparks(); initScrollUi(); initComposer(); initLightbox(); initDialog(); initMusic();
   const routeHash = initAdmin();
   tickCountdown();
   setInterval(tickCountdown, 250);
@@ -3375,6 +3573,7 @@ function init() {
   });
   initArchive();
   loadSettings();                              // yönetimden ayarlanan paylaşım/görünürlük kuralları
+  loadContent();                               // yönetimden değiştirilen sayfa metinleri
   gallery.load();
   wishes.load();
   store.count('fotograflar').then(c => { photoTotal = Math.max(c, gallery.rows.length); renderPhotoCount(); }).catch(e => console.warn(e));
