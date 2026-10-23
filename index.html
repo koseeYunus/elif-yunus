@@ -25,13 +25,24 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Great+Vibes&amp;family=Jost:wght@400;500&amp;display=swap">
+<!-- Yönetimde kaydedilen son içerik ve görünüm. GitHub'daki "Sayfayı eşitle" görevi buraya yazar; böylece sayfayı ilk kez
+     açan misafir de doğru renkleri ve yazıları ilk anda görür. Elle değiştirmeyin. -->
+<script id="ilk-veri" type="application/json">{}</script>
 <script>
-// Son kaydedilen görünüm (yönetim › Görünüm) bu cihazda saklanır ve sayfa çizilmeden önce uygulanır;
-// böylece eski renkler ya da yazı tipleri bir an bile görünmez. Asıl hesap sayfanın betiğindedir (applyLook).
+// Görünüm (yönetim › Görünüm) sayfa çizilmeden önce uygulanır; böylece eski renkler ya da yazı tipleri bir an bile
+// görünmez. Kaynak: bu cihazda saklanan son görünüm ya da (hiç yoksa veya daha yeniyse) yukarıdaki ilk veri.
+// Asıl hesap sayfanın betiğindedir (applyLook).
 (function (d) {
-  d.className = 'js';
+  // Değiştirilebilen yazılar, sayfanın betiği doğru metinleri yerleştirene kadar gizli kalır (eski metin bir an
+  // bile görünmesin). Betik herhangi bir nedenle çalışmazsa 1,5 saniye sonra kendiliğinden görünürler.
+  d.className = 'js icerik-bekle';
+  setTimeout(function () { d.classList.remove('icerik-bekle'); }, 1500);
   try {
-    var g = JSON.parse(localStorage.getItem('elif-yunus:gorunum') || 'null'), k, l;
+    var g = null, s = null, o, k, l;
+    try { g = JSON.parse(localStorage.getItem('elif-yunus:gorunum') || 'null'); } catch (e) { /* gizli sekme */ }
+    try { s = JSON.parse(document.getElementById('ilk-veri').textContent || '{}'); } catch (e) { /* bozuk */ }
+    o = s && s.icerik && s.icerik.ozet;
+    if (o && o.gorunum && typeof o.gorunum === 'object' && (!g || String(o.zaman || '') > String(g.z || ''))) g = o.gorunum;
     if (!g || typeof g !== 'object') return;
     for (k in g.v) if (/^--[a-z0-9-]+$/.test(k)) d.style.setProperty(k, String(g.v[k]));
     if (/^[a-z -]+$/.test(g.c || '')) d.className += ' ' + g.c;
@@ -95,6 +106,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 a { color: inherit; -webkit-tap-highlight-color: transparent; }
 [hidden] { display: none !important; }
 [data-c] { white-space: pre-line; }   /* yönetimden girilen metinlerde satır sonları korunur */
+.icerik-bekle :is([data-c], [data-d], [data-i]) { visibility: hidden; }   /* metinler yerleşene kadar (en çok 1,5 sn) */
 .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; opacity: 0; }
 .ic { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
@@ -620,6 +632,7 @@ textarea.input { min-height: 132px; resize: vertical; }
 .lk-sw-degrade { background: radial-gradient(120% 70% at 50% 30%, rgba(var(--gold-light-rgb), .35), transparent 62%), linear-gradient(180deg, var(--hero-1), var(--hero-2) 55%, var(--hero-3)); }
 .lk-sw-foto { background: var(--lk-foto, linear-gradient(135deg, #D9C9AE, #8E9C90 55%, #4B5B52)) 50% 50% / cover no-repeat; }
 .lk-note { margin: 10px 2px 0; font-size: calc(12.5px * var(--fs-sans)); line-height: 1.5; color: var(--ink-3); }
+.ic-note { margin: 0 0 4px; }
 .lk-media .lk-note { margin: 8px 0 0; }
 .lk-media { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 14px; align-items: center; margin: 12px 0 4px; }
 .lk-thumb { aspect-ratio: 3 / 4; border-radius: 10px; background: var(--sand) 50% 50% / cover no-repeat; border: 1px solid var(--line); box-shadow: 0 8px 18px -12px rgba(var(--forest-rgb), .5); }
@@ -1507,6 +1520,7 @@ const CONTENT_GROUPS = [
     ['harita_ev', 'Gelin alma evinin Google Haritalar bağlantısı', { url: true, def: CONFIG.mapHome }],
     ['toren_baslik', 'Tören başlığı'],
     ['toren_aciklama', 'Tören açıklaması', { area: true }],
+    ['takvim_baslik', 'Takvime eklenen etkinliğin adı', { def: () => `${cift()}${ekIlgi(txt('damat_adi'))} Düğünü` }],
     ['takvim_cagri', 'Takvim çağrısı'],
     ['takvim_dugme', 'Takvim düğmesi'],
     ['takvim_android', 'Android’de takvim düğmesinin altındaki not', { rich: true }],
@@ -1563,6 +1577,10 @@ const CONTENT_GROUPS = [
   ]],
   ['Alt menü', [['menu_davet', 'Davet'], ['menu_program', 'Program'], ['menu_album', 'Albüm'], ['menu_dilekler', 'Dilekler']]],
   ['Alt bilgi', [['alt_tesekkur', 'Teşekkür yazısı', { area: true }], ['alt_imza', 'İmza']]],
+  ['WhatsApp önizlemesi', [
+    ['og_baslik', 'Başlık', { def: () => `${cift()} · ${txt('kapak_ust')}` }],
+    ['og_aciklama', 'Açıklama', { area: true, def: () => `${dateText('tarih')} ${dateText('gun')} · ${dateText('saat')} · ${txt('mekan_adi')} — Sizleri de aramızda görmekten mutluluk duyarız.` }],
+  ], 'Sayfanın bağlantısı WhatsApp’ta ya da başka bir uygulamada paylaşılınca görünen kart. Görseli isimler, tarih ve Görünüm sekmesindeki seçimlerle kendiliğinden hazırlanır. Kaydettikten sonra en geç yarım saat içinde güncellenir; daha önce gönderilmiş mesajlardaki önizleme değişmeyebilir.'],
   ['QR masa kartı', [
     ['kart_ust', 'Üst yazı', { def: 'Anılarınızı Paylaşın' }],
     ['kart_metin', 'Açıklama (en çok 2 satır)', { area: true, def: 'Bu gecenin fotoğraflarını albümümüze ekleyin,\nbize birkaç satır dilek bırakın.' }],
@@ -1623,11 +1641,18 @@ function applyContent() {
   applyLook();
   cacheLook();
 }
-// Önce bu cihazda saklanan son metinler (sayfa açılırken eski metin görünüp değişmesin), sonra veritabanı
+// Önce bu cihazda saklanan son metinler ya da (hiç yoksa veya daha yeniyse) sayfaya gömülü ilk veri; böylece sayfa
+// açılırken eski metin görünüp değişmez. Ardından veritabanı (loadContent).
 function initContent() {
   captureContentDefaults();
-  try { const c = JSON.parse(ls.get(CONTENT_KEY) || '{}'); if (c && typeof c === 'object' && !Array.isArray(c)) icerik = c; } catch { /* bozuk önbellek */ }
+  const obj = v => !!v && typeof v === 'object' && !Array.isArray(v);
+  let cached = null, embedded = null;
+  try { cached = JSON.parse(ls.get(CONTENT_KEY) || 'null'); } catch { /* bozuk önbellek */ }
+  try { embedded = JSON.parse($('#ilk-veri').textContent || '{}').icerik; } catch { /* yok */ }
+  const newer = obj(embedded) && (!obj(cached) || String(embedded.ozet?.zaman || '') > String(cached.ozet?.zaman || ''));
+  icerik = newer ? embedded : obj(cached) ? cached : {};
   applyContent();
+  document.documentElement.classList.remove('icerik-bekle');   // doğru metinler yerinde: görünür olabilirler
 }
 async function loadContent() {
   if (!store?.content) return;
@@ -1651,7 +1676,7 @@ function updateLinks() {
   const stamp = t => new Date(t).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const q = new URLSearchParams({
     action: 'TEMPLATE',
-    text: `${cift()}${ekIlgi(txt('damat_adi'))} Düğünü`,
+    text: txt('takvim_baslik'),
     dates: stamp(WED) + '/' + stamp(WED + Number(txt('dugun_suresi')) * 3600e3),
     location: `${txt('mekan_adi')}, ${txt('mekan_adresi')}`,
     details: `${txt('gelin_alma_baslik')}: ${txt('gelin_alma_saat')} — ${txt('gelin_alma_aciklama')}\n`
@@ -1863,15 +1888,21 @@ function applyLook() {
   cardP = null; $('#arc-card-prev').replaceChildren();     // masa kartı yeni görünümle yeniden çizilsin
   return out;
 }
-// Kaydedilen görünüm bu cihazda saklanır; <head>'deki betik bir sonraki açılışta sayfa çizilmeden uygular.
-function cacheLook() {
-  const out = lookOutput(lookSaved);
-  out.i = favicon(lookSaved);
+// <head>'deki betiğin sayfa çizilmeden uyguladığı hazır hâl (bu cihazın önbelleği ve sayfaya gömülü ilk veri).
+// z: hangi kayda ait olduğu (paylaşım özetinin zamanı); iki kaynaktan daha yeni olan kullanılır.
+function lookSnapshot(g, z = '') {
+  const out = lookOutput(g);
+  out.i = favicon(g);
+  out.z = z;
   if (!out.p) {   // önizlemedeki geçici (blob:) adres bir sonraki açılışta işe yaramaz
     delete out.v['--kapak-foto'];
     out.c = out.c.split(' ').filter(c => c && c !== 'kapak-foto').join(' ');
   }
-  if (Object.keys(out.v).length || out.c || out.f) ls.set(LOOK_KEY, JSON.stringify(out));
+  return out;
+}
+function cacheLook() {
+  const out = lookSnapshot(lookSaved, icerik.ozet?.zaman || '');
+  if (Object.keys(out.v).length || out.c || out.f || out.z) ls.set(LOOK_KEY, JSON.stringify(out));
   else { try { localStorage.removeItem(LOOK_KEY); } catch { /* gizli sekme */ } }
 }
 // Sekme simgesi: baş harfler ve tema renkleri
@@ -3291,6 +3322,65 @@ async function downloadBook() {
   }
 }
 
+/* ---------- Kanvas çizim yardımcıları (masa kartı ve WhatsApp önizleme görseli ortak) ---------- */
+const rgbaOf = (hex, a) => `rgba(${hexRgb(hex).join(', ')}, ${a})`;
+function roundPath(x, left, top, w, hgt, r) {
+  x.beginPath(); x.moveTo(left + r, top);
+  x.arcTo(left + w, top, left + w, top + hgt, r); x.arcTo(left + w, top + hgt, left, top + hgt, r); x.arcTo(left, top + hgt, left, top, r); x.arcTo(left, top, left + w, top, r);
+  x.closePath();
+}
+// Sayfadaki dal süsünün (#branch) kanvas kopyası
+const BRANCH_LEAVES = [[38.9, 156.8, 15, 5.4, -84], [53, 170, 15, 5.4, -4], [57.9, 138.1, 14.5, 5.2, -88], [71.5, 150.8, 14.5, 5.2, -8], [78.3, 117.4, 14, 5, -86], [91.5, 129.7, 14, 5, -6],
+  [101.4, 94.2, 13, 4.7, -90], [113.6, 105.6, 13, 4.7, -10], [127.5, 66.9, 12, 4.3, -88], [138.8, 77.4, 12, 4.3, -8], [157.6, 35, 10.5, 3.8, -92], [167.5, 44.2, 10.5, 3.8, -12], [186.7, 12.6, 10, 3.6, -48]];
+function branchCanvas(size, color) {
+  const branch = document.createElement('canvas');
+  branch.width = branch.height = size;
+  const b = branch.getContext('2d');
+  b.scale(size / 210, size / 210);
+  b.strokeStyle = b.fillStyle = color; b.lineCap = 'round';
+  b.lineWidth = 1.3; b.stroke(new Path2D('M20 190C60 150 100 110 180 20'));
+  b.lineWidth = 1.1;
+  for (const [ex, ey, rx, ry, a] of BRANCH_LEAVES) {
+    const leaf = new Path2D();
+    leaf.ellipse(ex, ey, rx, ry, a * Math.PI / 180, 0, Math.PI * 2);
+    b.globalAlpha = .16; b.fill(leaf);
+    b.globalAlpha = 1; b.stroke(leaf);
+  }
+  b.globalAlpha = .55;
+  for (const [ex, ey, r] of [[64, 163, 3.2], [108, 118, 2.8], [146, 88, 2.4]]) { b.beginPath(); b.arc(ex, ey, r, 0, Math.PI * 2); b.fill(); }
+  return branch;
+}
+// Süs çizgisi (#orn, 240×18): sol üst köşesi (left, top), k kat büyütülmüş
+function drawOrn(x, left, top, k, color) {
+  x.save(); x.translate(left, top); x.scale(k, k);
+  x.strokeStyle = x.fillStyle = color; x.lineWidth = .9;
+  x.stroke(new Path2D('M10 9H98M142 9H230')); x.stroke(new Path2D('M120 2.5l6.5 6.5-6.5 6.5-6.5-6.5z'));
+  for (const ex of [106, 134]) { x.beginPath(); x.arc(ex, 9, 1.7, 0, Math.PI * 2); x.fill(); }
+  x.restore();
+}
+// Bir satırı parçalar halinde (farklı yazı tipi/renk) yatayda ortalayarak yazar; sp: harf aralığı, pad: iki yan boşluk.
+// Satır maxW'ye sığmazsa tüm parçalar aynı oranda küçültülür. Renk (c) bir işlevse satırın sol ve sağ kenarıyla
+// çağrılır (ör. isimlerdeki altın renk geçişi bütün satıra yayılsın).
+function textLine(x, center, maxW) {
+  const scaleFont = (f, k) => f.replace(/(\d+(?:\.\d+)?)px/, (m, n) => `${(n * k).toFixed(1)}px`);
+  const widthOf = p => { x.font = p.f; return (p.sp ? [...p.t].reduce((s, ch) => s + x.measureText(ch).width + p.sp, -p.sp) : x.measureText(p.t).width) + 2 * (p.pad || 0); };
+  const fitK = parts => Math.min(1, maxW / parts.reduce((s, p) => s + widthOf(p), 0));
+  const scaled = (parts, k) => (k < 1 ? parts.map(p => ({ ...p, f: scaleFont(p.f, k), sp: p.sp && p.sp * k, pad: p.pad && p.pad * k })) : parts);
+  const line = (y, ...given) => {
+    const parts = scaled(given, fitK(given));
+    const widths = parts.map(widthOf), total = widths.reduce((s, v) => s + v, 0), left = center - total / 2;
+    let px = left;
+    parts.forEach((p, i) => {
+      x.font = p.f; x.fillStyle = typeof p.c === 'function' ? p.c(left, left + total) : p.c;
+      let cx = px + (p.pad || 0);
+      if (p.sp) for (const ch of p.t) { x.fillText(ch, cx, y); cx += x.measureText(ch).width + p.sp; }
+      else x.fillText(p.t, cx, y);
+      px += widths[i];
+    });
+  };
+  return { line, widthOf, fitK, scaleFont };
+}
+
 /* ---------- QR masa kartı: 10×15 cm (1200×1800 px), basılan kartla aynı tasarım ---------- */
 const siteLink = () => document.querySelector('meta[property="og:url"]')?.content || location.origin + location.pathname;
 let cardP = null;
@@ -3319,7 +3409,7 @@ async function buildTableCard() {
     eyebrow: '500 ' + fpx(30, fSans), names: '400 ' + fpx(150, fEl), amp: 'italic 400 ' + fpx(60, fSerif), lead: '500 ' + fpx(46, fSerif),
     step: '400 ' + fpx(33, fSans), stepB: '500 ' + fpx(33, fSans), url: '400 ' + fpx(28, fSans), foot: 'italic 400 ' + fpx(36, fSerif),
   };
-  const rgba = (hex, a) => `rgba(${hexRgb(hex).join(', ')}, ${a})`;
+  const rgba = rgbaOf;
   // Karekod her temada koyu ve yüksek kontrastlı kalır (okunması için)
   const qrInk = contrast(P.ink, '#FFFFFF') >= 9 ? P.ink : '#1C2A23';
   await loadScript(QR_JS);
@@ -3335,48 +3425,16 @@ async function buildTableCard() {
   card.width = 1200; card.height = 1800;
   const x = card.getContext('2d');
   const GOLD = P.gold, INK = P.ink, BROWN = P.brown, STEP = P.step;
-  const round = (left, top, w, hgt, r) => { x.beginPath(); x.moveTo(left + r, top); x.arcTo(left + w, top, left + w, top + hgt, r); x.arcTo(left + w, top + hgt, left, top + hgt, r); x.arcTo(left, top + hgt, left, top, r); x.arcTo(left, top, left + w, top, r); x.closePath(); };
-  // Bir satırı parçalar halinde (farklı yazı tipi/renk) yatayda ortalayarak yazar; sp: harf aralığı, pad: iki yan boşluk.
-  // Satır kartın içine (en çok 1000 px) sığmazsa tüm parçalar aynı oranda küçültülür.
-  const MAXW = 1000;
-  const scaleFont = (f, k) => f.replace(/(\d+(?:\.\d+)?)px/, (m, n) => `${(n * k).toFixed(1)}px`);
-  const widthOf = p => { x.font = p.f; return (p.sp ? [...p.t].reduce((s, ch) => s + x.measureText(ch).width + p.sp, -p.sp) : x.measureText(p.t).width) + 2 * (p.pad || 0); };
-  const fitK = parts => Math.min(1, MAXW / parts.reduce((s, p) => s + widthOf(p), 0));
-  const scaled = (parts, k) => (k < 1 ? parts.map(p => ({ ...p, f: scaleFont(p.f, k), sp: p.sp && p.sp * k, pad: p.pad && p.pad * k })) : parts);
-  const line = (y, ...given) => {
-    const parts = scaled(given, fitK(given));
-    const widths = parts.map(widthOf);
-    let px = 600 - widths.reduce((s, v) => s + v, 0) / 2;
-    parts.forEach((p, i) => {
-      x.font = p.f; x.fillStyle = p.c;
-      let cx = px + (p.pad || 0);
-      if (p.sp) for (const ch of p.t) { x.fillText(ch, cx, y); cx += x.measureText(ch).width + p.sp; }
-      else x.fillText(p.t, cx, y);
-      px += widths[i];
-    });
-  };
+  const round = (left, top, w, hgt, r) => roundPath(x, left, top, w, hgt, r);
+  // Satırlar kartın içine (en çok 1000 px) sığmazsa küçültülür
+  const { line, widthOf, fitK, scaleFont } = textLine(x, 600, 1000);
 
   x.fillStyle = P.card; x.fillRect(0, 0, 1200, 1800);
   x.lineWidth = 2; x.strokeStyle = rgba(GOLD, .55); round(45, 45, 1110, 1710, 35); x.stroke();
   x.lineWidth = 1; x.strokeStyle = rgba(GOLD, .3); round(58.5, 58.5, 1083, 1683, 25.5); x.stroke();
 
   // Köşelerdeki dal süsleri
-  const branch = document.createElement('canvas');
-  branch.width = branch.height = 235;
-  const b = branch.getContext('2d');
-  b.scale(235 / 210, 235 / 210);
-  b.strokeStyle = b.fillStyle = GOLD; b.lineCap = 'round';
-  b.lineWidth = 1.3; b.stroke(new Path2D('M20 190C60 150 100 110 180 20'));
-  b.lineWidth = 1.1;
-  for (const [ex, ey, rx, ry, a] of [[38.9, 156.8, 15, 5.4, -84], [53, 170, 15, 5.4, -4], [57.9, 138.1, 14.5, 5.2, -88], [71.5, 150.8, 14.5, 5.2, -8], [78.3, 117.4, 14, 5, -86], [91.5, 129.7, 14, 5, -6],
-    [101.4, 94.2, 13, 4.7, -90], [113.6, 105.6, 13, 4.7, -10], [127.5, 66.9, 12, 4.3, -88], [138.8, 77.4, 12, 4.3, -8], [157.6, 35, 10.5, 3.8, -92], [167.5, 44.2, 10.5, 3.8, -12], [186.7, 12.6, 10, 3.6, -48]]) {
-    const leaf = new Path2D();
-    leaf.ellipse(ex, ey, rx, ry, a * Math.PI / 180, 0, Math.PI * 2);
-    b.globalAlpha = .16; b.fill(leaf);
-    b.globalAlpha = 1; b.stroke(leaf);
-  }
-  b.globalAlpha = .55;
-  for (const [ex, ey, r] of [[64, 163, 3.2], [108, 118, 2.8], [146, 88, 2.4]]) { b.beginPath(); b.arc(ex, ey, r, 0, Math.PI * 2); b.fill(); }
+  const branch = branchCanvas(235, GOLD);
   x.globalAlpha = .55;
   x.save(); x.translate(20, 255); x.scale(1, -1); x.drawImage(branch, 0, 0); x.restore();
   x.save(); x.translate(1180, 1545); x.scale(-1, 1); x.drawImage(branch, 0, 0); x.restore();
@@ -3384,12 +3442,7 @@ async function buildTableCard() {
 
   line(175, { f: F.eyebrow, c: BROWN, t: T.eyebrow, sp: 12.6 });
   line(315, { f: F.names, c: INK, t: T.gelin }, { f: F.amp, c: GOLD, t: '&', pad: 16.8 }, { f: F.names, c: INK, t: T.damat });
-  // İsimlerin altındaki süs çizgisi
-  x.save(); x.translate(450, 382.75); x.scale(1.25, 1.25);
-  x.strokeStyle = x.fillStyle = GOLD; x.lineWidth = .9;
-  x.stroke(new Path2D('M10 9H98M142 9H230')); x.stroke(new Path2D('M120 2.5l6.5 6.5-6.5 6.5-6.5-6.5z'));
-  for (const ex of [106, 134]) { x.beginPath(); x.arc(ex, 9, 1.7, 0, Math.PI * 2); x.fill(); }
-  x.restore();
+  drawOrn(x, 450, 382.75, 1.25, GOLD);   // isimlerin altındaki süs çizgisi
   // Açıklama en çok iki satır: tek satır sığmıyorsa sözcüklerden dengeli bölünür; iki satır aynı boyutta yazılır
   let leadLines = T.lead.split('\n').map(s => s.trim()).filter(Boolean);
   if (leadLines.length > 2) leadLines = [leadLines[0], leadLines.slice(1).join(' ')];
@@ -3483,6 +3536,147 @@ function initArchive() {
     }
     arcLog(`Tamamlandı: ${photos.length - failed} fotoğraf indirildi${failed ? `, ${failed} fotoğraf alınamadı (ayrıntı konsolda)` : ''}.`);
   }));
+}
+
+/* =====================================================================
+   PAYLAŞIM ÖZETİ — WhatsApp önizlemesi, sekme başlığı ve takvim dosyası için.
+   WhatsApp ve takvim uygulamaları sayfanın betiğini çalıştırmaz, yalnızca dosyaların kendisini okur. Yönetici
+   metinleri ya da görünümü kaydedince bu özet (gerekirse yeni bir önizleme görseliyle) veritabanına yazılır;
+   GitHub'daki "Sayfayı eşitle" görevi onu index.html'e, dugun.ics'e ve paylaşım görseline işler (.github/esitle.mjs).
+   ===================================================================== */
+// Önizleme görselini etkileyenler. Hepsi varsayılandaysa depodaki paylasim.jpg kullanılır, görsel hazırlanmaz.
+function shareParts(T, wed, g) {
+  return [T('gelin_adi'), T('damat_adi'), T('kapak_ust'), T('mekan_adi'), dateText('tarih', wed), dateText('gun', wed), dateText('saat', wed),
+    g.tema, g.koyu, g.vurgu, g.zemin, g.el, g.serif, g.sans, g.dallar, g.cerceve, g.kapak === 'foto' ? `${g.kapak_foto}|${g.kapak_karartma}|${g.kapak_odak}` : ''];
+}
+const shareSignature = g => JSON.stringify(shareParts(txt, WED, g));
+const shareIsDefault = g => shareSignature(g) === JSON.stringify(shareParts(defOf, Date.parse(CONFIG.weddingAt), LOOK_DEFAULT));
+// Seçilen yazı tiplerinin tanımı sayfada yoksa (ör. o sırada başka bir görünüm deneniyorsa) eklenir ve yüklenmesi beklenir
+async function ensureLookFonts(g) {
+  const href = lookOutput(g).f;
+  if (!href) return;
+  let l = $$('link[data-look-fonts], link[data-share-fonts]').find(n => n.getAttribute('href') === href);
+  if (!l) { l = h('link', { rel: 'stylesheet', href, 'data-share-fonts': '' }); document.head.append(l); }
+  if (!l.sheet) await Promise.race([new Promise(res => { l.addEventListener('load', res, { once: true }); l.addEventListener('error', res, { once: true }); }), sleep(8000)]);
+}
+const loadImg = src => new Promise((res, rej) => {
+  const i = new Image();
+  i.crossOrigin = 'anonymous';   // kanvastan dışa aktarılabilsin (Supabase herkese açık dosyalarda buna izin verir)
+  i.onload = () => res(i);
+  i.onerror = () => rej(new Error('Görsel yüklenemedi'));
+  i.src = src;
+});
+// 1200×630 önizleme görseli: kapağın küçük bir kopyası — temanın renkleri, yazı tipleri ve varsa kapak fotoğrafı
+async function drawShareImage(g = lookSaved) {
+  const W = 1200, H = 630, p = paletteOf(g), c = paletteVars(p.koyu, p.vurgu, p.zemin);
+  const fEl = fontOf('el', g.el), fSerif = fontOf('serif', g.serif), fSans = fontOf('sans', g.sans);
+  const fpx = (n, f) => `${Math.round(n * f.o * 100) / 100}px "${f.ad}"`;
+  const F = { ust: '500 ' + fpx(20, fSans), isim: '400 ' + fpx(165, fEl), amp: 'italic 400 ' + fpx(56, fSerif), tarih: '500 ' + fpx(34, fSerif), mekan: 'italic 400 ' + fpx(24, fSerif) };
+  const T = { ust: txt('kapak_ust').toLocaleUpperCase('tr-TR'), gelin: txt('gelin_adi'), damat: txt('damat_adi'), tarih: dateText('tarih'), gun: dateText('gun'), saat: dateText('saat'), mekan: txt('mekan_adi') };
+  await ensureLookFonts(g);
+  const sample = [...Object.values(T), '&·'].join(' ');
+  const loaded = await Promise.all(Object.values(F).map(f => document.fonts.load(f, sample)));
+  if (loaded.some(list => !list.length)) throw new UserError('Yazı tipleri yüklenemedi; internet bağlantınızı kontrol edin.');
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const x = cv.getContext('2d');
+  // Zemin: kapaktaki renk geçişi ya da karartılmış kapak fotoğrafı
+  const bg = x.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, c['hero-1']); bg.addColorStop(.55, c['hero-2']); bg.addColorStop(1, c['hero-3']);
+  x.fillStyle = bg; x.fillRect(0, 0, W, H);
+  let foto = g.kapak === 'foto' ? siteUrl(g.kapak_foto) : '';
+  if (foto) {
+    try {
+      const img = await loadImg(foto), k = Math.max(W / img.naturalWidth, H / img.naturalHeight), dw = img.naturalWidth * k, dh = img.naturalHeight * k;
+      x.drawImage(img, (W - dw) / 2, (H - dh) * g.kapak_odak / 100, dw, dh);
+      const a = g.kapak_karartma / 100, shade = x.createLinearGradient(0, 0, 0, H);
+      shade.addColorStop(0, rgbaOf(c.night, Math.min(1, a + .08))); shade.addColorStop(.42, rgbaOf(c.night, Math.max(0, a - .06))); shade.addColorStop(1, rgbaOf(c.night, Math.min(1, a + .14)));
+      x.fillStyle = shade; x.fillRect(0, 0, W, H);
+    } catch (e) { console.warn('Kapak fotoğrafı önizleme görseline eklenemedi:', e); foto = ''; }
+  }
+  // Ortada altın bir ışıma, altta hafif gölge (kapaktaki eliptik geçişlerin aynısı)
+  const glow = (cx, cy, rx, ry, color, end) => {
+    x.save(); x.translate(cx, cy); x.scale(rx / ry, 1);
+    const gr = x.createRadialGradient(0, 0, 0, 0, 0, ry);
+    gr.addColorStop(0, color); gr.addColorStop(end, 'rgba(0, 0, 0, 0)');
+    x.fillStyle = gr; x.fillRect(-cx * ry / rx, -cy, W * ry / rx, H);
+    x.restore();
+  };
+  glow(W / 2, H * .32, W * 1.2, H * .7, rgbaOf(c['gold-light'], foto ? .1 : .17), .62);
+  if (!foto) glow(W / 2, H * 1.12, W * .9, H * .5, 'rgba(0, 0, 0, .38)', .7);
+  if (g.cerceve) {
+    x.lineWidth = 1.5; x.strokeStyle = rgbaOf(c['gold-light'], .22); roundPath(x, 22, 22, W - 44, H - 44, 26); x.stroke();
+    x.lineWidth = 1; x.strokeStyle = rgbaOf(c['gold-light'], .09); roundPath(x, 28.5, 28.5, W - 57, H - 57, 20.5); x.stroke();
+  }
+  if (g.dallar) {
+    const br = branchCanvas(230, c['gold-light']);
+    x.globalAlpha = .45;
+    x.save(); x.translate(16, 246); x.scale(1, -1); x.drawImage(br, 0, 0); x.restore();
+    x.save(); x.translate(W - 16, H - 246); x.scale(-1, 1); x.drawImage(br, 0, 0); x.restore();
+    x.globalAlpha = 1;
+  }
+  const { line } = textLine(x, W / 2, 1000), gl = c['gold-light'];
+  // İsimlerdeki altın parıltı: kapaktaki gibi geçişin ilk yarısı satıra yayılır
+  const shine = (l, r) => {
+    const gr = x.createLinearGradient(l, 0, l + (r - l) * 2.2, 0);
+    for (const [o, k] of [[0, 'shine-1'], [.26, 'shine-2'], [.5, 'shine-3'], [.74, 'shine-4'], [1, 'shine-1']]) gr.addColorStop(o, c[k]);
+    return gr;
+  };
+  line(158, { f: F.ust, c: gl, t: T.ust, sp: 8 });
+  line(300, { f: F.isim, c: shine, t: T.gelin }, { f: F.amp, c: shine, t: '&', pad: 22 }, { f: F.isim, c: shine, t: T.damat });
+  drawOrn(x, W / 2 - 120, 360, 1, rgbaOf(gl, .75));
+  const nokta = { f: F.tarih, c: gl, t: '·', pad: 10 }, cream = c['cream-hi'];
+  line(432, { f: F.tarih, c: cream, t: T.tarih, sp: 1.7 }, nokta, { f: F.tarih, c: cream, t: T.gun, sp: 1.7 }, nokta, { f: F.tarih, c: cream, t: T.saat, sp: 1.7 });
+  line(478, { f: F.mekan, c: rgbaOf(c.cream, .78), t: T.mekan });
+  return new Promise((res, rej) => cv.toBlob(b => (b ? res(b) : rej(new Error('Görsel hazırlanamadı'))), 'image/jpeg', .9));
+}
+// Durağan dosyalara işlenecek her şey (yalnızca düz metin; GitHub görevi ayrıca doğrular ve kaçışlar)
+function shareSummary(g, zaman) {
+  const saat = dateText('saat'), mekan = txt('mekan_adi'), ad = txt('takvim_baslik');
+  return {
+    surum: 1, zaman,
+    baslik: `${cift()} · ${txt('kapak_ust')} · ${dateText('tarih')}`,
+    aciklama: `${txt('gelin_adi')} ile ${txt('damat_adi')} evleniyor! ${dateText('tarih')} ${dateText('gun')}, saat ${saat} · ${mekan}. Geri sayım, düğün programı, anı albümü ve dilek defteri.`,
+    og_baslik: txt('og_baslik'), og_aciklama: txt('og_aciklama'),
+    gorsel_alt: `${cift()} · ${txt('kapak_ust')} · ${dateText('tarih')}`,
+    gorunum: lookSnapshot(g, zaman),
+    takvim: {
+      baslik: ad, baslangic: new Date(WED).toISOString(), bitis: new Date(WED + Number(txt('dugun_suresi')) * 3600e3).toISOString(),
+      konum: `${mekan}, ${txt('mekan_adresi')}`,
+      aciklama: `${txt('gelin_alma_baslik')}: ${txt('gelin_alma_saat')}\n${txt('toren_baslik')}: ${saat} - ${mekan}`,
+      hatirlatma_gun: `Yarın: ${ad}`, hatirlatma_saat: `Bu akşam ${saat}: ${ad}`,
+    },
+  };
+}
+// Kayıttan sonra çağrılır: özet (ve isimler, tarih ya da görünüm değiştiyse yeni önizleme görseli) veritabanına yazılır.
+// Hata olursa asıl kayıt geçerli kalır; yalnızca WhatsApp önizlemesi ve takvim dosyası eskisi gibi kalır.
+let shareQueue = Promise.resolve();
+const syncShareSummary = () => (shareQueue = shareQueue.catch(() => {}).then(async () => {
+  const g = lookSaved, old = icerik.ozet || {}, zaman = new Date().toISOString(), imza = shareSignature(g);
+  let gorsel = '', yeni = '';
+  if (!shareIsDefault(g)) {
+    if (old.gorsel && old.gorsel_imza === imza) gorsel = old.gorsel;
+    else { yeni = `paylasim/${uuid()}.jpg`; await store.site.upload(yeni, await drawShareImage(g), 'image/jpeg'); gorsel = yeni; }
+  }
+  try {
+    const saved = await store.content.save({ ...icerik, ozet: { ...shareSummary(g, zaman), gorsel, gorsel_imza: gorsel ? imza : '' } });
+    icerik = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : icerik;
+  } catch (e) { if (yeni) store.site.remove([yeni]).catch(() => {}); throw e; }
+  ls.set(CONTENT_KEY, JSON.stringify(icerik));
+  cacheLook();
+  if (old.gorsel && old.gorsel !== gorsel) store.site.remove([old.gorsel]).catch(e => console.warn('Eski önizleme görseli silinemedi:', e));
+}));
+// Metin ya da görünüm kaydedilince: özet arka planda güncellenir, sonucu kaydın bilgi satırına eklenir
+function afterSave(logEl) {
+  const base = logEl.textContent;
+  logEl.textContent = base + ' WhatsApp önizlemesi hazırlanıyor…';
+  syncShareSummary().then(() => {
+    if (logEl.textContent.startsWith(base)) logEl.textContent = base + ' WhatsApp önizlemesi ve takvim dosyası en geç yarım saat içinde güncellenir.';
+  }, e => {
+    console.warn('Paylaşım özeti güncellenemedi:', e);
+    if (logEl.textContent.startsWith(base)) logEl.textContent = base;
+    toast('Kaydedildi, ancak WhatsApp önizlemesi güncellenemedi: ' + uploadError(e), 'err');
+  });
 }
 
 /* =====================================================================
@@ -3723,8 +3917,9 @@ const icInputVal = f => { const v = $('#ic-' + f.k).value; return f.type === 'da
 const icShow = (f, v) => (f.type === 'datetime' ? toTrInput(v) : v);
 const icSameAsDefault = (f, v) => (f.type === 'datetime' ? Date.parse(v) === Date.parse(defOf(f.k)) : v === defOf(f.k));
 function buildContentForm() {
-  $('#ic-groups').replaceChildren(...CONTENT_GROUPS.map(([g, list], gi) => h('details', { class: 'set-card ic-group', open: gi === 0, 'data-g': g },
+  $('#ic-groups').replaceChildren(...CONTENT_GROUPS.map(([g, list, note], gi) => h('details', { class: 'set-card ic-group', open: gi === 0, 'data-g': g },
     h('summary', {}, h('span', { text: g }), h('small', { class: 'ic-count', text: `${list.length} alan` })),
+    note && h('p', { class: 'lk-note ic-note', text: note }),
     ...list.map(([k, l, o = {}]) => {
       const attrs = { class: 'input', id: 'ic-' + k, autocomplete: 'off' };
       const input = o.area ? h('textarea', { ...attrs, rows: 3, maxlength: 1000 })
@@ -3788,7 +3983,8 @@ async function saveContent(e) {
     }
     veri[f.k] = v;
   }
-  if (icerik.gorunum) veri.gorunum = icerik.gorunum;   // görünüm aynı kayıtta saklanır; metin kaydı onu korur
+  if (icerik.gorunum) veri.gorunum = icerik.gorunum;   // görünüm ve paylaşım özeti aynı kayıtta saklanır; metin kaydı onları korur
+  if (icerik.ozet) veri.ozet = icerik.ozet;
   const btn = $('#ic-save');
   btn.disabled = true;
   $('#ic-log').textContent = 'Kaydediliyor…';
@@ -3802,6 +3998,7 @@ async function saveContent(e) {
     const n = Object.keys(icerik).filter(k => k in CONTENT_FIELD).length;
     $('#ic-log').textContent = `Kaydedildi (${n ? n + ' metin değiştirilmiş' : 'tüm metinler varsayılan'}). Açık olan sayfalar en geç yarım dakika içinde güncellenir.`;
     toast('Metinler kaydedildi.', 'ok');
+    afterSave($('#ic-log'));
   } catch (err) {
     console.warn('Metinler kaydedilemedi:', err);
     $('#ic-log').textContent = '';
@@ -4033,6 +4230,7 @@ async function saveLook(e) {
     renderAdmPill();
     $('#lk-log').textContent = 'Kaydedildi. Açık olan sayfalar en geç yarım dakika içinde yeni görünüme geçer.';
     toast('Görünüm kaydedildi.', 'ok');
+    afterSave($('#lk-log'));
   } catch (err) {
     console.warn('Görünüm kaydedilemedi:', err);
     $('#lk-log').textContent = '';
