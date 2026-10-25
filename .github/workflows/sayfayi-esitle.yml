@@ -23,7 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      # Sürüm etiketi değil, değişmez commit: etiket sonradan başka koda taşınsa bile bu görev etkilenmez (v6.1.0)
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false   # erişim anahtarı diske yazılmaz; yalnızca aşağıdaki gönderme adımında kullanılır
 
       - name: Son kaydı oku ve dosyaları güncelle
         run: node .github/esitle.mjs
@@ -33,12 +36,18 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
-          if [ -z "$(git status --porcelain)" ]; then echo "Değişiklik yok."; exit 0; fi
+          # Yalnızca bu görevin yönettiği dosyalar kaydedilir
+          git add -A -- index.html dugun.ics
+          if [ -e paylasim-guncel.jpg ] || git ls-files --error-unmatch paylasim-guncel.jpg >/dev/null 2>&1; then
+            git add -A -- paylasim-guncel.jpg
+          fi
+          if git diff --cached --quiet; then echo "Değişiklik yok."; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
           git commit -q -m "Sayfa eşitlendi: yönetimdeki son değişiklikler"
-          git push
+          AUTH=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+          echo "::add-mask::$AUTH"
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $AUTH" push origin "HEAD:$GITHUB_REF_NAME"
           curl -sS --fail-with-body -X POST \
             -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" \
             "https://api.github.com/repos/$REPO/pages/builds"

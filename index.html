@@ -20,7 +20,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Elif &amp; Yunus · Evleniyoruz · 15 Kasım 2026">
 <meta name="twitter:card" content="summary_large_image">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' blob: https://*.supabase.co; media-src 'self' blob: https://*.supabase.co; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/ https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/ https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hpmhoursfrtigfyoibvd.supabase.co; connect-src 'self' blob: https://hpmhoursfrtigfyoibvd.supabase.co; media-src 'self' blob: https://hpmhoursfrtigfyoibvd.supabase.co; object-src 'none'; base-uri 'none'; form-action 'none'">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Ccircle%20cx='32'%20cy='32'%20r='32'%20fill='%231C2A23'/%3E%3Ccircle%20cx='32'%20cy='32'%20r='27'%20fill='none'%20stroke='%23C9A464'%20stroke-width='1.5'/%3E%3Ctext%20x='32'%20y='40'%20text-anchor='middle'%20font-family='Georgia,serif'%20font-style='italic'%20font-size='21'%20fill='%23E2C994'%3EE%26amp;Y%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1083,6 +1083,7 @@ textarea.input { min-height: 132px; resize: vertical; }
           <label class="set-switch"><span>Anı Albümü</span><input type="checkbox" role="switch" id="set-album"></label>
           <label class="set-switch"><span>Dilek Defteri</span><input type="checkbox" role="switch" id="set-dilekler"></label>
           <label class="set-switch"><span>Arka plan müziği</span><input type="checkbox" role="switch" id="set-muzik"></label>
+          <p class="lk-note">Gizlenen bölümdeki dilekler ya da fotoğraf listesi misafirlere sunucudan da verilmez; yalnızca siz görürsünüz. Dilek Defteri gizliyken de misafirler dilek yazabilir.</p>
         </fieldset>
         <button class="btn btn-gold btn-block" type="submit" id="set-save">Ayarları Kaydet</button>
         <p class="arc-log" id="set-log" aria-live="polite"></p>
@@ -1223,6 +1224,7 @@ textarea.input { min-height: 132px; resize: vertical; }
 const CONFIG = {
   // Supabase › Project Settings › API Keys sayfasından alın.
   // İkisi de boş kalırsa sayfa ÖNİZLEME modunda çalışır (hiçbir şey kaydedilmez).
+  // Adresi değiştirirseniz <head>'deki Content-Security-Policy satırındaki adresi de değiştirin (sayfa yalnızca oraya bağlanır).
   supabaseUrl: 'https://hpmhoursfrtigfyoibvd.supabase.co',
   supabaseKey: 'sb_publishable_1NkpbDIHSAAuhWhQPF3X0A_LB9MDNWp',   // YALNIZCA publishable anahtar. Secret anahtarı ASLA yazmayın!
   bucket: 'fotograflar',
@@ -1250,9 +1252,12 @@ const CONFIG = {
 };
 /* ===================================================================== */
 
-const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
-const JSZIP_JS = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
-const QR_JS = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+// Dış kütüphaneler sürümüyle sabit ve bütünlük özetiyle (SRI) yüklenir: dağıtım sunucusu ele geçirilip dosya
+// değiştirilse bile tarayıcı çalıştırmaz. Özetler resmî paketlerden (npm, cdnjs) doğrulandı. Sürüm değişirse
+// özet de yenilenmeli; <head>'deki Content-Security-Policy de yalnızca bu adreslere izin verir.
+const SUPABASE_JS = ['https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js', 'sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R'];
+const JSZIP_JS = ['https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js', 'sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG'];
+const QR_JS = ['https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js', 'sha384-mZT2gIty7ZDdOGkxfP6joZcYdMW1Jvj9dRlfpTmaJAKKXTqzygtB22k7FLe+KZC1'];
 const NOTE_MAX = 600, NAME_MAX = 50;
 
 /* ---------- Yardımcılar ---------- */
@@ -1277,13 +1282,20 @@ function icon(name) {
   s.setAttribute('class', 'ic'); s.setAttribute('aria-hidden', 'true'); u.setAttribute('href', '#i-' + name); s.append(u);
   return s;
 }
-function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    const s = document.createElement('script');
-    s.src = src; s.async = true;
-    s.onload = resolve; s.onerror = () => reject(new Error('Kütüphane yüklenemedi: ' + src));
-    document.head.append(s);
-  });
+// Her kütüphane bir kez yüklenir; bütünlük özeti tutmazsa tarayıcı çalıştırmaz ve hata verir.
+const scriptsLoading = new Map();
+function loadScript([src, integrity]) {
+  if (!scriptsLoading.has(src)) {
+    scriptsLoading.set(src, new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src; s.async = true;
+      s.integrity = integrity; s.crossOrigin = 'anonymous';
+      s.onload = resolve;
+      s.onerror = () => { scriptsLoading.delete(src); s.remove(); reject(new Error('Kütüphane yüklenemedi: ' + src)); };
+      document.head.append(s);
+    }));
+  }
+  return scriptsLoading.get(src);
 }
 const ls = {
   get(k) { try { return localStorage.getItem(k) || ''; } catch { return ''; } },
@@ -1947,7 +1959,11 @@ const fitSoon = () => { cancelAnimationFrame(fitFrame); fitFrame = requestAnimat
 
 /* ---------- İsim: tüm alanlarda ortak, bu cihazda hatırlanır ---------- */
 const NAME_KEY = 'elif-yunus:isim';
-const cleanName = v => String(v || '').replace(/\s+/g, ' ').trim().slice(0, NAME_MAX);
+// Görünmeyen denetim ve yön karakterleri (ör. yazıyı tersine çevirip başka bir isim gibi gösteren U+202E) silinir;
+// sunucu da bunları kabul etmez. Dilekte satır sonu ve sekme kalır.
+const gorunmezSil = (s, satirlar = false) => String(s ?? '').replace(/[\p{Cc}\p{Bidi_Control}]/gu, ch => (satirlar && (ch === '\n' || ch === '\t') ? ch : ''));
+const cleanName = v => gorunmezSil(String(v || '').replace(/\s+/g, ' ')).trim().slice(0, NAME_MAX);
+const cleanNote = v => gorunmezSil(String(v || '').replace(/\r/g, ''), true).replace(/\n{3,}/g, '\n\n').trim().slice(0, NOTE_MAX);
 function setName(v, except) {
   $$('[data-name]').forEach(n => { if (n !== except) n.value = v; });
   ls.set(NAME_KEY, cleanName(v));
@@ -1990,7 +2006,8 @@ function liveStore() {
   const publicUrl = p => (PATH_RE.test(p || '') ? `${base}/storage/v1/object/public/${encodeURIComponent(CONFIG.bucket)}/${p}` : '');
   // Veritabanı henüz yeni kurulum dosyasıyla güncellenmediyse (fotoğraf-dilek bağı yoksa) sade sorgulara düşer;
   // böylece SQL ile sayfanın yayına giriş sırası ne olursa olsun albüm ve dilekler yüklenmeye devam eder.
-  let linked = true;
+  let linked = true, keyed = true;
+  const isColumnError = e => /PGRST204|42703/.test(`${e?.code}`);   // sütun yok: veritabanı eski sürümde
   const BASIC = { notlar: 'id,created_at,isim,mesaj', fotograflar: 'id,created_at,isim,buyuk,kucuk,genislik,yukseklik' };
   const cols = table => (linked ? (table === 'notlar' ? NOTE_COLS : PHOTO_COLS) : BASIC[table]);
   // PGRST200: ilişki yok, PGRST204/42703: sütun yok. 23503 (dilek bu arada silinmiş) bu sayılmaz.
@@ -2020,19 +2037,38 @@ function liveStore() {
     live: true,
     notes: { page: page('notlar'), since: since('notlar') },
     photos: { page: page('fotograflar'), since: since('fotograflar') },
-    // Yeni dileğin numarasını döndürür (fotoğraflar bu numarayla dileğe bağlanır).
-    addNote: async (isim, mesaj) => (await run(db => db.from('notlar').insert({ isim, mesaj }).select('id')))[0]?.id ?? null,
-    async addPhoto({ isim, large, thumb, width, height, notId }) {
+    // Yeni dileği kaydeder ve fotoğrafları ona bağlamak için bir "bağ" döndürür: yalnızca bu cihazın bildiği gizli
+    // bir anahtar. Sunucu fotoğrafı dileğe yalnızca bu anahtarla bağlar ve anahtarı kimseye okutmaz; böylece kimse
+    // başkasının dileğine fotoğraf ekleyemez. Kayıt geri okunmadığı için Dilek Defteri gizliyken de dilek yazılabilir.
+    // Veritabanı henüz bu sürüme güncellenmemişse eski yönteme (dilek numarası) düşer.
+    async addNote(isim, mesaj) {
+      await ready;
+      if (keyed) {
+        const bag_anahtari = uuid();
+        const oldSchema = await retry(async () => {
+          const { error } = await sb.from('notlar').insert({ isim, mesaj, bag_anahtari });
+          if (!error || error.code === '23505') return false;   // 23505: önceki deneme aslında kaydetmiş
+          if (isColumnError(error)) return true;
+          throw error;
+        });
+        if (!oldSchema) return { key: bag_anahtari };
+        keyed = false;
+        console.warn('Bağ anahtarı veritabanında yok; dilekler eski yöntemle kaydediliyor.');
+      }
+      return { id: (await run(db => db.from('notlar').insert({ isim, mesaj }).select('id')))[0]?.id ?? null };
+    },
+    async addPhoto({ isim, large, thumb, width, height, bag }) {
       await ready;
       const id = uuid(), buyuk = `buyuk/${id}.jpg`, kucuk = `kucuk/${id}.jpg`;
       await Promise.all([upload(buyuk, large), upload(kucuk, thumb)]);
       await retry(async () => {
         const row = { isim, buyuk, kucuk, genislik: width, yukseklik: height };
-        if (notId && linked) row.not_id = notId;
+        if (bag?.key) row.not_anahtari = bag.key;                  // sunucu dileği bu anahtarla bulup bağlar
+        else if (bag?.id && linked) row.not_id = bag.id;           // eski veritabanı: dilek numarasıyla
         let { error } = await sb.from('fotograflar').insert(row);
-        if (error && row.not_id && isLinkError(error)) {        // veritabanı henüz güncellenmemiş: bağsız kaydet
-          linked = false;
-          delete row.not_id;
+        if (error && (row.not_anahtari || row.not_id) && isLinkError(error)) {   // bağ sütunları yok: bağsız kaydet
+          if (row.not_id) linked = false;
+          delete row.not_anahtari; delete row.not_id;
           ({ error } = await sb.from('fotograflar').insert(row));
         }
         if (error && error.code !== '23505') throw error; // 23505: kayıt zaten eklenmiş
@@ -2183,11 +2219,11 @@ function previewStore() {
     async addNote(isim, mesaj) {
       await sleep(500);
       notes.push({ id: ++nid, created_at: new Date(now()).toISOString(), isim, mesaj });
-      return nid;
+      return { id: nid };
     },
-    async addPhoto({ isim, large, thumb, width, height, notId }) {
+    async addPhoto({ isim, large, thumb, width, height, bag }) {
       await sleep(500 + Math.random() * 800);
-      photos.push({ id: ++pid, created_at: new Date(now()).toISOString(), isim, buyuk: URL.createObjectURL(large), kucuk: URL.createObjectURL(thumb), genislik: width, yukseklik: height, not_id: notId || null });
+      photos.push({ id: ++pid, created_at: new Date(now()).toISOString(), isim, buyuk: URL.createObjectURL(large), kucuk: URL.createObjectURL(thumb), genislik: width, yukseklik: height, not_id: bag?.id || null });
     },
     thumbUrl: r => r.kucuk,
     largeUrl: r => r.buyuk,
@@ -2404,7 +2440,7 @@ async function processImage(file) {
    Fotoğraflar seçilir seçilmez arka planda küçültülür. Gönder'e basınca önce dilek
    kaydedilir, ardından fotoğraflar bu dileğe bağlanarak sırayla yüklenir.
    ===================================================================== */
-const komp = { items: [], sending: false, notId: null, noteSaved: false, prep: Promise.resolve() };
+const komp = { items: [], sending: false, bag: null, noteSaved: false, prep: Promise.resolve() };
 const K_LABEL = { hazirlaniyor: 'Fotoğraf hazırlanıyor', hazir: 'Göndermeye hazır fotoğraf', yukleniyor: 'Fotoğraf yükleniyor', tamam: 'Fotoğraf gönderildi', hata: 'Fotoğraf gönderilemedi', gecersiz: 'Bu fotoğraf açılamadı' };
 let lastNoteAt = 0;
 // Henüz gönderilmemiş fotoğraflar / bu paylaşımda kaydedilmiş bir şey var mı
@@ -2486,7 +2522,7 @@ function finishComposer() {
 function resetComposer() {
   for (const it of komp.items) { if (it.thumbUrl) URL.revokeObjectURL(it.thumbUrl); it.el.remove(); }
   komp.items = [];
-  komp.notId = null;
+  komp.bag = null;
   komp.noteSaved = false;
   $('#k-msg').value = '';
   $('#k-msg').readOnly = false;
@@ -2501,7 +2537,7 @@ async function sendComposer(e) {
   const fotoOk = shareOpen('foto'), dilekOk = shareOpen('dilek');
   if (!fotoOk && !dilekOk) { applySettings(); toast('Paylaşım şu anda kapalı.', 'err'); return; }
   const isim = cleanName($('#k-name').value);
-  const mesaj = komp.noteSaved || !dilekOk ? '' : $('#k-msg').value.replace(/\r/g, '').replace(/\n{3,}/g, '\n\n').trim().slice(0, NOTE_MAX);
+  const mesaj = komp.noteSaved || !dilekOk ? '' : cleanNote($('#k-msg').value);
   const photos = fotoOk ? pendingItems() : [];
   if (!fotoOk && pendingItems().length) toast('Fotoğraf paylaşımı şu anda kapalı; seçtiğiniz fotoğraflar gönderilmeyecek.', 'err');
   if (!mesaj && !photos.length) {
@@ -2520,7 +2556,7 @@ async function sendComposer(e) {
   let sentNote = false, sentPhotos = 0, policyHit = false;
   try {
     if (mesaj) {
-      komp.notId = await store.addNote(isim, mesaj);
+      komp.bag = await store.addNote(isim, mesaj);   // fotoğraflar bu bağla dileğe bağlanır
       komp.noteSaved = true;
       lastNoteAt = Date.now();
       sentNote = true;
@@ -2532,7 +2568,7 @@ async function sendComposer(e) {
       if (it.state !== 'hazir' && it.state !== 'hata') continue;
       setItemState(it, 'yukleniyor');
       try {
-        await store.addPhoto({ isim: isim || null, ...it.out, notId: komp.notId });
+        await store.addPhoto({ isim: isim || null, ...it.out, bag: komp.bag });
         setItemState(it, 'tamam');
         sentPhotos++;
         pollSoon();
@@ -3152,7 +3188,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 // Excel uyumlu CSV (Türkçe karakterler, ; ayırıcı). Formül gibi başlayan hücreler etkisizleştirilir.
 function toCsv(rows) {
   const cell = v => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
-  return '﻿' + rows.map(r => r.map(cell).join(';')).join('\r\n');
+  return String.fromCharCode(0xFEFF) + rows.map(r => r.map(cell).join(';')).join('\r\n');
 }
 const TR_MAP = { ı: 'i', İ: 'i', ğ: 'g', Ğ: 'g', ü: 'u', Ü: 'u', ş: 's', Ş: 's', ö: 'o', Ö: 'o', ç: 'c', Ç: 'c' };
 function slug(s) {
@@ -3818,7 +3854,11 @@ function setAdminActive(on, email = '') {
   }
 }
 // Bu cihazda daha önce yönetici olarak giriş yapıldıysa oturumu hatırlar.
+// Sayfa başka bir sitenin çerçevesi (iframe) içinde açıldıysa yönetim kullanılamaz: görünmez bir çerçeveyle
+// yöneticiye "Sil" gibi düğmelere tıklatma tuzağına (clickjacking) karşı. GitHub Pages bunu sunucuda engelleyemiyor.
+const FRAMED = (() => { try { return window.top !== window.self; } catch { return true; } })();
 async function restoreSession() {
+  if (FRAMED) return;
   try {
     const s = await store.auth.session();
     if (s && await store.auth.isAdmin()) setAdminActive(true, s.user?.email || '');
@@ -3878,6 +3918,7 @@ async function logout() {
 
 async function openAdmin(tab = 'photos') {
   if (!store) return;
+  if (FRAMED) { toast('Yönetim ekranı yalnızca sitenin kendi sayfasında açılır.', 'err'); return; }
   if (location.hash) history.replaceState(history.state, '', location.pathname + location.search);
   if (!admin.active && !(await askLogin())) return;
   if (!admin.open) {
@@ -4418,7 +4459,7 @@ function adminNoteItem(r) {
       h('div', { class: 'adm-note-actions' }, save, actionBtn('Vazgeç', null, 'btn-line', show)));
     form.addEventListener('submit', async e => {
       e.preventDefault();
-      const isim = cleanName(name.value), mesaj = msg.value.replace(/\r/g, '').replace(/\n{3,}/g, '\n\n').trim().slice(0, NOTE_MAX);
+      const isim = cleanName(name.value), mesaj = cleanNote(msg.value);
       if (!isim || !mesaj) { toast('İsim ve dilek boş bırakılamaz.', 'err'); return; }
       save.disabled = true;
       try {
