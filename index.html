@@ -442,6 +442,8 @@ textarea.input { min-height: 132px; resize: vertical; }
 .arc-usage-bar i { display: block; height: 100%; width: 0; border-radius: 6px; background: var(--bar); transition: width .6s var(--ease); }
 .arc-usage-note { margin: 8px 0 0; font-size: calc(13.5px * var(--fs-sans)); line-height: 1.45; color: var(--ink-2); }
 .arc-usage.full .arc-usage-note { color: #8E3A2A; }
+.arc-clean { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: -8px 0 20px; padding: 12px 14px; border-radius: 14px; background: var(--ivory); border: 1px dashed var(--line-2); }
+.arc-clean p { flex: 1 1 220px; margin: 0; font-size: calc(13.5px * var(--fs-sans)); line-height: 1.45; color: var(--ink-2); }
 .arc-log { min-height: 1.5em; margin: 14px 0 0; font-size: calc(14px * var(--fs-sans)); color: var(--ink-2); text-align: center; }
 .arc-hint { margin: 10px 0 0; font-size: calc(13.5px * var(--fs-sans)); line-height: 1.5; color: var(--ink-3); text-align: center; }
 .arc-sep { margin: 24px 0 10px; text-align: center; font: 500 calc(11px * var(--fs-sans))/1 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3); }
@@ -876,6 +878,7 @@ textarea.input { min-height: 132px; resize: vertical; }
           </div>
         </div>
         <p class="k-later" id="k-photo-later" hidden><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span id="k-photo-later-text"></span></p>
+        <p class="k-later" id="k-photo-done" hidden><svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg><span id="k-photo-done-text"></span></p>
         <div class="k-progress" id="k-progress" hidden>
           <div class="q-head"><span id="q-text" aria-live="polite">Gönderiliyor…</span><b id="q-count">0/0</b></div>
           <div class="q-bar"><i id="q-bar"></i></div>
@@ -1032,6 +1035,10 @@ textarea.input { min-height: 132px; resize: vertical; }
         <div class="arc-usage-bar"><i id="arc-usage-bar"></i></div>
         <p class="arc-usage-note" id="arc-usage-note">Ölçülüyor…</p>
       </div>
+      <div class="arc-clean" id="arc-clean" hidden>
+        <p id="arc-clean-text"></p>
+        <button class="btn btn-line btn-sm" id="arc-clean-btn" type="button">Temizle</button>
+      </div>
       <button class="btn btn-gold btn-block" id="arc-book-btn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Anı Defterini İndir</button>
       <p class="arc-hint" id="arc-book-hint">Her dilek, birlikte gönderilen fotoğraflarıyla aynı sayfada.</p>
       <p class="arc-sep">ya da ayrı ayrı indirin</p>
@@ -1066,6 +1073,8 @@ textarea.input { min-height: 132px; resize: vertical; }
             <button class="btn btn-line btn-xs" type="button" data-preset="foto-dugun">Düğün günü 00.00</button>
             <button class="btn btn-line btn-xs" type="button" data-preset="foto-simdi">Hemen aç</button>
           </div>
+          <label class="field set-limit"><span>Bir telefondan en çok kaç fotoğraf</span><input class="input" type="number" id="set-foto-siniri" min="1" max="1000" step="1" inputmode="numeric" placeholder="Sınırsız" aria-describedby="set-foto-siniri-not"></label>
+          <p class="lk-note" id="set-foto-siniri-not">Aynı telefondan bu sayıdan fazla fotoğraf paylaşılamaz; boş bırakırsanız sınır olmaz. Ayrıca site genelinde dakikada en çok 200 fotoğraf kabul edilir (depoyu doldurmaya yönelik toplu gönderime karşı).</p>
           <p class="set-status" id="set-foto-durum"></p>
         </fieldset>
         <fieldset class="set-card">
@@ -1365,7 +1374,7 @@ const DEFAULT_SETTINGS = Object.freeze({
   foto_acik: true, foto_baslangic: new Date(DAY_START).toISOString(), foto_bitis: null,   // fotoğraf: düğün günü açılır
   dilek_acik: true, dilek_baslangic: null, dilek_bitis: null,                               // dilek: şimdiden açık
   album_gorunur: true, dilekler_gorunur: true, muzik: true,
-  dilek_siniri: 3,                                                                           // bir telefondan en çok dilek (boş: sınırsız)
+  dilek_siniri: 3, foto_siniri: 100,                                                         // bir telefondan en çok dilek/fotoğraf (boş: sınırsız)
 });
 const SETTINGS_COLS = Object.keys(DEFAULT_SETTINGS).join(',');
 const SHARE_END = Date.parse('2027-01-01T00:00:00+03:00');   // sunucudaki kesin kapanışla aynı
@@ -1380,9 +1389,9 @@ function opensAt(kind, s = ayar, t = now()) {
   const from = Date.parse(s[kind + '_baslangic'] || '');
   return s[kind + '_acik'] && from > t && from < SHARE_END ? from : null;
 }
-// Telefon başına dilek sınırı (Ayarlar › Dilek yazma; sunucuda da uygulanır). Telefon, sayfanın bir kez ürettiği
-// rastgele bir sayıyla tanınır; kişisel bilgi değildir ve misafirlere okutulmaz.
-const DEVICE_KEY = 'elif-yunus:cihaz', WISHES_KEY = 'elif-yunus:dilek-sayisi';
+// Telefon başına sınırlar (Ayarlar › Fotoğraf paylaşımı / Dilek yazma; sunucuda da uygulanır). Telefon, sayfanın
+// bir kez ürettiği rastgele bir sayıyla tanınır; kişisel bilgi değildir ve misafirlere okutulmaz.
+const DEVICE_KEY = 'elif-yunus:cihaz', SENT_KEYS = { dilek: 'elif-yunus:dilek-sayisi', foto: 'elif-yunus:foto-sayisi' };
 let deviceId = '';
 function deviceKey() {
   if (!deviceId) {
@@ -1391,15 +1400,21 @@ function deviceKey() {
   }
   return deviceId;
 }
-let wishCount = 0;   // tarayıcı hafızası kullanılamazsa (ör. gizli sekme) sayaç sayfa açıkken burada tutulur
-const wishesSent = () => Math.max(wishCount, Number(ls.get(WISHES_KEY)) || 0);
-function setWishesSent(n) { wishCount = n; ls.set(WISHES_KEY, String(n)); }
-const wishLimit = () => (Number(ayar.dilek_siniri) > 0 ? Number(ayar.dilek_siniri) : 0);   // 0: sınırsız
-const wishLimitReached = () => wishLimit() > 0 && wishesSent() >= wishLimit();
-// Bu telefondan şu an dilek yazılabilir mi: paylaşım açık ve hakkı dolmamış
-const wishOpen = () => shareOpen('dilek') && !wishLimitReached();
+// Gönderilen dilek/fotoğraf sayısı (kind: 'dilek' | 'foto'). Tarayıcı hafızası kullanılamazsa (ör. gizli sekme)
+// sayaç sayfa açıkken bellekte tutulur.
+const sentMem = { dilek: 0, foto: 0 };
+const sentCount = kind => Math.max(sentMem[kind], Number(ls.get(SENT_KEYS[kind])) || 0);
+function setSentCount(kind, n) { sentMem[kind] = n; ls.set(SENT_KEYS[kind], String(n)); }
+const limitOf = kind => (Number(ayar[kind + '_siniri']) > 0 ? Number(ayar[kind + '_siniri']) : 0);   // 0: sınırsız
+const limitReached = kind => limitOf(kind) > 0 && sentCount(kind) >= limitOf(kind);
+// Bu telefondan şu an fotoğraf/dilek gönderilebilir mi: paylaşım açık ve hakkı dolmamış
+const canShare = kind => shareOpen(kind) && !limitReached(kind);
+// Bu telefonun kalan fotoğraf hakkı (sınır yoksa sonsuz)
+const photosLeft = () => (limitOf('foto') ? Math.max(0, limitOf('foto') - sentCount('foto')) : Infinity);
+// Hakkı biten misafire gösterilen yazı (İçerik › Teşekkür ve uyarı mesajları)
+const limitText = (kind, sayi = limitOf(kind)) => doldur(txt(kind === 'foto' ? 'foto_siniri_doldu' : 'dilek_siniri_doldu'), { sayi });
 // Paylaşım türüne göre yazı anahtarı soneki: 'ikisi' | 'dilek' | 'foto' | '' (kapalı)
-const shareMode = () => { const f = shareOpen('foto'), d = wishOpen(); return f && d ? 'ikisi' : d ? 'dilek' : f ? 'foto' : ''; };
+const shareMode = () => { const f = canShare('foto'), d = canShare('dilek'); return f && d ? 'ikisi' : d ? 'dilek' : f ? 'foto' : ''; };
 const shareLabel = () => { const m = shareMode(); return m ? txt('paylas_baslik_' + m) : ''; };
 function ago(iso) {
   const t = Date.parse(iso), s = (now() - t) / 1000;
@@ -1435,7 +1450,7 @@ function applyPhase(p) {
   $('#hero-cta').replaceChildren(...(p === 'before'
     ? [h('a', { class: 'btn btn-gold', href: '#davet', 'data-action': 'open-invite' }, txt('dugme_davetiye')),
       share && h('a', { class: 'btn btn-line', href: '#paylas' }, share)]
-    : [share && h('a', { class: 'btn btn-gold', href: '#paylas' }, icon(shareOpen('foto') ? 'camera' : 'edit'), share),
+    : [share && h('a', { class: 'btn btn-gold', href: '#paylas' }, icon(canShare('foto') ? 'camera' : 'edit'), share),
       album && h('a', { class: 'btn ' + (share ? 'btn-line' : 'btn-gold'), href: '#album' }, txt('dugme_album'))]).filter(Boolean));
 }
 function tickCountdown() {
@@ -1596,7 +1611,9 @@ const CONTENT_GROUPS = [
     ['msg_ad', 'Dilekte ad yazılmayınca', { def: 'Dileğinizin altında görünmesi için adınızı yazın.' }],
     ['msg_muzik', 'Müzik ilk kez başlayınca', { def: 'Müziği sağ üstteki düğmeden kapatabilirsiniz.' }],
     ['dilek_siniri_doldu', 'Telefon başına dilek sınırı dolunca ({sayi} yerine sınır yazılır)', { area: true, def: 'Bu telefondan gönderebileceğiniz {sayi} dileğin hepsini gönderdiniz. Güzel dilekleriniz için çok teşekkür ederiz!' }],
-    ['msg_yogunluk', 'Aynı anda çok fazla dilek gelince', { def: 'Şu anda çok yoğun; lütfen bir dakika sonra tekrar deneyin.' }],
+    ['foto_siniri_doldu', 'Telefon başına fotoğraf sınırı dolunca ({sayi} yerine sınır yazılır)', { area: true, def: 'Bu telefondan paylaşabileceğiniz {sayi} fotoğrafın hepsini paylaştınız. Anılarınız için çok teşekkür ederiz!' }],
+    ['msg_foto_kalan', 'Seçilen fotoğraflar kalan haktan fazlaysa ({sayi} yerine kalan hak yazılır)', { area: true, def: 'Bu telefondan en çok {sayi} fotoğraf daha paylaşabilirsiniz; fazlası eklenmedi.' }],
+    ['msg_yogunluk', 'Aynı anda çok fazla dilek ya da fotoğraf gelince', { def: 'Şu anda çok yoğun; lütfen bir dakika sonra tekrar deneyin.' }],
   ]],
   ['Anı Albümü', [
     ['album_ust', 'Üst yazı'], ['album_baslik', 'Başlık'], ['album_aciklama', 'Açıklama', { area: true }],
@@ -2032,7 +2049,8 @@ function liveStore() {
   const publicUrl = p => (PATH_RE.test(p || '') ? `${base}/storage/v1/object/public/${encodeURIComponent(CONFIG.bucket)}/${p}` : '');
   // Veritabanı henüz yeni kurulum dosyasıyla güncellenmediyse (fotoğraf-dilek bağı yoksa) sade sorgulara düşer;
   // böylece SQL ile sayfanın yayına giriş sırası ne olursa olsun albüm ve dilekler yüklenmeye devam eder.
-  let linked = true, keyed = true, devices = true;
+  let linked = true, keyed = true, devices = true, photoDevices = true;
+  let settingsCols = SETTINGS_COLS.split(',');   // veritabanında olmadığı anlaşılan ayar sütunları bir daha istenmez
   const isColumnError = e => /PGRST204|42703/.test(`${e?.code}`);   // sütun yok: veritabanı eski sürümde
   // Eksik sütunun adı ("column ayarlar.x does not exist" ya da "Could not find the 'x' column")
   const missingColumn = e => (isColumnError(e) && /(?:column [\w.]*\.|Could not find the ')(\w+)/.exec(e?.message || '')?.[1]) || '';
@@ -2095,6 +2113,7 @@ function liveStore() {
       }
       throw new Error('Dilek kaydedilemedi');
     },
+    // Telefon kimliği de gönderilir: sunucu aynı telefondan gelen fotoğrafları sayar (Ayarlar › Fotoğraf sınırı).
     async addPhoto({ isim, large, thumb, width, height, bag }) {
       await ready;
       const id = uuid(), buyuk = `buyuk/${id}.jpg`, kucuk = `kucuk/${id}.jpg`;
@@ -2103,13 +2122,23 @@ function liveStore() {
         const row = { isim, buyuk, kucuk, genislik: width, yukseklik: height };
         if (bag?.key) row.not_anahtari = bag.key;                  // sunucu dileği bu anahtarla bulup bağlar
         else if (bag?.id && linked) row.not_id = bag.id;           // eski veritabanı: dilek numarasıyla
-        let { error } = await sb.from('fotograflar').insert(row);
-        if (error && (row.not_anahtari || row.not_id) && isLinkError(error)) {   // bağ sütunları yok: bağsız kaydet
-          if (row.not_id) linked = false;
-          delete row.not_anahtari; delete row.not_id;
-          ({ error } = await sb.from('fotograflar').insert(row));
+        if (photoDevices) row.cihaz_anahtari = deviceKey();
+        for (let deneme = 0; deneme < 3; deneme++) {
+          const { error } = await sb.from('fotograflar').insert(row);
+          if (!error || error.code === '23505') return;            // 23505: kayıt zaten eklenmiş
+          if (isLimitError(error)) throw limitError(error.hint, error.message);   // sınır: tekrar denenmez
+          // Veritabanı henüz bu sürüme güncellenmemiş: eksik sütun olmadan yeniden denenir
+          // (sütunun adı okunamazsa önce en yeni sütun, yani telefon kimliği bırakılır)
+          const c = missingColumn(error);
+          if ('cihaz_anahtari' in row && isColumnError(error) && (c === 'cihaz_anahtari' || !c)) {
+            photoDevices = false; delete row.cihaz_anahtari;
+            console.warn('"cihaz_anahtari" sütunu fotoğraflarda yok; fotoğraf onsuz kaydediliyor.');
+          } else if ((row.not_anahtari || row.not_id) && isLinkError(error)) {   // bağ sütunları yok: bağsız kaydet
+            if (row.not_id) linked = false;
+            delete row.not_anahtari; delete row.not_id;
+          } else throw error;
         }
-        if (error && error.code !== '23505') throw error; // 23505: kayıt zaten eklenmiş
+        throw new UserError('Fotoğraf kaydedilemedi.');   // şema denemeleri bitti: geçici hata değil, tekrar denenmez
       });
     },
     thumbUrl: r => publicUrl(r.kucuk),
@@ -2120,14 +2149,7 @@ function liveStore() {
       if (error) throw error;
       return count ?? 0;
     },
-    async all(table) {
-      const out = [];
-      for (let from = 0; ; from += 1000) {
-        const rows = await query(table, q => q.order('id', { ascending: true }).range(from, from + 999));
-        out.push(...rows);
-        if (rows.length < 1000) return out;
-      }
-    },
+    all: allRows,
     byIds: (table, ids) => query(table, q => q.in('id', ids)),
 
     // --- Yönetici işlemleri (Supabase kuralları yalnızca yönetici hesabına izin verir) ---
@@ -2141,30 +2163,38 @@ function liveStore() {
     // Önce dosyalar, sonra kayıtlar silinir; yarıda kalırsa tekrar denemek güvenlidir.
     async deletePhotos(rows) {
       await ready;
-      const paths = rows.flatMap(r => [r.buyuk, r.kucuk]).filter(p => PATH_RE.test(p || ''));
-      for (let i = 0; i < paths.length; i += 100) {
-        const { error } = await sb.storage.from(CONFIG.bucket).remove(paths.slice(i, i + 100));
-        if (error) throw error;
-      }
+      await removeFiles(rows.flatMap(r => [r.buyuk, r.kucuk]));
       return deleteRows('fotograflar', rows.map(r => r.id));
     },
+    // Depo denetimi: albümde hiçbir kaydın kullanmadığı dosyalar (yarım kalan yüklemeler ya da sayfayı atlayıp
+    // doğrudan depoya yığılan dosyalar). Yeni yüklemelere dokunmamak için son 1 saatteki dosyalar sayılmaz.
+    // Önce dosyalar, sonra kayıtlar okunur: bu arada eklenen bir fotoğrafın kaydı da listede olur.
+    async storageAudit() {
+      await ready;
+      const basla = Date.now(), objects = await listObjects(), rows = await allRows('fotograflar');
+      const used = new Set(rows.flatMap(r => [r.buyuk, r.kucuk]));
+      const orphans = [...objects].filter(([p, o]) => PATH_RE.test(p) && !used.has(p) && o.at && o.at < basla - 3600e3)
+        .map(([path, o]) => ({ path, size: o.size }));
+      return { orphans };
+    },
+    cleanStorage: ({ orphans }) => ready.then(() => removeFiles(orphans.map(o => o.path))),
     // Paylaşım/görünürlük ayarları: herkes okur, yalnızca yönetici değiştirir (Supabase kuralları).
     // Veritabanında henüz olmayan bir ayar sütunu (ör. dilek_siniri) atlanır; o ayar varsayılanıyla çalışır.
     settings: {
       async get() {
-        let sutunlar = SETTINGS_COLS.split(',');
         for (;;) {
+          const sutunlar = settingsCols;
           try { return await run(db => db.from('ayarlar').select(sutunlar.join(',')).eq('id', 1).maybeSingle()); } catch (e) {
             const c = missingColumn(e);
             if (!sutunlar.includes(c) || sutunlar.length < 2) throw e;
-            sutunlar = sutunlar.filter(x => x !== c);
+            settingsCols = sutunlar.filter(x => x !== c);
           }
         }
       },
       async save(fields) {
-        const f = { ...fields };
-        let sutunlar = SETTINGS_COLS.split(',');
+        const f = Object.fromEntries(Object.entries(fields).filter(([k]) => settingsCols.includes(k)));
         for (;;) {
+          const sutunlar = settingsCols;
           try {
             const rows = await run(db => db.from('ayarlar').update(f).eq('id', 1).select(sutunlar.join(',')));
             if (!rows.length) throw new UserError('Ayarları değiştirme izniniz yok.');
@@ -2173,7 +2203,7 @@ function liveStore() {
             const c = missingColumn(e);
             if (!c || !(c in f || sutunlar.includes(c)) || sutunlar.length < 2) throw e;
             delete f[c];
-            sutunlar = sutunlar.filter(x => x !== c);
+            settingsCols = sutunlar.filter(x => x !== c);
           }
         }
       },
@@ -2205,15 +2235,7 @@ function liveStore() {
     async storageUsage() {
       await ready;
       let bytes = 0, files = 0;
-      for (const dir of ['buyuk', 'kucuk']) {
-        for (let offset = 0; ;) {
-          const { data, error } = await sb.storage.from(CONFIG.bucket).list(dir, { limit: 1000, offset });
-          if (error) throw error;
-          if (!data?.length) break;
-          for (const o of data) { bytes += Number(o.metadata?.size) || 0; if (dir === 'buyuk' && o.id) files++; }
-          offset += data.length;
-        }
-      }
+      for (const [p, o] of await listObjects()) { bytes += o.size; if (p.startsWith('buyuk/')) files++; }
       return { bytes, files };
     },
     deleteNotes: ids => deleteRows('notlar', ids),
@@ -2225,6 +2247,35 @@ function liveStore() {
       since: id => run(db => db.from('degisiklikler').select('id,tablo,kayit_id,islem').gt('id', id).order('id', { ascending: true }).limit(200)),
     },
   };
+  async function allRows(table) {
+    const out = [];
+    for (let from = 0; ; from += 1000) {
+      const rows = await query(table, q => q.order('id', { ascending: true }).range(from, from + 999));
+      out.push(...rows);
+      if (rows.length < 1000) return out;
+    }
+  }
+  // Fotoğraf deposundaki tüm dosyalar: yol → { boyut, yüklenme anı } (yalnızca yönetici listeleyebilir)
+  async function listObjects() {
+    const objects = new Map();
+    for (const dir of ['buyuk', 'kucuk']) {
+      for (let offset = 0; ;) {
+        const { data, error } = await sb.storage.from(CONFIG.bucket).list(dir, { limit: 1000, offset });
+        if (error) throw error;
+        if (!data?.length) break;
+        for (const o of data) if (o.id) objects.set(`${dir}/${o.name}`, { size: Number(o.metadata?.size) || 0, at: Date.parse(o.created_at || '') || 0 });
+        offset += data.length;
+      }
+    }
+    return objects;
+  }
+  async function removeFiles(list) {
+    const paths = list.filter(p => PATH_RE.test(p || ''));
+    for (let i = 0; i < paths.length; i += 100) {
+      const { error } = await sb.storage.from(CONFIG.bucket).remove(paths.slice(i, i + 100));
+      if (error) throw error;
+    }
+  }
   async function deleteRows(table, ids) {
     const out = [];
     for (let i = 0; i < ids.length; i += 200) {
@@ -2245,7 +2296,13 @@ function liveStore() {
 function previewStore() {
   const notes = [], photos = [], log = [];
   let nid = 0, pid = 0, cid = 0, user = null, ayarlar = { ...DEFAULT_SETTINGS }, metinler = {};
-  const perDevice = new Map();   // telefon kimliği → gönderilen dilek sayısı
+  const perDevice = { dilek: new Map(), foto: new Map() };   // telefon kimliği → gönderilen dilek/fotoğraf sayısı
+  // Sunucudaki telefon başına sınırın aynısı
+  const countDevice = kind => {
+    const k = deviceKey(), lim = Number(ayarlar[kind + '_siniri']) || 0, n = perDevice[kind].get(k) || 0;
+    if (lim && n >= lim) throw limitError(kind + '_siniri');
+    perDevice[kind].set(k, n + 1);
+  };
   const record = (tablo, kayit_id, islem) => log.push({ id: ++cid, tablo, kayit_id, islem });
   const at = minsAgo => new Date(now() - minsAgo * 60e3).toISOString();
   [
@@ -2278,15 +2335,13 @@ function previewStore() {
     photos: { page: page(photos, photoView, photosReady), since: since(photos, photoView, photosReady) },
     async addNote(isim, mesaj) {
       await sleep(500);
-      // Sunucudaki telefon başına dilek sınırının aynısı
-      const k = deviceKey(), lim = Number(ayarlar.dilek_siniri) || 0;
-      if (lim && (perDevice.get(k) || 0) >= lim) throw limitError('dilek_siniri');
-      perDevice.set(k, (perDevice.get(k) || 0) + 1);
+      countDevice('dilek');
       notes.push({ id: ++nid, created_at: new Date(now()).toISOString(), isim, mesaj });
       return { id: nid };
     },
     async addPhoto({ isim, large, thumb, width, height, bag }) {
       await sleep(500 + Math.random() * 800);
+      countDevice('foto');
       photos.push({ id: ++pid, created_at: new Date(now()).toISOString(), isim, buyuk: URL.createObjectURL(large), kucuk: URL.createObjectURL(thumb), genislik: width, yukseklik: height, not_id: bag?.id || null });
     },
     thumbUrl: r => r.kucuk,
@@ -2307,6 +2362,8 @@ function previewStore() {
     },
     // Önizlemede gerçek telefon fotoğraflarının ortalamasıyla (≈ 420 KB) tahmin edilir
     async storageUsage() { await photosReady; return { bytes: photos.length * 420e3, files: photos.length }; },
+    storageAudit: async () => ({ orphans: [] }),   // önizlemede depo yok: temizlenecek dosya da yok
+    cleanStorage: async () => {},
     async all(table) { await photosReady; return [...(table === 'notlar' ? notes : photos)].sort((a, b) => a.id - b.id).map(view(table)); },
     async byIds(table, ids) { return (table === 'notlar' ? notes : photos).filter(r => ids.includes(r.id)).map(view(table)); },
     // Önizlemede herhangi bir e-posta/şifre kabul edilir.
@@ -2512,8 +2569,16 @@ const pendingItems = () => komp.items.filter(i => i.state !== 'gecersiz' && i.st
 const sentSome = () => komp.noteSaved || komp.items.some(i => i.state === 'tamam');
 
 function addFiles(fileList) {
-  const files = [...fileList].filter(f => /^image\//.test(f.type) || /\.(jpe?g|png|webp|gif|heic|heif|avif)$/i.test(f.name));
+  let files = [...fileList].filter(f => /^image\//.test(f.type) || /\.(jpe?g|png|webp|gif|heic|heif|avif)$/i.test(f.name));
   if (!files.length) { toast('Lütfen fotoğraf seçin.', 'err'); return; }
+  // Telefon başına fotoğraf hakkı: seçilip henüz gönderilmemiş fotoğraflar da hesaba katılır
+  if (photosLeft() <= 0) { toast(limitText('foto'), 'err'); return; }
+  const kalan = photosLeft() - pendingItems().length;
+  if (files.length > kalan) {
+    files = files.slice(0, Math.max(0, kalan));
+    toast(doldur(txt('msg_foto_kalan'), { sayi: photosLeft() }), 'err');
+    if (!files.length) return;
+  }
   for (const file of files) {
     const it = { file, state: 'hazirlaniyor', out: null, thumbUrl: '', error: '', removed: false };
     const rm = h('button', { class: 'k-remove', type: 'button', 'aria-label': 'Fotoğrafı çıkar' }, icon('x'));
@@ -2552,12 +2617,16 @@ function setItemState(it, s) {
   it.el.querySelector('.k-remove').hidden = komp.sending || s === 'tamam';
   renderProgress();
 }
-function removeItem(it) {
-  if (komp.sending) return;
+// Fotoğrafı formdan çıkarır (gönderilmez)
+function dropItem(it) {
   it.removed = true;
   if (it.thumbUrl) URL.revokeObjectURL(it.thumbUrl);
   it.el.remove();
   komp.items = komp.items.filter(x => x !== it);
+}
+function removeItem(it) {
+  if (komp.sending) return;
+  dropItem(it);
   renderProgress();
   // Gönderilemeyen fotoğraf çıkarıldı ve gönderilecek bir şey kalmadıysa paylaşım tamamlanmış sayılır.
   if (sentSome() && !pendingItems().length && (komp.noteSaved || !$('#k-msg').value.trim())) finishComposer();
@@ -2597,13 +2666,21 @@ function resetComposer() {
 async function sendComposer(e) {
   e.preventDefault();
   if (komp.sending) return;
-  // Yönetim ekranındaki ayarlara göre yalnızca açık olan paylaşım türü gönderilir (dilekte telefonun hakkı da)
-  const fotoOk = shareOpen('foto'), dilekOk = wishOpen();
+  // Yönetim ekranındaki ayarlara göre yalnızca açık olan paylaşım türü gönderilir (telefonun hakkı da gözetilir)
+  const fotoOk = canShare('foto'), dilekOk = canShare('dilek');
   if (!fotoOk && !dilekOk) { applySettings(); toast('Paylaşım şu anda kapalı.', 'err'); return; }
   const isim = cleanName($('#k-name').value);
   const mesaj = komp.noteSaved || !dilekOk ? '' : cleanNote($('#k-msg').value);
   const photos = fotoOk ? pendingItems() : [];
-  if (!fotoOk && pendingItems().length) toast('Fotoğraf paylaşımı şu anda kapalı; seçtiğiniz fotoğraflar gönderilmeyecek.', 'err');
+  if (!fotoOk && pendingItems().length) {
+    if (limitReached('foto')) {                 // hak bitti: seçili fotoğraflar artık gönderilemez
+      const n = pendingItems().length;
+      pendingItems().forEach(dropItem);
+      renderProgress();
+      applySettings();                          // form yalnızca dileğe döner
+      toast(`${n} fotoğraf gönderilemedi. ${limitText('foto')}`, 'err');
+    } else toast('Fotoğraf paylaşımı şu anda kapalı; seçtiğiniz fotoğraflar gönderilmeyecek.', 'err');
+  }
   if (!mesaj && !photos.length) {
     if (sentSome()) finishComposer();          // kalanların hepsi zaten gönderilmiş
     else if (dilekOk) shake('#k-msg', fotoOk ? txt('msg_bos') : 'Lütfen bir dilek yazın.');
@@ -2624,31 +2701,41 @@ async function sendComposer(e) {
       komp.noteSaved = true;
       lastNoteAt = Date.now();
       sentNote = true;
-      setWishesSent(wishesSent() + 1);                // telefon başına dilek sınırı için
-      refreshForm = wishLimitReached();               // hak dolduysa form yalnızca fotoğrafa döner
+      setSentCount('dilek', sentCount('dilek') + 1);  // telefon başına dilek sınırı için
+      refreshForm = limitReached('dilek');            // hak dolduysa form yalnızca fotoğrafa döner
       $('#k-msg').readOnly = true;           // aynı dilek ikinci kez gönderilmesin
       pollSoon();
     }
-    await komp.prep;                          // seçilen fotoğrafların hazırlanmasını bekle
-    for (const it of komp.items) {
+    if (fotoOk) await komp.prep;              // seçilen fotoğrafların hazırlanmasını bekle
+    for (const it of fotoOk ? komp.items : []) {   // fotoğraf paylaşımı kapalıysa fotoğraflar denenmez
       if (it.state !== 'hazir' && it.state !== 'hata') continue;
+      if (limitReached('foto')) { it.error = limitText('foto'); setItemState(it, 'hata'); continue; }   // hak bitti
       setItemState(it, 'yukleniyor');
       try {
         await store.addPhoto({ isim: isim || null, ...it.out, bag: komp.bag });
         setItemState(it, 'tamam');
         sentPhotos++;
+        setSentCount('foto', sentCount('foto') + 1);   // telefon başına fotoğraf sınırı için
+        if (limitReached('foto')) refreshForm = true;  // hak dolduysa form yalnızca dileğe döner
         pollSoon();
       } catch (err) {
         console.warn('Fotoğraf gönderilemedi:', err);
-        if (isPolicyError(err)) { policyHit = true; it.error = 'Fotoğraf paylaşımı şu anda kapalı.'; } else it.error = friendlyError(err);
+        const policy = isPolicyError(err);
+        // Depo kuralı reddettiyse ama paylaşım bu sayfaya göre açıksa sebep büyük olasılıkla yükleme frenidir
+        const busy = err?.hint === 'foto_yogunluk' || (policy && shareOpen('foto'));
+        if (policy) policyHit = true;
+        // Sunucu bu telefonun hakkının dolduğunu söylediyse sayaç eşitlenir; kalanlar yukarıdaki denetimde ayrılır
+        if (err?.hint === 'foto_siniri') { setSentCount('foto', Math.max(sentCount('foto'), limitOf('foto'), err.sayi || 0)); refreshForm = true; }
+        it.error = busy ? txt('msg_yogunluk') : policy ? 'Fotoğraf paylaşımı şu anda kapalı.' : friendlyError(err);
         setItemState(it, 'hata');
+        if (busy || policy) break;            // sunucu yoğun ya da paylaşım kapandı: kalanlar şimdilik denenmez
       }
     }
   } catch (err) {
     console.warn('Dilek gönderilemedi:', err);
     if (isPolicyError(err)) { loadSettings(); toast('Dilek yazma şu anda kapalı.', 'err'); return; }
     // Sunucu bu telefonun hakkının dolduğunu söylediyse (ör. sayaç bu tarayıcıda saklanamamıştı) sayaç eşitlenir
-    if (err?.hint === 'dilek_siniri') { setWishesSent(Math.max(wishesSent(), wishLimit(), err.sayi || 0)); refreshForm = true; }
+    if (err?.hint === 'dilek_siniri') { setSentCount('dilek', Math.max(sentCount('dilek'), limitOf('dilek'), err.sayi || 0)); refreshForm = true; }
     toast(friendlyError(err), 'err');
     return;
   } finally {
@@ -2657,6 +2744,10 @@ async function sendComposer(e) {
     if (refreshForm) applySettings();
   }
   if (policyHit) loadSettings();               // ayarlar az önce değişmiş olabilir: sayfayı güncelle
+  // Fotoğraf hakkı dolduysa gönderilemeyen fotoğraflar formdan çıkarılır (artık gönderilemezler)
+  const fazla = limitReached('foto') ? pendingItems() : [];
+  fazla.forEach(dropItem);
+  renderProgress();
   const failed = komp.items.filter(i => i.state === 'hata');
   if (failed.length) {
     $('#k-saved').hidden = !komp.noteSaved;
@@ -2664,11 +2755,14 @@ async function sendComposer(e) {
     return;
   }
   // Seçilen fotoğrafların hiçbiri açılamadıysa (her biri için uyarı zaten gösterildi) form olduğu gibi kalır.
-  if (!sentNote && !sentPhotos) { $('#k-progress').hidden = true; return; }
-  celebrate($('#k-send'));
-  toast(sentNote && sentPhotos ? txt('msg_ikisi') : sentNote ? txt('msg_dilek')
-    : sentPhotos === 1 ? txt('msg_foto') : doldur(txt('msg_fotolar'), { sayi: sentPhotos }), 'ok');
-  resetComposer();
+  if (sentNote || sentPhotos) {
+    celebrate($('#k-send'));
+    toast(sentNote && sentPhotos ? txt('msg_ikisi') : sentNote ? txt('msg_dilek')
+      : sentPhotos === 1 ? txt('msg_foto') : doldur(txt('msg_fotolar'), { sayi: sentPhotos }), 'ok');
+    resetComposer();
+  } else if (sentSome() && !pendingItems().length) finishComposer();   // önceki denemede gönderilenler vardı
+  else $('#k-progress').hidden = true;
+  if (fazla.length) toast(`${fazla.length} fotoğraf gönderilemedi. ${limitText('foto')}`, 'err');
 }
 // Gönderim kutlaması: düğmeden saçılan yapraklar (Web Animations API) ve kısa titreşim (destekleyen telefonlarda)
 function celebrate(from) {
@@ -2711,7 +2805,7 @@ function initComposer() {
   $('#k-msg').addEventListener('input', () => { $('#k-counter').textContent = `${$('#k-msg').value.length} / ${NOTE_MAX}`; });
   $('#file-input').addEventListener('change', e => {
     if (!e.target.files?.length) return;
-    if (!shareOpen('foto')) { applySettings(); toast('Fotoğraf paylaşımı şu anda kapalı.', 'err'); return; }
+    if (!canShare('foto')) { applySettings(); toast(shareOpen('foto') ? limitText('foto') : 'Fotoğraf paylaşımı şu anda kapalı.', 'err'); return; }
     addFiles(e.target.files);
     $('#k-photos').scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
@@ -2719,8 +2813,8 @@ function initComposer() {
   document.addEventListener('click', e => {
     if (!e.target.closest('[data-action="upload"]')) return;
     if (komp.sending) { toast('Gönderim sürüyor, lütfen biraz bekleyin.'); return; }
-    if (!shareOpen('foto')) {
-      if (!shareOpen('dilek')) { toast('Paylaşım şu anda kapalı.'); return; }
+    if (!canShare('foto')) {
+      if (!canShare('dilek')) { toast('Paylaşım şu anda kapalı.'); return; }
       $('#paylas').scrollIntoView({ behavior: 'smooth', block: 'start' });
       setTimeout(() => $('#k-msg').focus({ preventScroll: true }), 600);
       return;
@@ -2730,12 +2824,13 @@ function initComposer() {
   addEventListener('beforeunload', e => { if (komp.sending) { e.preventDefault(); e.returnValue = ''; } });
 }
 const isPolicyError = e => /row-level security|42501/i.test(`${e?.code} ${e?.message}`);
-// Sunucunun dilek sınırı yanıtları (P0001 + ipucu): misafire İçerik sekmesindeki yazılarla anlatılır
-const isLimitError = e => e?.code === 'P0001' && /^(dilek_siniri|yogunluk)$/.test(e?.hint || '');
+// Sunucunun sınır yanıtları (P0001 + ipucu): misafire İçerik sekmesindeki yazılarla anlatılır
+const isLimitError = e => e?.code === 'P0001' && /^(dilek_siniri|yogunluk|foto_siniri|foto_yogunluk)$/.test(e?.hint || '');
 function limitError(hint, sunucuMesaji = '') {
   // Sınır sayısı sunucunun mesajından alınır ("en çok 3 dilek"); sayfadaki ayar birkaç saniye eski olabilir
-  const sayi = Number(/\d+/.exec(sunucuMesaji)?.[0]) || wishLimit() || 3;
-  const e = new UserError(hint === 'yogunluk' ? txt('msg_yogunluk') : doldur(txt('dilek_siniri_doldu'), { sayi }));
+  const kind = hint.startsWith('foto') ? 'foto' : 'dilek';
+  const sayi = Number(/\d+/.exec(sunucuMesaji)?.[0]) || limitOf(kind) || DEFAULT_SETTINGS[kind + '_siniri'];
+  const e = new UserError(hint.endsWith('yogunluk') ? txt('msg_yogunluk') : limitText(kind, sayi));
   e.hint = hint;
   e.sayi = sayi;
   return e;
@@ -2745,11 +2840,11 @@ function limitError(hint, sunucuMesaji = '') {
    AYARLARIN SAYFAYA UYGULANMASI — paylaşım formu, başlıklar, alt menü, albüm/dilek defteri, müzik
    ===================================================================== */
 function applySettings() {
-  // dilek: bu telefondan şu an yazılabilir mi; hakDoldu: dilek açık ama bu telefonun hakkı bitti
-  const foto = shareOpen('foto'), dilekAcik = shareOpen('dilek'), hakDoldu = dilekAcik && wishLimitReached();
-  const dilek = dilekAcik && !hakDoldu, any = foto || dilek;
-  const hakText = doldur(txt('dilek_siniri_doldu'), { sayi: wishLimit() });
-  shareState = `${foto}|${dilekAcik}`;                // tickCountdown'daki karşılaştırmayla aynı
+  // foto/dilek: bu telefondan şu an gönderilebilir mi; fotoBitti/dilekBitti: paylaşım açık ama bu telefonun hakkı doldu
+  const fotoAcik = shareOpen('foto'), dilekAcik = shareOpen('dilek');
+  const fotoBitti = fotoAcik && limitReached('foto'), dilekBitti = dilekAcik && limitReached('dilek');
+  const foto = fotoAcik && !fotoBitti, dilek = dilekAcik && !dilekBitti, any = foto || dilek;
+  shareState = `${fotoAcik}|${dilekAcik}`;            // tickCountdown'daki karşılaştırmayla aynı
   const fotoAt = opensAt('foto');
   const fotoText = fotoAt ? doldur(txt('foto_acilacak'), { tarih: fmtOpen.format(fotoAt) }) : txt('foto_kapali');
   // Paylaşım bölümünün yazıları açık olan türe göre (İçerik › Anı & Dilek formu)
@@ -2765,14 +2860,19 @@ function applySettings() {
     $('#k-send span').textContent = txt('form_gonder');
   }
   $$('#k-form .opt').forEach(i => { i.hidden = !(foto && dilek); });
-  $('#k-photo-later').hidden = foto || !dilek;
+  $('#k-photo-later').hidden = foto || fotoBitti || !dilek;   // fotoğraf paylaşımı ileride açılacak / kapalı
   $('#k-photo-later-text').textContent = fotoText;
-  $('#k-wish-done').hidden = !(hakDoldu && foto);       // dilek hakkı bitti, fotoğraf paylaşımı sürüyor
-  $('#k-wish-done-text').textContent = hakText;
+  $('#k-photo-done').hidden = !(fotoBitti && dilek);         // fotoğraf hakkı bitti, dilek yazma sürüyor
+  $('#k-photo-done-text').textContent = limitText('foto');
+  $('#k-wish-done').hidden = !(dilekBitti && foto);          // dilek hakkı bitti, fotoğraf paylaşımı sürüyor
+  $('#k-wish-done-text').textContent = limitText('dilek');
   $('#k-hint').textContent = txt('form_not_' + (m || 'ikisi'));
   const next = [opensAt('foto'), opensAt('dilek')].filter(Boolean).sort((a, b) => a - b)[0];
-  // Hakkı biten misafire fotoğraf paylaşımının ne zaman açılacağı da söylenir
-  $('#k-closed-text').textContent = hakDoldu ? (fotoAt ? `${hakText} ${fotoText}` : hakText) : next ? doldur(txt('paylasim_acilacak'), { tarih: fmtOpen.format(next) }) : txt('paylasim_kapali');
+  // Hakkı biten misafire teşekkür edilir; fotoğraf paylaşımı ileride açılacaksa ne zaman açılacağı da söylenir
+  const bitti = [dilekBitti && limitText('dilek'), fotoBitti && limitText('foto')].filter(Boolean);
+  if (bitti.length && fotoAt) bitti.push(fotoText);
+  $('#k-closed-text').textContent = bitti.length ? bitti.join(' ')
+    : next ? doldur(txt('paylasim_acilacak'), { tarih: fmtOpen.format(next) }) : txt('paylasim_kapali');
   // Alt menünün ortasındaki düğme: fotoğraf açıksa kamera, yalnızca dilek açıksa kalem, ikisi de kapalıysa yok
   const fab = $('#dock .fab');
   fab.hidden = !any;
@@ -3229,7 +3329,8 @@ const jszip = () => (JSZipP || (JSZipP = loadScript(JSZIP_JS).then(() => window.
 const arcLog = t => { $('#arc-log').textContent = t; };
 // Yönetim ekranında "Arşiv" sekmesi açılınca güncel sayıları gösterir.
 // Fotoğraf alanı göstergesi: dolmaya yaklaşınca ne yapılacağını söyler. Doluluk oranını döndürür.
-const fmtSize = b => (b >= 1024 ** 3 ? `${(b / 1024 ** 3).toLocaleString('tr-TR', { maximumFractionDigits: 2 })} GB` : `${Math.round(b / 1024 ** 2)} MB`);
+const fmtSize = b => (b >= 1024 ** 3 ? `${(b / 1024 ** 3).toLocaleString('tr-TR', { maximumFractionDigits: 2 })} GB`
+  : b >= 1024 ** 2 ? `${Math.round(b / 1024 ** 2)} MB` : `${Math.round(b / 1024)} KB`);
 async function refreshUsage() {
   const box = $('#arc-usage'), limit = CONFIG.storageLimitGB * 1024 ** 3;
   try {
@@ -3251,9 +3352,37 @@ async function refreshUsage() {
     return 0;
   }
 }
+// Depo temizliği: albümde hiçbir kaydın kullanmadığı dosyalar (yarım kalan yüklemeler ya da sayfayı atlayıp
+// depoya yığılan dosyalar). Arşiv sekmesi açılınca denetlenir; silmeden hemen önce yeniden denetlenir.
+async function refreshCleanup() {
+  const box = $('#arc-clean');
+  try {
+    const { orphans } = await store.storageAudit();
+    box.hidden = !orphans.length;
+    $('#arc-clean-text').textContent = orphans.length
+      ? `Depoda albümde görünmeyen ${orphans.length} dosya var (${fmtSize(orphans.reduce((t, o) => t + o.size, 0))}). `
+        + 'Yarım kalan yüklemelerden ya da sayfayı atlayan gönderimlerden kalmış olabilirler; silmek albümdeki fotoğraflara dokunmaz.'
+      : '';
+  } catch (e) { console.warn('Depo denetlenemedi:', e); box.hidden = true; }
+}
+async function cleanStorage() {
+  const btn = $('#arc-clean-btn');
+  btn.disabled = true;
+  try {
+    const audit = await store.storageAudit();         // silmeden hemen önce güncel durum
+    const n = audit.orphans.length;
+    if (!n) { toast('Temizlenecek dosya kalmadı.', 'ok'); return; }
+    const ok = await dialog({ title: 'Depo temizlensin mi?', text: `Albümde görünmeyen ${n} dosya kalıcı olarak silinecek. Albümdeki fotoğraflara dokunulmaz.`, ok: 'Temizle', danger: true });
+    if (!ok) return;
+    await store.cleanStorage(audit);
+    toast(`${n} dosya silindi.`, 'ok');
+  } catch (e) { console.warn('Depo temizlenemedi:', e); toast(friendlyError(e), 'err'); }
+  finally { btn.disabled = false; refreshUsage(); refreshCleanup(); }
+}
 async function refreshArchiveStats() {
   showCardPreview();
   refreshUsage();
+  refreshCleanup();
   $('#arc-photos').textContent = '…'; $('#arc-notes').textContent = '…';
   if (!arcBusy) arcLog(store.live ? '' : 'Önizleme modundasınız: yalnızca örnek veriler indirilir.');
   try {
@@ -3617,6 +3746,7 @@ async function saveCard(which, name) {
 }
 
 function initArchive() {
+  $('#arc-clean-btn').addEventListener('click', cleanStorage);
   $('#arc-card-btn').addEventListener('click', () => saveCard('card', 'elif-yunus-qr-masa-karti-10x15cm.png'));
   $('#arc-qr-btn').addEventListener('click', () => saveCard('plain', 'elif-yunus-qr-kod.png'));
   $('#arc-book-hint').textContent = 'Her dilek, birlikte gönderilen fotoğraflarıyla aynı sayfada. '
@@ -4402,13 +4532,14 @@ function initLookForm() {
 const toTrInput = iso => (iso ? new Date(Date.parse(iso) + 3 * 3600e3).toISOString().slice(0, 16) : '');
 const fromTrInput = v => (v ? new Date(Date.parse(v + ':00+03:00')).toISOString() : null);
 let setDirty = false;                          // kaydedilmemiş değişiklik varken form dışarıdan yenilenmez
-// Dilek sınırı alanı: boş = sınırsız (null), aksi hâlde 1–50 arası tam sayı; geçersizse NaN
-function readWishLimit() {
-  const input = $('#set-dilek-siniri'), raw = input.value.trim();
+// Telefon başına sınır alanları: boş = sınırsız (null), aksi hâlde 1–en çok arası tam sayı; geçersizse NaN
+const LIMIT_FIELDS = { foto: ['fotoğraf', 1000], dilek: ['dilek', 50] };   // tür → [ad, en çok]
+function readLimit(kind) {
+  const input = $(`#set-${kind}-siniri`), raw = input.value.trim();
   if (input.validity.badInput) return NaN;   // ör. "3e": tarayıcı değeri boş gösterir, "sınırsız" sanılmasın
   if (!raw) return null;
   const n = Number(raw);
-  return Number.isInteger(n) && n >= 1 && n <= 50 ? n : NaN;
+  return Number.isInteger(n) && n >= 1 && n <= LIMIT_FIELDS[kind][1] ? n : NaN;
 }
 function readSettingsForm() {
   const v = id => $(id).value, c = id => $(id).checked;
@@ -4416,7 +4547,7 @@ function readSettingsForm() {
     foto_acik: c('#set-foto-acik'), foto_baslangic: fromTrInput(v('#set-foto-bas')), foto_bitis: fromTrInput(v('#set-foto-bit')),
     dilek_acik: c('#set-dilek-acik'), dilek_baslangic: fromTrInput(v('#set-dilek-bas')), dilek_bitis: fromTrInput(v('#set-dilek-bit')),
     album_gorunur: c('#set-album'), dilekler_gorunur: c('#set-dilekler'), muzik: c('#set-muzik'),
-    dilek_siniri: readWishLimit(),
+    dilek_siniri: readLimit('dilek'), foto_siniri: readLimit('foto'),
   };
 }
 function fillSettingsForm() {
@@ -4424,11 +4555,11 @@ function fillSettingsForm() {
     $(`#set-${k}-acik`).checked = !!ayar[k + '_acik'];
     $(`#set-${k}-bas`).value = toTrInput(ayar[k + '_baslangic']);
     $(`#set-${k}-bit`).value = toTrInput(ayar[k + '_bitis']);
+    $(`#set-${k}-siniri`).value = ayar[k + '_siniri'] ?? '';
   }
   $('#set-album').checked = !!ayar.album_gorunur;
   $('#set-dilekler').checked = !!ayar.dilekler_gorunur;
   $('#set-muzik').checked = !!ayar.muzik;
-  $('#set-dilek-siniri').value = ayar.dilek_siniri ?? '';
   $('#set-missing').hidden = !settingsMissing;
   setDirty = false;
   renderSettingsStatus();
@@ -4436,7 +4567,7 @@ function fillSettingsForm() {
 // Formdaki (henüz kaydedilmemiş) değerlerle şu anki durumu anlatır
 function shareStatus(kind, s) {
   const t = now(), from = Date.parse(s[kind + '_baslangic'] || ''), to = Date.parse(s[kind + '_bitis'] || '');
-  if (from && to && to <= from) return [false, 'Kapanış, açılıştan sonra olmalı.'];
+  if (from && to && to <= from) return [false, 'Kapanış, açılıştan sonra olmalı.', true];   // 3.: tarihler hatalı
   if (shareOpen(kind, s, t)) return [true, 'Şu an açık · ' + (to ? `kapanış: ${fmtOpen.format(to)}` : 'kapanış yok')];
   if (!s[kind + '_acik']) return [false, 'Şu an kapalı (elle kapatıldı).'];
   const at = opensAt(kind, s, t);
@@ -4445,9 +4576,8 @@ function shareStatus(kind, s) {
 function renderSettingsStatus() {
   const s = readSettingsForm();
   for (const k of ['foto', 'dilek']) {
-    const [on, text] = shareStatus(k, s), el = $(`#set-${k}-durum`);
-    const sinir = k !== 'dilek' || Number.isNaN(s.dilek_siniri) ? ''
-      : s.dilek_siniri ? ` · telefon başına en çok ${s.dilek_siniri} dilek` : ' · telefon başına sınır yok';
+    const [on, text, hatali] = shareStatus(k, s), el = $(`#set-${k}-durum`), lim = s[k + '_siniri'];
+    const sinir = hatali || Number.isNaN(lim) ? '' : lim ? ` · telefon başına en çok ${lim} ${LIMIT_FIELDS[k][0]}` : ' · telefon başına sınır yok';
     el.textContent = text + sinir;
     el.className = 'set-status ' + (on ? 'on' : 'off');
   }
@@ -4461,10 +4591,12 @@ async function saveSettings(e) {
       return;
     }
   }
-  if (Number.isNaN(s.dilek_siniri)) {
-    toast('“Bir telefondan en çok kaç dilek” 1 ile 50 arasında bir sayı olmalı ya da boş kalmalı.', 'err');
-    $('#set-dilek-siniri').focus();
-    return;
+  for (const [k, [ad, enCok]] of Object.entries(LIMIT_FIELDS)) {
+    if (Number.isNaN(s[k + '_siniri'])) {
+      toast(`“Bir telefondan en çok kaç ${ad}” 1 ile ${enCok} arasında bir sayı olmalı ya da boş kalmalı.`, 'err');
+      $(`#set-${k}-siniri`).focus();
+      return;
+    }
   }
   const btn = $('#set-save');
   btn.disabled = true;
@@ -4475,9 +4607,9 @@ async function saveSettings(e) {
     settingsMissing = false;
     applySettings();
     fillSettingsForm();
-    // Veritabanı henüz eski sürümdeyse dilek sınırı kaydedilemez (sayfalar varsayılan sınırı yalnızca tarayıcıda uygular)
+    // Veritabanı henüz eski sürümdeyse sınırlar kaydedilemez (sayfalar varsayılan sınırları yalnızca tarayıcıda uygular)
     $('#set-log').textContent = 'Kaydedildi. Açık olan sayfalar en geç yarım dakika içinde güncellenir.'
-      + ('dilek_siniri' in saved ? '' : ' Dilek sınırının sunucuda da uygulanması için güncel kurulum SQL’ini çalıştırın.');
+      + ('dilek_siniri' in saved && 'foto_siniri' in saved ? '' : ' Telefon başına sınırların sunucuda da uygulanması için güncel kurulum SQL’ini çalıştırın.');
     toast('Ayarlar kaydedildi.', 'ok');
   } catch (err) {
     console.warn('Ayarlar kaydedilemedi:', err);
