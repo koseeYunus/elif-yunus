@@ -555,6 +555,8 @@ textarea.input { min-height: 132px; resize: vertical; }
 .set-status.on { background: #EEF4EF; color: #2F5A3E; }
 .set-status.off { background: #FBEFEA; color: #7E3A2C; }
 .set-note { margin: -6px 2px 0; font-size: calc(12.5px * var(--fs-sans)); line-height: 1.5; color: var(--ink-3); }
+.set-limit { margin: 14px 0 0; }
+.set-limit .input { max-width: 160px; min-height: 46px; padding: 10px 12px; }
 @media (max-width: 420px) { .set-times { grid-template-columns: 1fr; } }
 /* İçerik sekmesi */
 .ic-groups { display: grid; gap: 12px; }
@@ -866,6 +868,7 @@ textarea.input { min-height: 132px; resize: vertical; }
         <label class="field"><span data-c="form_ad_etiket">Adınız</span><input class="input" id="k-name" data-name data-cp="form_ad_ipucu" maxlength="50" autocomplete="name" enterkeyhint="next" placeholder="Adınız ve soyadınız"></label>
         <label class="field" id="k-msg-field"><span><span data-c="form_dilek_etiket">Dileğiniz</span> <i class="opt">(isteğe bağlı)</i></span><textarea class="input" id="k-msg" data-cp="form_dilek_ipucu" maxlength="600" rows="4" placeholder="Elif ile Yunus’a dileklerinizi yazın…"></textarea><small class="counter" id="k-counter">0 / 600</small></label>
         <p class="k-saved" id="k-saved" hidden><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Dileğiniz kaydedildi. Kalan fotoğrafları yeniden göndermek için Gönder’e basın.</p>
+        <p class="k-later" id="k-wish-done" hidden><svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg><span id="k-wish-done-text"></span></p>
         <div class="field" id="k-photo-field">
           <span><span data-c="form_foto_etiket">Fotoğraflar</span> <i class="opt">(isteğe bağlı)</i></span>
           <div class="k-photos" id="k-photos">
@@ -1075,6 +1078,8 @@ textarea.input { min-height: 132px; resize: vertical; }
           <div class="set-quick">
             <button class="btn btn-line btn-xs" type="button" data-preset="dilek-simdi">Hemen aç</button>
           </div>
+          <label class="field set-limit"><span>Bir telefondan en çok kaç dilek</span><input class="input" type="number" id="set-dilek-siniri" min="1" max="50" step="1" inputmode="numeric" placeholder="Sınırsız" aria-describedby="set-dilek-siniri-not"></label>
+          <p class="lk-note" id="set-dilek-siniri-not">Aynı telefondan bu sayıdan fazla dilek gönderilemez; boş bırakırsanız sınır olmaz. Ayrıca site genelinde dakikada en çok 30 dilek kabul edilir (toplu gönderime karşı).</p>
           <p class="set-status" id="set-dilek-durum"></p>
         </fieldset>
         <p class="set-note">Saatler Türkiye saatidir. Açılış boşsa hemen, kapanış boşsa süresiz geçerlidir.</p>
@@ -1360,6 +1365,7 @@ const DEFAULT_SETTINGS = Object.freeze({
   foto_acik: true, foto_baslangic: new Date(DAY_START).toISOString(), foto_bitis: null,   // fotoğraf: düğün günü açılır
   dilek_acik: true, dilek_baslangic: null, dilek_bitis: null,                               // dilek: şimdiden açık
   album_gorunur: true, dilekler_gorunur: true, muzik: true,
+  dilek_siniri: 3,                                                                           // bir telefondan en çok dilek (boş: sınırsız)
 });
 const SETTINGS_COLS = Object.keys(DEFAULT_SETTINGS).join(',');
 const SHARE_END = Date.parse('2027-01-01T00:00:00+03:00');   // sunucudaki kesin kapanışla aynı
@@ -1374,8 +1380,26 @@ function opensAt(kind, s = ayar, t = now()) {
   const from = Date.parse(s[kind + '_baslangic'] || '');
   return s[kind + '_acik'] && from > t && from < SHARE_END ? from : null;
 }
+// Telefon başına dilek sınırı (Ayarlar › Dilek yazma; sunucuda da uygulanır). Telefon, sayfanın bir kez ürettiği
+// rastgele bir sayıyla tanınır; kişisel bilgi değildir ve misafirlere okutulmaz.
+const DEVICE_KEY = 'elif-yunus:cihaz', WISHES_KEY = 'elif-yunus:dilek-sayisi';
+let deviceId = '';
+function deviceKey() {
+  if (!deviceId) {
+    deviceId = ls.get(DEVICE_KEY);
+    if (!/^[0-9a-f-]{36}$/.test(deviceId)) { deviceId = uuid(); ls.set(DEVICE_KEY, deviceId); }
+  }
+  return deviceId;
+}
+let wishCount = 0;   // tarayıcı hafızası kullanılamazsa (ör. gizli sekme) sayaç sayfa açıkken burada tutulur
+const wishesSent = () => Math.max(wishCount, Number(ls.get(WISHES_KEY)) || 0);
+function setWishesSent(n) { wishCount = n; ls.set(WISHES_KEY, String(n)); }
+const wishLimit = () => (Number(ayar.dilek_siniri) > 0 ? Number(ayar.dilek_siniri) : 0);   // 0: sınırsız
+const wishLimitReached = () => wishLimit() > 0 && wishesSent() >= wishLimit();
+// Bu telefondan şu an dilek yazılabilir mi: paylaşım açık ve hakkı dolmamış
+const wishOpen = () => shareOpen('dilek') && !wishLimitReached();
 // Paylaşım türüne göre yazı anahtarı soneki: 'ikisi' | 'dilek' | 'foto' | '' (kapalı)
-const shareMode = () => { const f = shareOpen('foto'), d = shareOpen('dilek'); return f && d ? 'ikisi' : d ? 'dilek' : f ? 'foto' : ''; };
+const shareMode = () => { const f = shareOpen('foto'), d = wishOpen(); return f && d ? 'ikisi' : d ? 'dilek' : f ? 'foto' : ''; };
 const shareLabel = () => { const m = shareMode(); return m ? txt('paylas_baslik_' + m) : ''; };
 function ago(iso) {
   const t = Date.parse(iso), s = (now() - t) / 1000;
@@ -1571,6 +1595,8 @@ const CONTENT_GROUPS = [
     ['msg_bos', 'Boş gönderilmeye çalışılınca', { def: 'Bir dilek yazın ya da fotoğraf ekleyin.' }],
     ['msg_ad', 'Dilekte ad yazılmayınca', { def: 'Dileğinizin altında görünmesi için adınızı yazın.' }],
     ['msg_muzik', 'Müzik ilk kez başlayınca', { def: 'Müziği sağ üstteki düğmeden kapatabilirsiniz.' }],
+    ['dilek_siniri_doldu', 'Telefon başına dilek sınırı dolunca ({sayi} yerine sınır yazılır)', { area: true, def: 'Bu telefondan gönderebileceğiniz {sayi} dileğin hepsini gönderdiniz. Güzel dilekleriniz için çok teşekkür ederiz!' }],
+    ['msg_yogunluk', 'Aynı anda çok fazla dilek gelince', { def: 'Şu anda çok yoğun; lütfen bir dakika sonra tekrar deneyin.' }],
   ]],
   ['Anı Albümü', [
     ['album_ust', 'Üst yazı'], ['album_baslik', 'Başlık'], ['album_aciklama', 'Açıklama', { area: true }],
@@ -2006,8 +2032,10 @@ function liveStore() {
   const publicUrl = p => (PATH_RE.test(p || '') ? `${base}/storage/v1/object/public/${encodeURIComponent(CONFIG.bucket)}/${p}` : '');
   // Veritabanı henüz yeni kurulum dosyasıyla güncellenmediyse (fotoğraf-dilek bağı yoksa) sade sorgulara düşer;
   // böylece SQL ile sayfanın yayına giriş sırası ne olursa olsun albüm ve dilekler yüklenmeye devam eder.
-  let linked = true, keyed = true;
+  let linked = true, keyed = true, devices = true;
   const isColumnError = e => /PGRST204|42703/.test(`${e?.code}`);   // sütun yok: veritabanı eski sürümde
+  // Eksik sütunun adı ("column ayarlar.x does not exist" ya da "Could not find the 'x' column")
+  const missingColumn = e => (isColumnError(e) && /(?:column [\w.]*\.|Could not find the ')(\w+)/.exec(e?.message || '')?.[1]) || '';
   const BASIC = { notlar: 'id,created_at,isim,mesaj', fotograflar: 'id,created_at,isim,buyuk,kucuk,genislik,yukseklik' };
   const cols = table => (linked ? (table === 'notlar' ? NOTE_COLS : PHOTO_COLS) : BASIC[table]);
   // PGRST200: ilişki yok, PGRST204/42703: sütun yok. 23503 (dilek bu arada silinmiş) bu sayılmaz.
@@ -2041,21 +2069,31 @@ function liveStore() {
     // bir anahtar. Sunucu fotoğrafı dileğe yalnızca bu anahtarla bağlar ve anahtarı kimseye okutmaz; böylece kimse
     // başkasının dileğine fotoğraf ekleyemez. Kayıt geri okunmadığı için Dilek Defteri gizliyken de dilek yazılabilir.
     // Veritabanı henüz bu sürüme güncellenmemişse eski yönteme (dilek numarası) düşer.
+    // Telefon kimliği de gönderilir: sunucu aynı telefondan gelen dilekleri sayar (Ayarlar › Dilek yazma sınırı).
     async addNote(isim, mesaj) {
       await ready;
-      if (keyed) {
-        const bag_anahtari = uuid();
-        const oldSchema = await retry(async () => {
-          const { error } = await sb.from('notlar').insert({ isim, mesaj, bag_anahtari });
-          if (!error || error.code === '23505') return false;   // 23505: önceki deneme aslında kaydetmiş
-          if (isColumnError(error)) return true;
+      const row = { isim, mesaj };
+      if (keyed) row.bag_anahtari = uuid();
+      if (devices) row.cihaz_anahtari = deviceKey();
+      for (let deneme = 0; deneme < 3; deneme++) {
+        const sonuc = await retry(async () => {
+          const ins = sb.from('notlar').insert(row);
+          const { data, error } = row.bag_anahtari ? await ins : await ins.select('id');   // anahtarlıysa geri okunmaz
+          if (!error || error.code === '23505') return { data };   // 23505: önceki deneme aslında kaydetmiş
+          if (isLimitError(error)) throw limitError(error.hint, error.message);  // sınır: tekrar denenmez
+          if (isColumnError(error)) {
+            // Eksik sütunun adı okunamazsa önce en yeni sütun (cihaz kimliği), sonra bağ anahtarı denenir
+            const c = missingColumn(error);
+            return { eksik: c === 'bag_anahtari' || c === 'cihaz_anahtari' ? c : 'cihaz_anahtari' in row ? 'cihaz_anahtari' : 'bag_anahtari' };
+          }
           throw error;
         });
-        if (!oldSchema) return { key: bag_anahtari };
-        keyed = false;
-        console.warn('Bağ anahtarı veritabanında yok; dilekler eski yöntemle kaydediliyor.');
+        if (!sonuc.eksik) return row.bag_anahtari ? { key: row.bag_anahtari } : { id: sonuc.data?.[0]?.id ?? null };
+        // Veritabanı henüz bu sürüme güncellenmemiş: o sütun olmadan yeniden denenir
+        if (sonuc.eksik === 'cihaz_anahtari') { devices = false; delete row.cihaz_anahtari; } else { keyed = false; delete row.bag_anahtari; }
+        console.warn(`"${sonuc.eksik}" sütunu veritabanında yok; dilek onsuz kaydediliyor.`);
       }
-      return { id: (await run(db => db.from('notlar').insert({ isim, mesaj }).select('id')))[0]?.id ?? null };
+      throw new Error('Dilek kaydedilemedi');
     },
     async addPhoto({ isim, large, thumb, width, height, bag }) {
       await ready;
@@ -2110,13 +2148,34 @@ function liveStore() {
       }
       return deleteRows('fotograflar', rows.map(r => r.id));
     },
-    // Paylaşım/görünürlük ayarları: herkes okur, yalnızca yönetici değiştirir (Supabase kuralları)
+    // Paylaşım/görünürlük ayarları: herkes okur, yalnızca yönetici değiştirir (Supabase kuralları).
+    // Veritabanında henüz olmayan bir ayar sütunu (ör. dilek_siniri) atlanır; o ayar varsayılanıyla çalışır.
     settings: {
-      get: () => run(db => db.from('ayarlar').select(SETTINGS_COLS).eq('id', 1).maybeSingle()),
+      async get() {
+        let sutunlar = SETTINGS_COLS.split(',');
+        for (;;) {
+          try { return await run(db => db.from('ayarlar').select(sutunlar.join(',')).eq('id', 1).maybeSingle()); } catch (e) {
+            const c = missingColumn(e);
+            if (!sutunlar.includes(c) || sutunlar.length < 2) throw e;
+            sutunlar = sutunlar.filter(x => x !== c);
+          }
+        }
+      },
       async save(fields) {
-        const rows = await run(db => db.from('ayarlar').update(fields).eq('id', 1).select(SETTINGS_COLS));
-        if (!rows.length) throw new UserError('Ayarları değiştirme izniniz yok.');
-        return rows[0];
+        const f = { ...fields };
+        let sutunlar = SETTINGS_COLS.split(',');
+        for (;;) {
+          try {
+            const rows = await run(db => db.from('ayarlar').update(f).eq('id', 1).select(sutunlar.join(',')));
+            if (!rows.length) throw new UserError('Ayarları değiştirme izniniz yok.');
+            return rows[0];
+          } catch (e) {
+            const c = missingColumn(e);
+            if (!c || !(c in f || sutunlar.includes(c)) || sutunlar.length < 2) throw e;
+            delete f[c];
+            sutunlar = sutunlar.filter(x => x !== c);
+          }
+        }
       },
     },
     // Sayfa metinleri: yalnızca değiştirilenler (anahtar → metin); herkes okur, yalnızca yönetici yazar
@@ -2186,6 +2245,7 @@ function liveStore() {
 function previewStore() {
   const notes = [], photos = [], log = [];
   let nid = 0, pid = 0, cid = 0, user = null, ayarlar = { ...DEFAULT_SETTINGS }, metinler = {};
+  const perDevice = new Map();   // telefon kimliği → gönderilen dilek sayısı
   const record = (tablo, kayit_id, islem) => log.push({ id: ++cid, tablo, kayit_id, islem });
   const at = minsAgo => new Date(now() - minsAgo * 60e3).toISOString();
   [
@@ -2218,6 +2278,10 @@ function previewStore() {
     photos: { page: page(photos, photoView, photosReady), since: since(photos, photoView, photosReady) },
     async addNote(isim, mesaj) {
       await sleep(500);
+      // Sunucudaki telefon başına dilek sınırının aynısı
+      const k = deviceKey(), lim = Number(ayarlar.dilek_siniri) || 0;
+      if (lim && (perDevice.get(k) || 0) >= lim) throw limitError('dilek_siniri');
+      perDevice.set(k, (perDevice.get(k) || 0) + 1);
       notes.push({ id: ++nid, created_at: new Date(now()).toISOString(), isim, mesaj });
       return { id: nid };
     },
@@ -2533,8 +2597,8 @@ function resetComposer() {
 async function sendComposer(e) {
   e.preventDefault();
   if (komp.sending) return;
-  // Yönetim ekranındaki ayarlara göre yalnızca açık olan paylaşım türü gönderilir
-  const fotoOk = shareOpen('foto'), dilekOk = shareOpen('dilek');
+  // Yönetim ekranındaki ayarlara göre yalnızca açık olan paylaşım türü gönderilir (dilekte telefonun hakkı da)
+  const fotoOk = shareOpen('foto'), dilekOk = wishOpen();
   if (!fotoOk && !dilekOk) { applySettings(); toast('Paylaşım şu anda kapalı.', 'err'); return; }
   const isim = cleanName($('#k-name').value);
   const mesaj = komp.noteSaved || !dilekOk ? '' : cleanNote($('#k-msg').value);
@@ -2553,13 +2617,15 @@ async function sendComposer(e) {
   holdScreen(true);
   $('#k-progress').hidden = !photos.length;
   renderProgress();
-  let sentNote = false, sentPhotos = 0, policyHit = false;
+  let sentNote = false, sentPhotos = 0, policyHit = false, refreshForm = false;
   try {
     if (mesaj) {
       komp.bag = await store.addNote(isim, mesaj);   // fotoğraflar bu bağla dileğe bağlanır
       komp.noteSaved = true;
       lastNoteAt = Date.now();
       sentNote = true;
+      setWishesSent(wishesSent() + 1);                // telefon başına dilek sınırı için
+      refreshForm = wishLimitReached();               // hak dolduysa form yalnızca fotoğrafa döner
       $('#k-msg').readOnly = true;           // aynı dilek ikinci kez gönderilmesin
       pollSoon();
     }
@@ -2581,11 +2647,14 @@ async function sendComposer(e) {
   } catch (err) {
     console.warn('Dilek gönderilemedi:', err);
     if (isPolicyError(err)) { loadSettings(); toast('Dilek yazma şu anda kapalı.', 'err'); return; }
+    // Sunucu bu telefonun hakkının dolduğunu söylediyse (ör. sayaç bu tarayıcıda saklanamamıştı) sayaç eşitlenir
+    if (err?.hint === 'dilek_siniri') { setWishesSent(Math.max(wishesSent(), wishLimit(), err.sayi || 0)); refreshForm = true; }
     toast(friendlyError(err), 'err');
     return;
   } finally {
     setSending(false);
     holdScreen(false);
+    if (refreshForm) applySettings();
   }
   if (policyHit) loadSettings();               // ayarlar az önce değişmiş olabilir: sayfayı güncelle
   const failed = komp.items.filter(i => i.state === 'hata');
@@ -2661,13 +2730,26 @@ function initComposer() {
   addEventListener('beforeunload', e => { if (komp.sending) { e.preventDefault(); e.returnValue = ''; } });
 }
 const isPolicyError = e => /row-level security|42501/i.test(`${e?.code} ${e?.message}`);
+// Sunucunun dilek sınırı yanıtları (P0001 + ipucu): misafire İçerik sekmesindeki yazılarla anlatılır
+const isLimitError = e => e?.code === 'P0001' && /^(dilek_siniri|yogunluk)$/.test(e?.hint || '');
+function limitError(hint, sunucuMesaji = '') {
+  // Sınır sayısı sunucunun mesajından alınır ("en çok 3 dilek"); sayfadaki ayar birkaç saniye eski olabilir
+  const sayi = Number(/\d+/.exec(sunucuMesaji)?.[0]) || wishLimit() || 3;
+  const e = new UserError(hint === 'yogunluk' ? txt('msg_yogunluk') : doldur(txt('dilek_siniri_doldu'), { sayi }));
+  e.hint = hint;
+  e.sayi = sayi;
+  return e;
+}
 
 /* =====================================================================
    AYARLARIN SAYFAYA UYGULANMASI — paylaşım formu, başlıklar, alt menü, albüm/dilek defteri, müzik
    ===================================================================== */
 function applySettings() {
-  const foto = shareOpen('foto'), dilek = shareOpen('dilek'), any = foto || dilek;
-  shareState = `${foto}|${dilek}`;
+  // dilek: bu telefondan şu an yazılabilir mi; hakDoldu: dilek açık ama bu telefonun hakkı bitti
+  const foto = shareOpen('foto'), dilekAcik = shareOpen('dilek'), hakDoldu = dilekAcik && wishLimitReached();
+  const dilek = dilekAcik && !hakDoldu, any = foto || dilek;
+  const hakText = doldur(txt('dilek_siniri_doldu'), { sayi: wishLimit() });
+  shareState = `${foto}|${dilekAcik}`;                // tickCountdown'daki karşılaştırmayla aynı
   const fotoAt = opensAt('foto');
   const fotoText = fotoAt ? doldur(txt('foto_acilacak'), { tarih: fmtOpen.format(fotoAt) }) : txt('foto_kapali');
   // Paylaşım bölümünün yazıları açık olan türe göre (İçerik › Anı & Dilek formu)
@@ -2685,9 +2767,12 @@ function applySettings() {
   $$('#k-form .opt').forEach(i => { i.hidden = !(foto && dilek); });
   $('#k-photo-later').hidden = foto || !dilek;
   $('#k-photo-later-text').textContent = fotoText;
+  $('#k-wish-done').hidden = !(hakDoldu && foto);       // dilek hakkı bitti, fotoğraf paylaşımı sürüyor
+  $('#k-wish-done-text').textContent = hakText;
   $('#k-hint').textContent = txt('form_not_' + (m || 'ikisi'));
   const next = [opensAt('foto'), opensAt('dilek')].filter(Boolean).sort((a, b) => a - b)[0];
-  $('#k-closed-text').textContent = next ? doldur(txt('paylasim_acilacak'), { tarih: fmtOpen.format(next) }) : txt('paylasim_kapali');
+  // Hakkı biten misafire fotoğraf paylaşımının ne zaman açılacağı da söylenir
+  $('#k-closed-text').textContent = hakDoldu ? (fotoAt ? `${hakText} ${fotoText}` : hakText) : next ? doldur(txt('paylasim_acilacak'), { tarih: fmtOpen.format(next) }) : txt('paylasim_kapali');
   // Alt menünün ortasındaki düğme: fotoğraf açıksa kamera, yalnızca dilek açıksa kalem, ikisi de kapalıysa yok
   const fab = $('#dock .fab');
   fab.hidden = !any;
@@ -4317,12 +4402,21 @@ function initLookForm() {
 const toTrInput = iso => (iso ? new Date(Date.parse(iso) + 3 * 3600e3).toISOString().slice(0, 16) : '');
 const fromTrInput = v => (v ? new Date(Date.parse(v + ':00+03:00')).toISOString() : null);
 let setDirty = false;                          // kaydedilmemiş değişiklik varken form dışarıdan yenilenmez
+// Dilek sınırı alanı: boş = sınırsız (null), aksi hâlde 1–50 arası tam sayı; geçersizse NaN
+function readWishLimit() {
+  const input = $('#set-dilek-siniri'), raw = input.value.trim();
+  if (input.validity.badInput) return NaN;   // ör. "3e": tarayıcı değeri boş gösterir, "sınırsız" sanılmasın
+  if (!raw) return null;
+  const n = Number(raw);
+  return Number.isInteger(n) && n >= 1 && n <= 50 ? n : NaN;
+}
 function readSettingsForm() {
   const v = id => $(id).value, c = id => $(id).checked;
   return {
     foto_acik: c('#set-foto-acik'), foto_baslangic: fromTrInput(v('#set-foto-bas')), foto_bitis: fromTrInput(v('#set-foto-bit')),
     dilek_acik: c('#set-dilek-acik'), dilek_baslangic: fromTrInput(v('#set-dilek-bas')), dilek_bitis: fromTrInput(v('#set-dilek-bit')),
     album_gorunur: c('#set-album'), dilekler_gorunur: c('#set-dilekler'), muzik: c('#set-muzik'),
+    dilek_siniri: readWishLimit(),
   };
 }
 function fillSettingsForm() {
@@ -4334,6 +4428,7 @@ function fillSettingsForm() {
   $('#set-album').checked = !!ayar.album_gorunur;
   $('#set-dilekler').checked = !!ayar.dilekler_gorunur;
   $('#set-muzik').checked = !!ayar.muzik;
+  $('#set-dilek-siniri').value = ayar.dilek_siniri ?? '';
   $('#set-missing').hidden = !settingsMissing;
   setDirty = false;
   renderSettingsStatus();
@@ -4351,7 +4446,9 @@ function renderSettingsStatus() {
   const s = readSettingsForm();
   for (const k of ['foto', 'dilek']) {
     const [on, text] = shareStatus(k, s), el = $(`#set-${k}-durum`);
-    el.textContent = text;
+    const sinir = k !== 'dilek' || Number.isNaN(s.dilek_siniri) ? ''
+      : s.dilek_siniri ? ` · telefon başına en çok ${s.dilek_siniri} dilek` : ' · telefon başına sınır yok';
+    el.textContent = text + sinir;
     el.className = 'set-status ' + (on ? 'on' : 'off');
   }
 }
@@ -4364,15 +4461,23 @@ async function saveSettings(e) {
       return;
     }
   }
+  if (Number.isNaN(s.dilek_siniri)) {
+    toast('“Bir telefondan en çok kaç dilek” 1 ile 50 arasında bir sayı olmalı ya da boş kalmalı.', 'err');
+    $('#set-dilek-siniri').focus();
+    return;
+  }
   const btn = $('#set-save');
   btn.disabled = true;
   $('#set-log').textContent = 'Kaydediliyor…';
   try {
-    ayar = { ...DEFAULT_SETTINGS, ...(await store.settings.save(s)) };
+    const saved = await store.settings.save(s);
+    ayar = { ...DEFAULT_SETTINGS, ...saved };
     settingsMissing = false;
     applySettings();
     fillSettingsForm();
-    $('#set-log').textContent = 'Kaydedildi. Açık olan sayfalar en geç yarım dakika içinde güncellenir.';
+    // Veritabanı henüz eski sürümdeyse dilek sınırı kaydedilemez (sayfalar varsayılan sınırı yalnızca tarayıcıda uygular)
+    $('#set-log').textContent = 'Kaydedildi. Açık olan sayfalar en geç yarım dakika içinde güncellenir.'
+      + ('dilek_siniri' in saved ? '' : ' Dilek sınırının sunucuda da uygulanması için güncel kurulum SQL’ini çalıştırın.');
     toast('Ayarlar kaydedildi.', 'ok');
   } catch (err) {
     console.warn('Ayarlar kaydedilemedi:', err);
