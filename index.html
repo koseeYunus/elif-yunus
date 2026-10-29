@@ -6,7 +6,7 @@
 <title>Elif &amp; Yunus · Evleniyoruz · 15 Kasım 2026</title>
 <meta name="description" content="Elif ile Yunus evleniyor! 15 Kasım 2026 Pazar, saat 19.00 · Nazar Düğün Salonu. Geri sayım, düğün programı, anı albümü ve dilek defteri.">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#1C2A23">
+<meta name="theme-color" content="#EBE1D0">
 <meta name="color-scheme" content="only light">
 <meta name="format-detection" content="telephone=no">
 <meta property="og:type" content="website">
@@ -20,7 +20,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Elif &amp; Yunus · Evleniyoruz · 15 Kasım 2026">
 <meta name="twitter:card" content="summary_large_image">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/ https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/ https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hpmhoursfrtigfyoibvd.supabase.co; connect-src 'self' blob: https://hpmhoursfrtigfyoibvd.supabase.co; media-src 'self' blob: https://hpmhoursfrtigfyoibvd.supabase.co; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/ https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/ https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hpmhoursfrtigfyoibvd.supabase.co; connect-src 'self' blob: https://hpmhoursfrtigfyoibvd.supabase.co; media-src 'self' blob: https://hpmhoursfrtigfyoibvd.supabase.co; frame-src https://www.google.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Ccircle%20cx='32'%20cy='32'%20r='32'%20fill='%231C2A23'/%3E%3Ccircle%20cx='32'%20cy='32'%20r='27'%20fill='none'%20stroke='%23C9A464'%20stroke-width='1.5'/%3E%3Ctext%20x='32'%20y='40'%20text-anchor='middle'%20font-family='Georgia,serif'%20font-style='italic'%20font-size='21'%20fill='%23E2C994'%3EE%26amp;Y%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,7 +43,7 @@
     try { s = JSON.parse(document.getElementById('ilk-veri').textContent || '{}'); } catch (e) { /* bozuk */ }
     o = s && s.icerik && s.icerik.ozet;
     if (o && o.gorunum && typeof o.gorunum === 'object' && (!g || String(o.zaman || '') > String(g.z || ''))) g = o.gorunum;
-    if (!g || typeof g !== 'object') return;
+    if (!g || typeof g !== 'object') g = { v: {} };   // kayıtlı görünüm yok: varsayılan (zarf kararı yine aşağıda)
     for (k in g.v) if (/^--[a-z0-9-]+$/.test(k)) d.style.setProperty(k, String(g.v[k]));
     if (/^[a-z -]+$/.test(g.c || '')) d.className += ' ' + g.c;
     if (/^#[0-9A-F]{6}$/i.test(g.t || '')) document.querySelector('meta[name="theme-color"]').content = g.t;
@@ -58,6 +58,23 @@
       document.head.appendChild(l);
     }
   } catch (e) { /* önbellek yok ya da okunamadı: varsayılan görünüm */ }
+  // Açılış zarfı: düğün gününden önce, sayfa doğrudan bir bölümle (#paylas gibi) açılmadıysa ve bu sekmede zarf
+  // henüz açılmadıysa gösterilir. Adresin sonuna ?zarf yazılırsa her zaman gösterilir (deneme için).
+  try {
+    var q = new URLSearchParams(location.search), ic = null, em = null, kay, wed, gun, an, h;
+    try { ic = JSON.parse(localStorage.getItem('elif-yunus:icerik') || 'null'); } catch (e) { /* gizli sekme */ }
+    try { em = JSON.parse(document.getElementById('ilk-veri').textContent || '{}').icerik; } catch (e) { /* yok */ }
+    kay = em && (!ic || String((em.ozet || {}).zaman || '') > String((ic.ozet || {}).zaman || '')) ? em : ic || em || {};
+    wed = Date.parse(kay.dugun_zamani || '') || Date.parse('2026-11-15T19:00:00+03:00');
+    h = new Date(wed + 3 * 3600e3);
+    gun = Date.UTC(h.getUTCFullYear(), h.getUTCMonth(), h.getUTCDate()) - 3 * 3600e3;   // düğün günü 00.00 (TR)
+    an = Date.parse(q.get('zaman') || '') || Date.now();
+    var acildi = false;
+    try { acildi = sessionStorage.getItem('elif-yunus:zarf') === '1'; } catch (e) { /* gizli sekme */ }
+    // eski tarayıcılarda (kapsayıcı birimleri olmayan) zarf gösterilmez; sayfa doğrudan açılır
+    if (window.self === window.top && window.CSS && CSS.supports('width: 1cqw') && CSS.supports('color: color-mix(in srgb, red, blue)')
+      && (q.has('zarf') || (!/\bno-zarf\b/.test(d.className) && an < gun && !acildi && /^#?(top|davet)?$/.test(location.hash)))) d.className += ' zarf-acik';
+  } catch (e) { /* zarf gösterilmez */ }
 })(document.documentElement);
 </script>
 <style>
@@ -135,16 +152,62 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 }
 
 /* ===== Kapak (hero) ===== */
+/* İki biçim: kemerli (varsayılan) — krem, kabartmalı bir duvarda sivri kemer; kemerin içinde gece sahnesi, fenerler
+   ve ışıltılar. Yönetim › Görünüm'den kemer kapatılırsa (.no-kemer) gece sahnesi bütün ekranı kaplar (klasik kapak).
+   Gece sahnesinin kendisi .kemer-ic'tedir; kapak fotoğrafı da onun içinde görünür. */
+:root { --kw: min(88vw, 47svh); }           /* kemer genişliği (kapakta ve sayfanın sonundaki kapanışta) */
 .hero {
+  --duvar: var(--sand);
+  --kt: calc(64px + var(--safe-t));          /* kemerin üstünde kalan duvar */
   position: relative; isolation: isolate; overflow: hidden;
   min-height: 100vh; min-height: 100svh; display: grid; place-items: center;
-  padding: calc(64px + var(--safe-t)) 22px 92px; text-align: center; color: var(--cream);
+  padding: calc(var(--kt) + var(--kw) * .36) 22px 84px; text-align: center; color: var(--cream);
+  background:
+    var(--yan-desen-sol, none) calc(50% - var(--kw) * .5 - 30px) 54% / auto 78% no-repeat,
+    var(--yan-desen-sag, none) calc(50% + var(--kw) * .5 + 30px) 54% / auto 78% no-repeat,
+    var(--noise), var(--duvar);
+}
+.kemer-ic {
+  position: absolute; z-index: -3; left: 50%; bottom: 0; top: var(--kt); width: var(--kw); translate: -50% 0;
+  clip-path: url(#kemer-kirp); overflow: hidden;
+  background:
+    radial-gradient(90% 34% at 50% 104%, rgba(var(--gold-light-rgb), .3), transparent 70%),
+    radial-gradient(120% 60% at 50% 30%, rgba(var(--gold-light-rgb), .14), transparent 62%),
+    linear-gradient(180deg, var(--hero-1) 0%, var(--hero-2) 55%, var(--hero-3) 100%);
+}
+.kemer-ic::before { content: ""; position: absolute; inset: 0; background: var(--noise-light); opacity: .9; }
+/* duvar ve zarf kâğıdı: temanın kum renginin bir tık sıcak tonu (renk karıştırmayı bilmeyen tarayıcıda düz kum rengi) */
+@supports (color: color-mix(in srgb, red, blue)) { .hero, .zarf-kutu { --duvar: color-mix(in srgb, var(--sand), var(--gold-deep) 5%); } }
+/* kemerin pervazı (altın çizgi) ve kenarındaki derinlik gölgesi */
+.kemer-cerceve { position: absolute; z-index: -2; left: 50%; bottom: 0; top: var(--kt); width: var(--kw); height: calc(100% - var(--kt)); translate: -50% 0; overflow: visible; pointer-events: none; }
+.kemer-cerceve path { fill: none; vector-effect: non-scaling-stroke; }
+/* kemerin iki üst köşesindeki kabartma gül demetleri (desenler sayfa açılırken çizilir) */
+.kemer-sus { position: absolute; z-index: -4; top: calc(var(--kt) - 24px); width: calc(var(--kw) * .5 + 40px); aspect-ratio: 1; pointer-events: none; }
+.kemer-sus.sol { right: calc(50% + var(--kw) * .2); background: var(--kose-sol, none) 100% 0 / contain no-repeat; }
+.kemer-sus.sag { left: calc(50% + var(--kw) * .2); background: var(--kose-sag, none) 0 0 / contain no-repeat; }
+/* fenerler kemerin tavanından sarkar; zincirin üstü kemerin kenarında kesilir */
+.fener { position: absolute; top: 21%; width: calc(var(--kw) * .12); pointer-events: none; --zincir: calc(var(--kw) * .2); transform-origin: 50% calc(-1 * var(--zincir)); animation: fener-sallan 7s ease-in-out infinite; }
+.fener.sol { left: 9%; }
+.fener.sag { right: 9%; animation-delay: -3.4s; }
+.fener::before { content: ""; position: absolute; left: 50%; bottom: 100%; width: 1.5px; height: var(--zincir); translate: -50% 0; background: repeating-linear-gradient(180deg, var(--shine-3) 0 3px, transparent 3px 5px); }
+.fener svg { width: 100%; height: auto; overflow: visible; }
+.fener .isik { position: absolute; left: 50%; top: 52%; width: 340%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; mix-blend-mode: screen;
+  background: radial-gradient(closest-side, rgba(255, 214, 140, .55), rgba(255, 190, 100, .18) 45%, transparent); animation: titre 3.1s steps(1) infinite, titre-y 2.3s ease-in-out infinite; }
+.fener.sag .isik { animation-delay: -1.3s, -.8s; }
+.fener .alev { transform-box: fill-box; transform-origin: 50% 100%; animation: alev 1.7s ease-in-out infinite alternate; }
+@keyframes fener-sallan { 0%, 100% { transform: rotate(1.6deg); } 50% { transform: rotate(-1.6deg); } }
+@keyframes titre { 0% { opacity: .92; } 13% { opacity: .78; } 21% { opacity: 1; } 37% { opacity: .85; } 52% { opacity: .97; } 64% { opacity: .8; } 79% { opacity: 1; } 91% { opacity: .88; } }
+@keyframes titre-y { 0%, 100% { scale: 1; } 50% { scale: 1.06; } }
+@keyframes alev { 0% { transform: scale(1, 1); } 40% { transform: scale(.92, 1.08); } 100% { transform: scale(1.05, .95); } }
+/* Klasik kapak: gece sahnesi bütün ekranı kaplar */
+.no-kemer .hero { padding: calc(64px + var(--safe-t)) 22px 92px; }
+.no-kemer .kemer-ic { inset: 0; width: auto; translate: none; clip-path: none;
   background:
     radial-gradient(120% 70% at 50% 32%, rgba(var(--gold-light-rgb), .17), transparent 62%),
     radial-gradient(90% 50% at 50% 112%, rgba(0, 0, 0, .38), transparent 70%),
-    linear-gradient(180deg, var(--hero-1) 0%, var(--hero-2) 55%, var(--hero-3) 100%);
-}
-.hero::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--noise-light); opacity: .9; }
+    linear-gradient(180deg, var(--hero-1) 0%, var(--hero-2) 55%, var(--hero-3) 100%); }
+.no-kemer :is(.kemer-cerceve, .kemer-sus, .fener, .davetli-blok) { display: none; }
+:root:not(.no-kemer) :is(.hero-frame, .branch, #hero-eyebrow, .hero-cta [data-action="open-invite"]) { display: none; }
 .hero-frame { position: absolute; inset: calc(12px + var(--safe-t)) 12px 12px; border: 1px solid rgba(var(--gold-light-rgb), .2); border-radius: 26px; pointer-events: none; }
 .hero-frame::after { content: ""; position: absolute; inset: 5px; border: 1px solid rgba(var(--gold-light-rgb), .08); border-radius: 22px; }
 .branch { position: absolute; z-index: -1; width: min(36vw, 290px); height: auto; aspect-ratio: 1; color: var(--gold-light); opacity: .45; pointer-events: none; }
@@ -165,10 +228,16 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
   100% { transform: translate3d(var(--x), -112vh, 0); opacity: 0; }
 }
 .hero-inner { position: relative; width: 100%; max-width: 900px; }
+:root:not(.no-kemer) .hero-inner { max-width: calc(var(--kw) - 36px); }
+.davetli { max-width: 74%; margin: 0 auto; font: 400 calc(clamp(36px, 9.6vw, 50px) * var(--fs-el))/1.05 var(--script); color: var(--cream-hi); text-wrap: balance; }
+.davetli-alt { margin: 6px 0 0; padding-left: .3em; font: 500 calc(11px * var(--fs-sans))/1.3 var(--sans); letter-spacing: .32em; text-transform: uppercase; color: rgba(var(--cream-rgb), .75); }
+.davetli-alt:empty { display: none; }
+.hero .davetli-blok .orn { width: 190px; margin: 14px auto 12px; }
 .eyebrow { margin: 0 0 16px; padding-left: .4em; font: 500 calc(12px * var(--fs-sans))/1.3 var(--sans); letter-spacing: .4em; text-transform: uppercase; color: var(--gold-deep); }
 .hero .eyebrow { color: var(--gold-light); }
 /* --fit: isimler ekrana sığmazsa (uzun isim, geniş yazı tipi) fitNames() küçültür */
 .names { margin: 0; display: flex; flex-direction: column; align-items: center; font: 400 calc(clamp(70px, 20vw, 150px) * var(--fs-el) * var(--fit, 1))/.9 var(--script); }
+:root:not(.no-kemer) .names { font-size: calc(min(19vw, 9.6svh, 98px) * var(--fs-el) * var(--fit, 1)); }
 /* El yazısının kıvrımları satırın 1.15em üstüne ve .56em altına taşabilir. Parıltı rengi yalnızca kutunun
    içine boyandığı için kutu bu payı her platformda kapsayacak kadar büyük; negatif boşlukla eski aralık korunur. */
 .names span {
@@ -191,26 +260,40 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 .hero-date i { font-style: normal; color: var(--gold-light); padding: 0 .3em; }
 .hero-venue { margin: 6px 0 0; font: italic 400 calc(clamp(17px, 4.4vw, 20px) * var(--fs-serif))/1.4 var(--serif); color: rgba(var(--cream-rgb), .78); }
 
-/* ===== Geri sayım ===== */
-.cd-note { margin: 30px 0 12px; font: italic 400 calc(clamp(18px, 4.6vw, 21px) * var(--fs-serif))/1.45 var(--serif); color: rgba(var(--cream-rgb), .9); }
-.cd { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; max-width: 440px; margin: 0 auto; }
-.cd-cell { padding: 16px 2px 12px; border: 1px solid rgba(var(--gold-light-rgb), .28); border-radius: 16px; background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .015)); }
-.cd-num { display: block; font: 500 calc(clamp(32px, 9.4vw, 48px) * var(--fs-serif))/1 var(--serif); color: var(--cream-hi); font-variant-numeric: lining-nums tabular-nums; }
-.cd-num.tick { animation: tick .55s var(--ease); }
-@keyframes tick { from { opacity: .3; transform: translateY(-7px); } to { opacity: 1; transform: none; } }
-.cd-lbl { display: block; margin-top: 9px; padding-left: .22em; font: 500 calc(10px * var(--fs-sans))/1 var(--sans); letter-spacing: .22em; text-transform: uppercase; color: var(--gold-light); }
+/* Kapaktaki durum yazısı (düğün günü, düğün sırasında ve sonrasında) */
+.kapak-not { margin: 22px auto 0; max-width: 24em; font: italic 400 calc(clamp(17px, 4.4vw, 20px) * var(--fs-serif))/1.45 var(--serif); color: rgba(var(--cream-rgb), .9); }
 .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 30px; }
+:root:not(.no-kemer) .hero-cta { gap: 8px; margin-top: 22px; }
+:root:not(.no-kemer) .hero-cta .btn { min-height: 44px; padding: 0 16px; gap: 8px; font-size: calc(11px * var(--fs-sans)); letter-spacing: .12em; }
+:root:not(.no-kemer) .hero-cta .btn .ic { width: 16px; height: 16px; }
 .hero .btn-line { border-color: rgba(var(--gold-light-rgb), .45); color: var(--cream); background: rgba(255, 255, 255, .03); }
 @media (hover: hover) { .hero .btn-line:hover { background: rgba(255, 255, 255, .08); } }
-.scroll-hint { position: absolute; left: 50%; bottom: calc(24px + var(--safe-b)); width: 26px; height: 42px; margin-left: -13px; border: 1px solid rgba(var(--gold-light-rgb), .45); border-radius: 14px; }
-.scroll-hint::after { content: ""; position: absolute; left: 50%; top: 8px; width: 3px; height: 8px; margin-left: -1.5px; border-radius: 2px; background: var(--gold-light); animation: drip 2.2s var(--ease) infinite; }
-@keyframes drip { 0% { opacity: 0; transform: translateY(0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(14px); } }
-@media (max-height: 700px) { .scroll-hint { display: none; } }
+.kaydir { position: absolute; left: 50%; bottom: calc(16px + var(--safe-b)); translate: -50% 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 10px; color: var(--gold-light); text-decoration: none; font: 400 calc(20px * var(--fs-el))/1 var(--script); }
+.kaydir .ic { width: 16px; height: 16px; stroke-width: 1.4; animation: kaydir 2s var(--ease) infinite; }
+@keyframes kaydir { 0%, 100% { transform: translateY(0); opacity: .6; } 50% { transform: translateY(4px); opacity: 1; } }
+@media (max-height: 640px) { .kaydir { display: none; } }
 @media (min-width: 760px) {
-  .names { flex-direction: row; justify-content: center; align-items: baseline; }
-  .names .amp { margin: 0; }
-  .cd { gap: 14px; }
+  .no-kemer .names { flex-direction: row; justify-content: center; align-items: baseline; }
+  .no-kemer .names .amp { margin: 0; }
 }
+
+/* ===== Geri sayım: inci daireler; çevredeki altın halka bir üst birimin ne kadarının geçtiğini gösterir ===== */
+.sayac .sec-head { margin-bottom: 30px; }
+.cd { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(10px, 3.4vw, 20px); max-width: 470px; margin: 0 auto; }
+.cd-cell { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.cd-daire { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle at 34% 28%, #fff, var(--paper) 46%, var(--cream) 100%);
+  box-shadow: 0 12px 22px -14px rgba(var(--forest-rgb), .5), inset 0 0 0 1px rgba(var(--gold-rgb), .3), inset 0 -6px 12px -8px rgba(var(--gold-deep-rgb), .25); }
+.cd-halka { position: absolute; inset: -5px; width: calc(100% + 10px); height: calc(100% + 10px); rotate: -90deg; overflow: visible; }
+.cd-halka circle { fill: none; stroke-width: 1.6; }
+.cd-halka .iz { stroke: rgba(var(--gold-rgb), .2); }
+.cd-halka .dolu { stroke: var(--gold); stroke-linecap: round; stroke-dasharray: 100 100; stroke-dashoffset: calc(100 - var(--p, 1) * 100); transition: stroke-dashoffset .5s var(--ease); }
+.cd-halka.sifir .dolu { transition: none; }
+.cd-num { position: relative; font: 500 calc(clamp(24px, 7.6vw, 40px) * var(--fs-serif))/1 var(--serif); color: var(--gold-deep); font-variant-numeric: lining-nums tabular-nums; }
+.cd-num.tick { animation: tick .55s var(--ease); }
+@keyframes tick { from { opacity: .3; transform: translateY(-7px); } to { opacity: 1; transform: none; } }
+.cd-lbl { display: block; margin-top: 12px; padding-left: .22em; font: 500 calc(10px * var(--fs-sans))/1 var(--sans); letter-spacing: .22em; text-transform: uppercase; color: var(--ink-3); }
+.sayac .cal { margin-top: 34px; }
 
 /* Yönetim › Görünüm › Kapak ve süslemeler: kapatılan süsler */
 .no-branch .branch, .no-sparks .sparks, .no-frame .hero-frame { display: none; }
@@ -228,6 +311,111 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 .in-2 { animation-delay: .15s; } .in-3 { animation-delay: .35s; } .in-4 { animation-delay: .55s; } .in-5 { animation-delay: .75s; }
 @keyframes enter { from { opacity: 0; transform: translateY(18px); } }
 .names.in-2 span { animation: shimmer 11s ease-in-out infinite, glint 7s ease-in-out 2.4s infinite; }
+
+/* ===== Açılış zarfı ===== */
+/* Kabartmalı krem bir zarf, ortasında mum mühür. Mühre dokununca mühürden altın bir ışık dalgası yayılır, mühür ışıkla
+   çatlar, dört kapak açılır ve arkadaki kapak belirir (~3 sn). Zarf açıkken kapaktaki animasyonlar bekler.
+   Kabartma desenler sayfa açılırken bir kez çizilir (bkz. "Zarf ve kemer desenleri" betiği). */
+html.zarf-acik, html.zarf-acik body, html.zarf-kalkiyor, html.zarf-kalkiyor body { overflow: hidden; }
+.zarf { position: fixed; inset: 0; z-index: 44; display: none; container-type: size; background: rgba(var(--night-rgb), .9); -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.zarf-acik .zarf, .zarf-kalkiyor .zarf { display: block; }
+.zarf-acik .hero *, .zarf-acik .hero *::before, .zarf-acik .hero *::after { animation-play-state: paused; }
+.zarf-kutu {
+  --zarf-kagit: var(--duvar, var(--sand));
+  --zs: max(100cqw / 390, 100cqh / 844);       /* desen birimi (390×844 tasarım) → piksel */
+  position: absolute; top: 0; bottom: 0; left: 50%; width: min(100cqw, 56cqh); translate: -50% 0;
+  container-type: size; perspective: 1100px; background: var(--zarf-kagit); box-shadow: 0 30px 80px -24px rgba(0, 0, 0, .7);
+}
+.zk { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; will-change: transform; }
+.zk i { position: absolute; inset: 0; background: var(--zd-desen, none) center / cover no-repeat, var(--noise), var(--zarf-kagit); }
+.zk-ust { z-index: 4; transform-origin: 50% 0; filter: drop-shadow(0 calc(2 * var(--zs)) calc(2.5 * var(--zs)) rgba(70, 50, 20, .26)); }
+.zk-alt { z-index: 3; transform-origin: 50% 100%; filter: drop-shadow(0 calc(-1.5 * var(--zs)) calc(2.5 * var(--zs)) rgba(70, 50, 20, .2)); }
+.zk-sol { z-index: 2; transform-origin: 0 50%; }
+.zk-sag { z-index: 2; transform-origin: 100% 50%; }
+/* kapakların kenarları desenin köşegenleriyle aynı eğimde (342/195): her ekran oranında desenle örtüşür */
+.zk-ust i { clip-path: polygon(0 0, 100% 0, 100% calc(50% - 87.7cqw), 50% 50%, 0 calc(50% - 87.7cqw)); }
+.zk-alt i { clip-path: polygon(0 100%, 100% 100%, 100% calc(50% + 87.7cqw), 50% 50%, 0 calc(50% + 87.7cqw)); }
+.zk-sol i { clip-path: polygon(0 calc(50% - 87.7cqw), 50% 50%, 0 calc(50% + 87.7cqw)); background-color: color-mix(in srgb, var(--zarf-kagit), #5A4020 4%); }
+.zk-sag i { clip-path: polygon(100% calc(50% - 87.7cqw), 50% 50%, 100% calc(50% + 87.7cqw)); background-color: color-mix(in srgb, var(--zarf-kagit), #5A4020 4%); }
+/* zarfın içinden sızan ışık: mührün üstünde ve altında, kapakların birleştiği yerde */
+.zarf-sizinti { position: absolute; left: 50%; top: 50%; z-index: 5; width: calc(30 * var(--zs)); height: calc(196 * var(--zs)); translate: -50% -50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255, 246, 220, .95), rgba(var(--spark-rgb), .5) 45%, transparent) 50% 0 / 100% 22% no-repeat,
+              radial-gradient(closest-side, rgba(255, 246, 220, .95), rgba(var(--spark-rgb), .5) 45%, transparent) 50% 100% / 100% 22% no-repeat;
+  animation: sizinti 3.2s ease-in-out infinite; }
+@keyframes sizinti { 0%, 100% { opacity: .35; } 50% { opacity: .85; } }
+/* altın ışık dalgası: kabartmaların üzerinde mühürden kenarlara doğru ilerler, ardında soluk bir iz bırakır */
+.zarf-isik { position: absolute; inset: 0; z-index: 5; pointer-events: none; opacity: 0; background: var(--zd-isik, none) center / cover no-repeat;
+  -webkit-mask: radial-gradient(closest-side, rgba(0, 0, 0, .28) 0, rgba(0, 0, 0, .28) 66%, #000 76%, #000 82%, transparent 92%) 50% 50% / 0 0 no-repeat;
+          mask: radial-gradient(closest-side, rgba(0, 0, 0, .28) 0, rgba(0, 0, 0, .28) 66%, #000 76%, #000 82%, transparent 92%) 50% 50% / 0 0 no-repeat; }
+/* zarfın içi: kapaklar açılırken parlayan ışık */
+.zarf-ic { position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0;
+  background: radial-gradient(closest-side, #FFFAEE 0%, rgba(255, 244, 214, .85) 35%, rgba(var(--spark-rgb), .35) 62%, transparent 100%) 50% 50% / 160cqmin 160cqmin no-repeat; }
+/* mum mühür: bekleme sırasında nabız gibi atan bir halka ve yüzeyinde ara ara süzülen ışık */
+.muhur { position: absolute; left: 50%; top: 50%; z-index: 6; width: calc(134 * var(--zs)); aspect-ratio: 1; translate: -50% -50%;
+  padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.muhur:focus-visible { outline: 2px solid var(--gold-deep); outline-offset: 6px; }
+.muhur svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.muhur-tam, .muhur-yari { position: absolute; inset: 0; filter: drop-shadow(0 calc(5 * var(--zs)) calc(6 * var(--zs)) rgba(70, 48, 18, .34)); }
+.muhur-yari { visibility: hidden; }
+.muhur-yari.sol { clip-path: polygon(0 0, 53% 0, 47% 27%, 56% 51%, 46% 75%, 52% 100%, 0 100%); }
+.muhur-yari.sag { clip-path: polygon(53% 0, 100% 0, 100% 100%, 52% 100%, 46% 75%, 56% 51%, 47% 27%); }
+.muhur-catlak { opacity: 0; pointer-events: none; }
+.muhur-catlak polyline { fill: none; stroke: #FFF6DC; stroke-width: 3; stroke-linejoin: round; filter: drop-shadow(0 0 4px #FFE9B0) drop-shadow(0 0 9px rgba(var(--spark-rgb), .9)); }
+.muhur::before { content: ""; position: absolute; inset: 4%; border-radius: 50%; border: 1.5px solid rgba(var(--gold-rgb), .6); animation: muhur-nabiz 2.8s cubic-bezier(.2, .6, .3, 1) infinite; pointer-events: none; }
+@keyframes muhur-nabiz { 0% { transform: scale(.96); opacity: .7; } 100% { transform: scale(1.55); opacity: 0; } }
+.muhur-parilti { position: absolute; inset: 10%; border-radius: 50%; opacity: 0; pointer-events: none; mix-blend-mode: screen;
+  background: radial-gradient(circle, rgba(255, 252, 240, .95), rgba(var(--spark-rgb), .6) 40%, transparent 70%); }
+.muhur-suzme { position: absolute; inset: 8%; border-radius: 50%; overflow: hidden; pointer-events: none; mix-blend-mode: soft-light; }
+.muhur-suzme::after { content: ""; position: absolute; inset: -20% auto -20% -60%; width: 45%; transform: skewX(-18deg); background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .95), transparent); animation: muhur-suz 5s ease-in-out 1.2s infinite; }
+@keyframes muhur-suz { 0%, 60% { left: -60%; } 85%, 100% { left: 130%; } }
+.zarf-ipucu { position: absolute; left: 50%; top: calc(50% + 92 * var(--zs)); z-index: 6; translate: -50% 0; margin: 0;
+  display: flex; align-items: center; gap: 8px; padding: 9px 16px 9px 13px; border-radius: 999px; white-space: nowrap; pointer-events: none;
+  background: rgba(255, 252, 245, .62); border: 1px solid rgba(var(--gold-deep-rgb), .16); box-shadow: 0 6px 18px -10px rgba(70, 50, 20, .45);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  color: var(--gold-deep); font: 500 calc(10.5px * var(--fs-sans))/1 var(--sans); letter-spacing: .26em; text-transform: uppercase;
+  animation: ipucu 2.4s ease-in-out infinite; }
+.zarf-ipucu .ic { width: 12px; height: 12px; stroke-width: 1.8; }
+@keyframes ipucu { 0%, 100% { transform: translateY(0); opacity: .82; } 50% { transform: translateY(-3px); opacity: 1; } }
+/* Açılış: mühür basılır ve parlar → ışık dalgası → mühür çatlar → kapaklar açılır → zarf kalkar */
+.aciliyor .muhur { pointer-events: none; }
+.aciliyor .muhur::before, .aciliyor .zarf-ipucu, .aciliyor .zarf-sizinti, .aciliyor .muhur-suzme { animation: sonuk .4s forwards; }
+@keyframes sonuk { to { opacity: 0; } }
+.aciliyor .muhur-tam { animation: muhur-bas .38s cubic-bezier(.3, .7, .4, 1), gizle 0s 1.1s forwards; }
+@keyframes muhur-bas { 40% { transform: scale(.93); } 75% { transform: scale(1.03); } }
+@keyframes gizle { to { visibility: hidden; } }
+.aciliyor .muhur-parilti { animation: muhur-isik 1.2s .1s ease-out both; }
+@keyframes muhur-isik { 0% { opacity: 0; transform: scale(.7); } 35% { opacity: .9; } 100% { opacity: 0; transform: scale(1.35); } }
+.aciliyor .zarf-isik { animation: zarf-dalga 1.75s .12s cubic-bezier(.4, .2, .6, .95) both; }
+@keyframes zarf-dalga {
+  0% { opacity: 0; -webkit-mask-size: 8cqmax 8cqmax; mask-size: 8cqmax 8cqmax; }
+  8% { opacity: 1; }
+  78% { opacity: 1; }
+  100% { opacity: 0; -webkit-mask-size: 150cqmax 150cqmax; mask-size: 150cqmax 150cqmax; }
+}
+.aciliyor .muhur-catlak { animation: catlak .5s 1s ease-out both; }
+@keyframes catlak { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
+.aciliyor .muhur-yari.sol { animation: goster 0s 1.1s forwards, yari-sol .8s 1.12s cubic-bezier(.45, 0, .7, 1) forwards; }
+.aciliyor .muhur-yari.sag { animation: goster 0s 1.1s forwards, yari-sag .8s 1.12s cubic-bezier(.45, 0, .7, 1) forwards; }
+@keyframes goster { to { visibility: visible; } }
+@keyframes yari-sol { 0% { transform: none; opacity: 1; } 100% { transform: translate(-30%, 22%) rotate(-28deg) scale(.92); opacity: 0; } }
+@keyframes yari-sag { 0% { transform: none; opacity: 1; } 100% { transform: translate(30%, 22%) rotate(28deg) scale(.92); opacity: 0; } }
+.aciliyor .zarf { animation: perde-ac .9s 1.25s forwards; }
+@keyframes perde-ac { to { background-color: transparent; } }
+.aciliyor .zarf-kutu { animation: kutu-ac .9s 1.25s forwards; }
+@keyframes kutu-ac { 0% { background-color: var(--zarf-kagit); } 1%, 100% { background-color: transparent; box-shadow: 0 30px 80px -24px transparent; } }
+.aciliyor .zk-ust { animation: ac-ust 1.05s 1.25s cubic-bezier(.55, .06, .35, 1) both; }
+.aciliyor .zk-alt { animation: ac-alt 1.05s 1.33s cubic-bezier(.55, .06, .35, 1) both; }
+.aciliyor .zk-sol { animation: ac-sol 1.05s 1.42s cubic-bezier(.55, .06, .35, 1) both; }
+.aciliyor .zk-sag { animation: ac-sag 1.05s 1.42s cubic-bezier(.55, .06, .35, 1) both; }
+@keyframes ac-ust { 60% { opacity: 1; } to { transform: rotateX(92deg); opacity: 0; } }
+@keyframes ac-alt { 60% { opacity: 1; } to { transform: rotateX(-92deg); opacity: 0; } }
+@keyframes ac-sol { 60% { opacity: 1; } to { transform: rotateY(-92deg); opacity: 0; } }
+@keyframes ac-sag { 60% { opacity: 1; } to { transform: rotateY(92deg); opacity: 0; } }
+.aciliyor .zarf-ic { animation: ic-isik 1.6s 1.25s ease-out both; }
+@keyframes ic-isik { 0% { opacity: 0; transform: scale(.4); } 35% { opacity: 1; } 100% { opacity: 0; transform: scale(1.9); } }
+/* zarf kalkarken kapak yavaşça yaklaşır */
+.zarf-kalkiyor .hero { animation: kapak-yaklas 1.2s var(--ease) both; }
+@keyframes kapak-yaklas { from { transform: scale(1.06); } }
 
 /* ===== Bölümler ===== */
 .section { position: relative; padding: 76px 20px; }
@@ -264,12 +452,17 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 .fam-role { margin: 7px 0 0; font: 500 calc(10.5px * var(--fs-sans))/1.4 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-3); }
 @media (max-width: 370px) { .families { grid-template-columns: 1fr; } }
 
-/* Program */
-.program { padding: 26px 22px; }
-.pg-item { position: relative; display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 16px; }
-.pg-item + .pg-item { margin-top: 26px; }
-.pg-item:not(:last-child)::before { content: ""; position: absolute; left: 22.5px; top: 54px; bottom: -18px; width: 1px; background: linear-gradient(var(--line-2), rgba(var(--gold-deep-rgb), .06)); }
-.pg-dot { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--sand); color: var(--gold-deep); border: 1px solid var(--line); }
+/* Program: etkinlik akışı. Soldaki çizgi kaydırdıkça yukarıdan aşağı altınla dolar; her etkinlik ayrı bir kart. */
+.akis { position: relative; margin: 0; padding: 0; list-style: none; }
+.akis::before, .akis::after { content: ""; position: absolute; left: 22px; top: 23px; bottom: 23px; width: 2px; margin-left: -1px; border-radius: 2px; }
+.akis::before { background: rgba(var(--gold-rgb), .22); }
+.akis::after { background: linear-gradient(var(--gold), var(--shine-3)); transform-origin: 50% 0; }
+.pg-item { position: relative; display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 16px; align-items: start; }
+.pg-item + .pg-item { margin-top: 20px; }
+.pg-dot { position: relative; z-index: 1; width: 46px; height: 46px; margin-top: 8px; border-radius: 50%; display: grid; place-items: center; background: var(--paper); color: var(--gold-deep); border: 1px solid rgba(var(--gold-rgb), .55); box-shadow: 0 0 0 5px var(--sand), 0 8px 18px -10px rgba(var(--gold-deep-rgb), .6); }
+.pg-kart { min-width: 0; padding: 18px 20px 20px; background: var(--paper); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+.pg-kart > :last-child { margin-bottom: 0; }
+.pg-desc:empty, .pg-time:empty { display: none; }
 .pg-time { margin: 2px 0 0; font: 500 calc(30px * var(--fs-serif))/1 var(--serif); color: var(--gold-deep); font-variant-numeric: lining-nums; }
 .pg-title { margin: 6px 0 6px; font: 600 calc(23px * var(--fs-serif))/1.2 var(--serif); }
 .pg-desc { margin: 0 0 12px; color: var(--ink-2); }
@@ -283,6 +476,39 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 .cal-alt a { color: var(--gold-deep); text-underline-offset: 3px; white-space: nowrap; }
 .cal-alt em { font-style: normal; font-weight: 600; color: var(--ink-2); }
 .cal #cal-android { max-width: 330px; margin: 12px auto 0; color: var(--ink-2); }
+
+/* Tarih: üç altın kart; kazındıkça altındaki rakam görünür */
+.tarih .sec-head { margin-bottom: 28px; }
+.kazi-ipucu { display: flex; align-items: center; justify-content: center; gap: .8em; margin: 14px 0 0; font: 500 calc(10.5px * var(--fs-sans))/1.3 var(--sans); letter-spacing: .26em; text-transform: uppercase; color: var(--gold-deep); transition: opacity .4s; }
+.kazi-ipucu i { font-style: normal; color: var(--gold); }
+.tarih.tamam .kazi-ipucu { opacity: 0; }
+.kazi { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(10px, 3.2vw, 18px); max-width: 420px; margin: 0 auto; }
+.kazi-kart { position: relative; display: grid; place-items: center; aspect-ratio: 1 / 1.06; border-radius: 16px; overflow: hidden; outline-offset: 4px;
+  background: radial-gradient(circle at 34% 26%, #fff, var(--paper) 48%, var(--cream)); box-shadow: 0 16px 26px -18px rgba(var(--forest-rgb), .6), inset 0 0 0 1px rgba(var(--gold-rgb), .35); }
+.kazi-kart b { font: 500 calc(clamp(34px, 11vw, 54px) * var(--fs-serif))/1 var(--serif); color: var(--gold-deep); font-variant-numeric: lining-nums; }
+.kazi-kart.yil b { font-size: calc(clamp(24px, 7.6vw, 38px) * var(--fs-serif)); }
+.kazi-kart canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; transition: opacity .7s var(--ease); }
+.kazi-kart::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, .6) 50%, transparent 62%) 150% 0 / 260% 100% no-repeat; animation: kazi-parilti 3.8s ease-in-out infinite; }
+.kazi-kart:nth-child(2)::after { animation-delay: .45s; }
+.kazi-kart:nth-child(3)::after { animation-delay: .9s; }
+@keyframes kazi-parilti { 0%, 55% { background-position: 150% 0; } 100% { background-position: -150% 0; } }
+.kazi-kart.kaziliyor::after, .kazi-kart.acik::after { display: none; }
+.kazi-kart.acik canvas { opacity: 0; pointer-events: none; }
+.kazi-kart.acik b { animation: kazi-ac .8s var(--ease); }
+@keyframes kazi-ac { from { opacity: 0; transform: scale(.6); } 60% { opacity: 1; transform: scale(1.1); } }
+.kazi-etiket { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(10px, 3.2vw, 18px); max-width: 420px; margin: 12px auto 0; text-align: center; font: 500 calc(10px * var(--fs-sans))/1 var(--sans); letter-spacing: .24em; text-transform: uppercase; color: var(--ink-3); }
+.kazi-saat { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 24px 0 0; font: italic 400 calc(21px * var(--fs-serif))/1.4 var(--serif); color: var(--ink-2); }
+.kazi-saat .ic { width: 18px; height: 18px; color: var(--gold); }
+.kazi-saat i { font-style: normal; color: var(--gold); }
+
+/* Konum: salon, adres, haritada yeri ve yol tarifi */
+.konum { text-align: center; }
+.konum-pin { width: 26px; height: 26px; margin: 0 auto 10px; fill: none; stroke: var(--gold); stroke-width: 1.4; }
+.konum .venue-addr { margin-bottom: 22px; }
+.harita { position: relative; overflow: hidden; height: clamp(240px, 62vw, 340px); margin: 0 0 22px; border-radius: 26px; background: var(--sand); padding: 6px;
+  box-shadow: 0 18px 36px -22px rgba(var(--forest-rgb), .55), inset 0 0 0 1px rgba(var(--gold-rgb), .45); }
+.harita::after { content: ""; position: absolute; inset: 6px; border-radius: 20px; pointer-events: none; box-shadow: inset 0 0 0 1px rgba(var(--gold-deep-rgb), .25), inset 0 0 18px rgba(var(--forest-rgb), .12); }
+.harita iframe { display: block; width: 100%; height: 100%; border: 0; border-radius: 20px; background: var(--sand); }
 
 /* Anı & dilek formu */
 .composer { padding: 26px 22px 22px; }
@@ -362,8 +588,15 @@ textarea.input { min-height: 132px; resize: vertical; }
 .wish-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
 .wish-photo .more { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(var(--forest-rgb), .55); color: #fff; font: 500 calc(16px * var(--fs-sans))/1 var(--sans); }
 
-/* Alt bilgi */
-.footer { padding: 76px 20px calc(130px + var(--safe-b)); background: var(--forest) var(--noise-light); color: var(--cream); text-align: center; }
+/* Alt bilgi: kemerli kapakta sayfa, kapaktakiyle aynı kemerle kapanır */
+.footer { position: relative; padding: 76px 20px calc(130px + var(--safe-b)); background: var(--forest) var(--noise-light); color: var(--cream); text-align: center; }
+:root:not(.no-kemer) .footer { margin-top: calc(var(--kw) * .5); padding-top: 30px; }
+.kapanis-kemer { position: absolute; left: 50%; bottom: calc(100% - 1px); width: var(--kw); height: calc(var(--kw) * .63); translate: -50% 0; overflow: visible; pointer-events: none; }
+.kapanis-kemer path { fill: var(--forest); }
+.kapanis-kemer .cizgi { fill: none; stroke: var(--shine-3); stroke-width: 1.6; vector-effect: non-scaling-stroke; }
+.no-kemer .kapanis-kemer { display: none; }
+.kapanis-baslik { margin: 0 auto; max-width: 11em; font: 400 calc(clamp(34px, 9.4vw, 48px) * var(--fs-el))/1.15 var(--script); color: var(--cream-hi); }
+body[data-phase="after"] .kapanis-baslik { display: none; }
 .footer .orn { color: var(--gold-light); opacity: .6; }
 .footer .footer-names {
   display: inline-block; margin: -.4em 0 -.28em; padding: .45em .3em .4em; font: 400 calc(60px * var(--fs-el) * var(--fit, 1))/1.1 var(--script); color: var(--gold-light);
@@ -544,6 +777,8 @@ textarea.input { min-height: 132px; resize: vertical; }
 .set-card legend { padding: 0 6px; margin-left: -6px; font: 500 calc(21px * var(--fs-serif))/1.2 var(--serif); color: var(--ink); }
 .set-switch { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 50px; font-size: calc(15.5px * var(--fs-sans)); color: var(--ink); cursor: pointer; }
 .set-switch + .set-switch { border-top: 1px solid var(--line); }
+.set-switch small { display: block; margin: 2px 0 8px; font-size: calc(12.5px * var(--fs-sans)); line-height: 1.4; color: var(--ink-3); }
+.set-switch span:has(small) { padding-top: 8px; }
 .set-switch input { position: relative; flex: none; width: 50px; height: 30px; margin: 0; border-radius: 999px; background: #CFC6B6; cursor: pointer; transition: background-color .2s; -webkit-appearance: none; appearance: none; }
 .set-switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); transition: transform .2s var(--ease); }
 .set-switch input:checked { background: #4E7A5C; }
@@ -700,6 +935,11 @@ textarea.input { min-height: 132px; resize: vertical; }
     .tile.new:not(.skel) { animation: pop .7s var(--ease), tile-in linear both; animation-timeline: auto, view(); animation-range: normal, entry 0% entry 65%; }
     @keyframes reveal { from { opacity: 0; transform: translateY(40px) scale(.98); } }
     @keyframes tile-in { from { opacity: 0; scale: .88; } }
+    /* Etkinlik akışı: çizgi kaydırdıkça yukarıdan aşağı dolar, kartlar sırayla yandan kayarak gelir */
+    .akis::after { animation: akis-dol linear both; animation-timeline: view(); animation-range: entry 40% cover 62%; }
+    @keyframes akis-dol { from { transform: scaleY(0); } }
+    .pg-item { animation: akis-gel linear both; animation-timeline: view(); animation-range: entry 0% entry 80%; }
+    @keyframes akis-gel { from { opacity: 0; transform: translateX(28px); } }
   }
 }
 
@@ -762,38 +1002,357 @@ textarea.input { min-height: 132px; resize: vertical; }
     <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
     <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
     <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+    <!-- Kapaktaki sivri kemer (kemerin içi bu biçimde kırpılır; pervaz çizgisi de aynı yolu izler) -->
+    <clipPath id="kemer-kirp" clipPathUnits="objectBoundingBox"><path d="M0 1V.31C0 .17.36.09.5 0 .64.09 1 .17 1 .31V1Z"/></clipPath>
+    <!-- Fener: altın gövde, sıcak ışıklı camlar, titreyen alev -->
+    <linearGradient id="fn-altin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color: var(--shine-2)"/><stop offset=".5" style="stop-color: var(--shine-3)"/><stop offset="1" style="stop-color: var(--shine-1)"/></linearGradient>
+    <radialGradient id="fn-cam" cx=".5" cy=".62" r=".6"><stop offset="0" stop-color="#FFF6D8"/><stop offset=".35" stop-color="#FFD98A"/><stop offset="1" stop-color="#C98A3A" stop-opacity=".85"/></radialGradient>
+    <symbol id="fener" viewBox="0 0 60 132">
+      <circle cx="30" cy="3" r="2.6" fill="none" stroke="url(#fn-altin)" stroke-width="1.4"/>
+      <path d="M30 6c0 5-2 6-2 9h4c0-3-2-4-2-9z" fill="url(#fn-altin)"/>
+      <path d="M30 14c-5 4-14 8-17 16-1 2 0 3 2 3h30c2 0 3-1 2-3-3-8-12-12-17-16z" fill="url(#fn-altin)"/>
+      <path d="M13 33h34l-2 5H15z" fill="url(#fn-altin)" opacity=".9"/>
+      <path d="M16 38h28l-1 52H17z" fill="url(#fn-cam)"/>
+      <path class="alev" d="M30 56c-3 4-4 8-4 11 0 3 2 5 4 5s4-2 4-5c0-3-1-7-4-11z" fill="#FFFBEA" opacity=".95"/>
+      <g fill="none" stroke="url(#fn-altin)" stroke-width="1.6"><path d="M16 38l1 52M44 38l-1 52M30 38v52"/><path d="M17 50c4-7 9-7 13 0 4-7 9-7 13 0"/><path d="M17 64h26M17 80h26" stroke-width="1"/></g>
+      <path d="M14 90h32l-3 6H17z" fill="url(#fn-altin)"/>
+      <path d="M18 96h24c-2 6-7 9-12 9s-10-3-12-9z" fill="url(#fn-altin)" opacity=".92"/>
+      <path d="M30 105v8" stroke="url(#fn-altin)" stroke-width="1.4"/><circle cx="30" cy="117" r="3.2" fill="url(#fn-altin)"/><path d="M30 120l-2 6 2 4 2-4z" fill="url(#fn-altin)"/>
+    </symbol>
+    <!-- Mum mühür: renk katmanı (tema altını) + ışık katmanı. Işık katmanındaki kırmızı ton "yükseklik"tir: filtre
+         onu kabartmaya çevirir (dış mum taşması, halka, çukur iç disk ve kabarık baş harfler). -->
+    <radialGradient id="mm-renk" cx="38%" cy="32%" r="78%">
+      <stop offset="0" style="stop-color: color-mix(in srgb, var(--shine-2) 55%, #fff)"/>
+      <stop offset=".5" style="stop-color: var(--shine-2)"/>
+      <stop offset="1" style="stop-color: var(--shine-3)"/>
+    </radialGradient>
+    <filter id="mm-k" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0" result="h"/>
+      <feGaussianBlur in="h" stdDeviation="1.4" result="b1"/><feGaussianBlur in="h" stdDeviation="4" result="b2"/>
+      <feComposite in="b1" in2="b2" operator="arithmetic" k2=".55" k3=".45" result="b"/>
+      <feDiffuseLighting in="b" surfaceScale="9" diffuseConstant="1" lighting-color="#fff" result="d"><feDistantLight azimuth="225" elevation="46"/></feDiffuseLighting>
+      <feSpecularLighting in="b" surfaceScale="9" specularConstant=".75" specularExponent="26" lighting-color="#fff" result="s"><feDistantLight azimuth="225" elevation="46"/></feSpecularLighting>
+      <feColorMatrix in="d" values="0 0 0 0 1 0 0 0 0 .98 0 0 0 0 .93 1.9 0 0 0 -1.367" result="v"/>
+      <feColorMatrix in="d" values="0 0 0 0 .36 0 0 0 0 .25 0 0 0 0 .1 -2 0 0 0 1.439" result="g"/>
+      <feColorMatrix in="s" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 .97 0 0 0 2.4 -.27" result="s1"/>
+      <feComposite in="s1" in2="SourceAlpha" operator="in" result="s2"/>
+      <feMerge><feMergeNode in="g"/><feMergeNode in="v"/><feMergeNode in="s2"/></feMerge>
+    </filter>
+    <path id="mm-kenar" d="M191 100C191.6 104.6 188.5 109.2 188 113.9C187.4 118.7 188.8 123.9 187.9 128.6C186.9 133.2 185 138 182.3 141.9C179.6 145.9 175.4 149 171.8 152.1C168.2 155.3 164 157.5 160.7 160.7C157.3 163.9 154.6 167.1 151.8 171.4C149 175.6 147.8 183.5 143.9 186.1C140 188.7 133.3 186.8 128.3 187C123.3 187.2 118.6 187.2 113.9 187.5C109.2 187.9 104.6 189 100 189C95.4 188.9 90.8 187.7 86.2 187.2C81.5 186.7 76.6 187 72.1 185.9C67.5 184.8 63.6 182.1 58.9 180.7C54.2 179.2 47.4 180.3 43.8 177.4C40.1 174.5 39 167.6 36.9 163.1C34.8 158.5 33.8 153.9 31.1 150.1C28.3 146.3 23.7 144.1 20.5 140.5C17.2 137 13.9 133 11.8 128.7C9.6 124.4 7.7 119.4 7.6 114.6C7.5 109.9 10.7 104.8 11.2 100C11.8 95.2 10.1 90.4 11 85.9C11.8 81.4 14.4 77 16.3 72.8C18.2 68.6 20.9 65 22.5 60.5C24.1 56 23.9 50.6 25.7 46C27.5 41.5 29.9 36.6 33.3 33.3C36.7 30 41.5 27.4 46.3 26.1C51.1 24.8 57.6 27.1 62 25.4C66.4 23.7 68.8 18.7 72.7 15.9C76.6 13.2 81 10.1 85.6 9C90.1 7.8 95.2 9 100 9C104.8 9 109.8 8 114.4 8.9C119.1 9.8 123.4 12.6 127.8 14.5C132.1 16.5 136.8 17.8 140.4 20.6C144.1 23.5 145.7 29.2 149.6 31.7C153.5 34.3 159.3 34 164 36C168.6 38.1 174.5 40 177.4 43.8C180.3 47.5 180.3 53.7 181.2 58.6C182.1 63.5 182.4 68.4 183 73C183.6 77.7 183.2 82.1 184.6 86.6C185.9 91.1 190.5 95.4 191 100Z"/>
+    <symbol id="muhur-cizim" viewBox="0 0 200 200">
+      <use href="#mm-kenar" fill="url(#mm-renk)"/>
+      <g filter="url(#mm-k)">
+        <use href="#mm-kenar" fill="#8C0000"/>
+        <circle cx="100" cy="100" r="68" fill="#C80000"/>
+        <circle cx="100" cy="100" r="62.5" fill="#6E0000"/>
+        <circle cx="100" cy="100" r="56" fill="none" stroke="#9A0000" stroke-width="1.5" stroke-dasharray=".1 4.2" stroke-linecap="round"/>
+        <text x="100" y="121" text-anchor="middle" fill="#F00000" style="font: 64px var(--script)"><tspan data-i="gelin_adi">E</tspan><tspan dx="1" dy="-6" style="font: italic 30px var(--serif)">&amp;</tspan><tspan dx="2" dy="6" data-i="damat_adi">Y</tspan></text>
+      </g>
+    </symbol>
   </defs>
 </svg>
+<script>
+/* =====================================================================
+   ZARF VE KEMER DESENLERİ — kabartma güller, yapraklar, dallar ve kıvrımlar. Sayfa çizilmeden bir kez üretilir ve
+   birer görsel olarak kullanılır; ışık-gölge filtresi de yalnızca bir kez hesaplanır. Desen 390×844'lük bir zarf
+   yüzeyine göre çizilir: dolguların kırmızı tonu "yükseklik", siyah çizgiler "oyuk"tur; filtre bunları sol üstten
+   gelen ışığa göre aydınlık ve gölgeye çevirir. Böylece desen her temada kâğıdın kendi renginde kabarık görünür.
+   ===================================================================== */
+(function () {
+  const R1 = n => Math.round(n * 10) / 10, rad = d => d * Math.PI / 180;
+  const sayi = v => { let s = String(R1(v)); if (s.startsWith('0.')) s = s.slice(1); else if (s.startsWith('-0.')) s = '-' + s.slice(2); return s; };
+  // Nokta listesinden kısa (göreli) SVG yolu
+  function yol(pts, kapali = true) {
+    let px = R1(pts[0][0]), py = R1(pts[0][1]), s = 'M' + sayi(px) + (py < 0 ? '' : ' ') + sayi(py);
+    for (let i = 1; i < pts.length; i++) {
+      const x = R1(pts[i][0]), y = R1(pts[i][1]), dx = R1(x - px), dy = R1(y - py);
+      if (dx === 0 && dy === 0) continue;
+      s += 'l' + sayi(dx) + (dy < 0 ? '' : ' ') + sayi(dy);
+      px = x; py = y;
+    }
+    return s + (kapali ? 'z' : '');
+  }
+  const bez = (p0, p1, p2, p3, u) => { const v = 1 - u; return [0, 1].map(i => v * v * v * p0[i] + 3 * v * v * u * p1[i] + 3 * v * u * u * p2[i] + u * u * u * p3[i]); };
+  // Çizim sırası korunur: sonra gelen dolgu öncekinin oyuğunu örter (taç yapraklar birbirinin üstüne biner)
+  let seq = [];
+  const dolgu = (pts, h) => seq.push({ t: 'd', d: yol(pts), h });
+  const oyuk = (pts, w) => seq.push({ t: 'o', d: yol(pts, false), w });
+  const kabarik = (pts, w, h) => seq.push({ t: 'k', d: yol(pts, false), w, h });
+  // Kalınlığı değişen şerit (dal, kıvrım)
+  function serit(merkez, gen, h) {
+    const L = [], R = [];
+    for (let i = 0; i < merkez.length; i++) {
+      const a = merkez[Math.max(0, i - 1)], b = merkez[Math.min(merkez.length - 1, i + 1)];
+      const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1, nx = -dy / len, ny = dx / len, w = gen[i] / 2;
+      L.push([merkez[i][0] + nx * w, merkez[i][1] + ny * w]); R.push([merkez[i][0] - nx * w, merkez[i][1] - ny * w]);
+    }
+    dolgu([...L, ...R.reverse()], h);
+  }
+  // Tohumlu rastgele sayı: desen her açılışta aynı çıkar
+  function rastgele(t) { return () => { t |= 0; t = t + 0x6D2B79F5 | 0; let r = Math.imul(t ^ t >>> 15, 1 | t); r = r + Math.imul(r ^ r >>> 7, 61 | r) ^ r; return ((r ^ r >>> 14) >>> 0) / 4294967296; }; }
+  // Gül (üstten): üç katman birbirine binen dalgalı taç yaprağı ve ortada sarmal
+  function gul(cx, cy, R, rot = 0, h = 1, tohum = 7) {
+    const rnd = rastgele(tohum);
+    for (const k of [{ n: 5, ri: .46, ro: 1, span: 112, off: 0, h: .62, kenar: .09 }, { n: 5, ri: .28, ro: .77, span: 106, off: 38, h: .79, kenar: .08 }, { n: 3, ri: .15, ro: .52, span: 152, off: 72, h: .93, kenar: 0 }]) {
+      for (let i = 0; i < k.n; i++) {
+        const a0 = rad(rot + k.off + i * 360 / k.n + (rnd() - .5) * 12), sp = rad(k.span * (.94 + rnd() * .12)), N = 16, olc = 1 + (rnd() - .5) * .08;
+        const dis = [], ic = [], kenar = [];
+        // dış kenar ortası bombeli, tam ortada hafif çentikli (gül yaprağının kalp biçimi), uçları içe kıvrık
+        const pr = u => (.76 + .24 * Math.sin(Math.PI * u) ** .5) * (1 - .055 * Math.exp(-(((u - .5) / .09) ** 2))) * olc;
+        for (let j = 0; j <= N; j++) {
+          const u = j / N, a = a0 + sp * u, ro = R * k.ro * pr(u), ri = R * k.ri * (1 + .2 * Math.sin(Math.PI * u));
+          dis.push([cx + ro * Math.cos(a), cy + ro * Math.sin(a)]);
+          ic.push([cx + ri * Math.cos(a), cy + ri * Math.sin(a)]);
+          if (k.kenar && j >= 2 && j <= N - 2) { const r2 = ro - R * k.kenar; kenar.push([cx + r2 * Math.cos(a), cy + r2 * Math.sin(a)]); }
+        }
+        dolgu([...dis, ...ic.reverse()], k.h * h);
+        oyuk(dis, R > 20 ? 1.2 : .95);
+        if (kenar.length > 2 && R > 13) oyuk(kenar, .5);
+      }
+    }
+    const m = [], sp = [];
+    for (let j = 0; j <= 18; j++) { const a = rad(rot) + j / 18 * 2 * Math.PI; m.push([cx + R * .2 * Math.cos(a), cy + R * .2 * Math.sin(a)]); }
+    dolgu(m, h);
+    for (let j = 0; j <= 30; j++) { const u = j / 30, a = rad(rot + 90) + u * 3.2 * Math.PI, r = R * (.02 + .19 * u); sp.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
+    oyuk(sp, R > 20 ? 1.05 : .85);
+  }
+  // Yaprak: taban (x,y), yön a (derece), uzunluk L, yarı genişlik W; kenarı hafif tırtıklı, damarlı
+  function yaprak(x, y, L, W, a, h = .7, egri = .12) {
+    const c = Math.cos(rad(a)), s = Math.sin(rad(a)), T = (u, v) => [x + u * c - v * s, y + u * s + v * c];
+    const ust = [], alt = [];
+    for (let j = 0; j <= 16; j++) {
+      const u = j / 16, b = Math.sin(Math.PI * u ** .85) * (1 - .1 * u), tirtik = 1 + .07 * Math.sin(u * Math.PI * 9), kay = egri * L * Math.sin(Math.PI * u);
+      ust.push(T(L * u, kay + W * b * tirtik)); alt.push(T(L * u, kay - W * .9 * b * tirtik));
+    }
+    dolgu([...ust, ...alt.reverse()], h);
+    if (L > 13) {
+      const orta = [];
+      for (let j = 1; j <= 10; j++) { const u = .06 + j / 10 * .8; orta.push(T(L * u, egri * L * Math.sin(Math.PI * u))); }
+      oyuk(orta, L > 22 ? .9 : .7);
+      if (L > 20) for (const u of [.3, .52, .72]) {
+        const k = egri * L * Math.sin(Math.PI * u), k2 = egri * L * Math.sin(Math.PI * (u + .13));
+        oyuk([T(L * u, k), T(L * (u + .13), k2 + W * .55)], .5); oyuk([T(L * u, k), T(L * (u + .13), k2 - W * .5)], .5);
+      }
+    }
+  }
+  // Tomurcuk: taban (x,y), yön a, uzunluk L
+  function tomurcuk(x, y, L, a, h = .9) {
+    const c = Math.cos(rad(a)), s = Math.sin(rad(a)), T = (u, v) => [x + u * c - v * s, y + u * s + v * c];
+    const ust = [], alt = [], sap = [];
+    for (let j = 0; j <= 16; j++) { const u = j / 16, b = Math.sin(Math.PI * u ** .7) * (1 - .35 * u); ust.push(T(L * (.25 + .75 * u), L * .32 * b)); alt.push(T(L * (.25 + .75 * u), -L * .32 * b)); }
+    dolgu([...ust, ...alt.reverse()], h);
+    oyuk([T(L * .32, -L * .2), T(L * .62, L * .02), T(L * .95, L * .02)], .8);
+    oyuk([T(L * .4, L * .24), T(L * .66, L * .12)], .6);
+    for (const k of [-1, 1]) {     // çanak yapraklar
+      const pts = [];
+      for (let j = 0; j <= 10; j++) { const u = j / 10; pts.push(T(L * (.12 + .5 * u), k * L * (.3 * Math.sin(Math.PI * u) + .02 * u))); }
+      for (let j = 10; j >= 0; j--) { const u = j / 10; pts.push(T(L * (.12 + .5 * u), k * L * (.12 * Math.sin(Math.PI * u)))); }
+      dolgu(pts, h * .8);
+    }
+    for (let j = 0; j <= 8; j++) { const u = j / 8; sap.push(T(-L * .45 * u, L * .06 * Math.sin(u * 3))); }
+    serit(sap, sap.map((p, i) => 2.4 - i * .1), .6);
+  }
+  // Bezier dal (incelir); dal üzerindeki bir noktayı ve yönünü veren işlev döndürür
+  function dal(p0, p1, p2, p3, w0, w1, h = .6) {
+    const m = [], g = [];
+    for (let j = 0; j <= 36; j++) { const u = j / 36; m.push(bez(p0, p1, p2, p3, u)); g.push(w0 + (w1 - w0) * u); }
+    serit(m, g, h);
+    return u => {
+      const p = bez(p0, p1, p2, p3, u), q = bez(p0, p1, p2, p3, Math.min(1, u + .02)), r = bez(p0, p1, p2, p3, Math.max(0, u - .02));
+      return { x: p[0], y: p[1], a: Math.atan2(q[1] - r[1], q[0] - r[0]) * 180 / Math.PI };
+    };
+  }
+  // Kıvrım: (x,y)'den a yönünde çıkan sarmal; yon +1 saat yönü, -1 tersi; r başlangıç yarıçapı
+  function kivrim(x, y, a, r, yon = 1, tur = 1.25, w0 = 2.2, w1 = .7, h = .6) {
+    const c = Math.cos(rad(a)), s = Math.sin(rad(a)), cx = x - yon * s * r, cy = y + yon * c * r, b0 = Math.atan2(y - cy, x - cx), m = [], g = [];
+    for (let j = 0; j <= 40; j++) { const u = j / 40, t = b0 + yon * u * tur * 2 * Math.PI, rr = r * (1 - .78 * u); m.push([cx + rr * Math.cos(t), cy + rr * Math.sin(t)]); g.push(w0 + (w1 - w0) * u); }
+    serit(m, g, h);
+    nokta(m[40][0], m[40][1], 1.3, h + .05);
+  }
+  function nokta(x, y, r, h = .7) { const p = []; for (let j = 0; j <= 12; j++) { const t = j / 12 * 2 * Math.PI; p.push([x + r * Math.cos(t), y + r * Math.sin(t)]); } dolgu(p, h); }
+  function yapraklar(d, liste) { for (const [u, taraf, L, W, fark = 42, h = .7] of liste) { const p = d(u); yaprak(p.x, p.y, L, W, p.a + taraf * fark, h, .1 * taraf); } }
+  const EG = 342 / 195;          // kapak köşegenlerinin eğimi
+  // Üst kapak, sol yarı (sağ yarı ve alt kapak aynalarıdır): köşede iki gül, tomurcuklar; köşegene paralel mühre inen dal
+  function ustKapak() {
+    yaprak(52, 110, 30, 9.5, -132, .64); yaprak(92, 100, 29, 9.5, -60, .64); yaprak(150, 96, 27, 8.5, -20, .62);
+    yaprak(100, 156, 34, 10.5, 60, .68); yaprak(116, 134, 25, 8, 18, .64); yaprak(80, 162, 24, 7.5, 104, .64);
+    gul(68, 134, 30, -18, 1, 3); gul(128, 110, 20, 30, .96, 11);
+    tomurcuk(152, 128, 22, 26, .9); tomurcuk(44, 100, 16, -116, .86);
+    const u1 = dal([150, 106], [164, 96], [176, 112], [190, 104], 2.4, 1.3, .58);
+    yapraklar(u1, [[.35, -1, 14, 4.6, 44], [.62, 1, 12, 4, 44]]);
+    kivrim(190, 104, 60, 6, 1, 1.2, 1.3, .5);
+    const d = dal([96, 166], [136, 196], [114, 268], [168, 336], 3.6, 1.4, .6);
+    yapraklar(d, [[.1, 1, 19, 6.2, 46], [.2, -1, 13, 4.4, 28], [.32, 1, 19, 6.2, 50], [.46, -1, 13, 4.4, 26], [.56, 1, 17, 5.6, 50], [.7, -1, 12, 4, 26], [.8, 1, 15, 5, 50]]);
+    kivrim(168, 336, 58, 9, -1, 1.25, 1.8, .6);
+    const p = d(.38), d2 = dal([p.x, p.y], [p.x + 16, p.y - 4], [p.x + 30, p.y - 20], [p.x + 46, p.y - 24], 2, 1, .58);
+    yapraklar(d2, [[.4, -1, 12, 4, 40], [.7, 1, 10, 3.4, 40]]);
+    kivrim(p.x + 46, p.y - 24, -18, 7.5, 1, 1.2, 1.3, .5);
+    const q = d(.66);
+    dal([q.x, q.y], [q.x + 12, q.y + 2], [q.x + 20, q.y - 10], [q.x + 30, q.y - 12], 1.6, .9, .58);
+    tomurcuk(q.x + 30, q.y - 12, 13, -20, .84);
+  }
+  // Yan kapak, sol üst yarı (alt yarı ve sağ kapak aynalarıdır): kenar boyunca sarmaşık, küçük gül
+  function yanKapak() {
+    const d = dal([16, 192], [48, 262], [6, 334], [30, 412], 1.6, 3.2, .6);
+    for (const [u, taraf, L, W, fark] of [[.1, 1, 15, 5, 40], [.22, -1, 16, 5.4, 44], [.36, 1, 18, 6, 46], [.52, -1, 17, 5.6, 42], [.66, 1, 17, 5.6, 44], [.8, -1, 16, 5.2, 40], [.92, 1, 14, 4.6, 40]]) {
+      const p = d(u); yaprak(p.x, p.y, L, W, p.a + taraf * fark, .66, .1 * taraf);
+    }
+    gul(44, 290, 15, 12, .95, 9);
+    tomurcuk(18, 200, 16, -102, .88);
+    const p = d(.68), k = dal([p.x, p.y], [p.x + 22, p.y + 4], [p.x + 34, p.y + 22], [p.x + 52, p.y + 26], 1.8, .9, .58);
+    yapraklar(k, [[.45, -1, 11, 3.6, 40]]);
+    kivrim(p.x + 52, p.y + 26, 10, 6, 1, 1.15, 1.2, .5);
+  }
+  // Yan kapağın ortası: mühre uzanan dalgalı dal
+  function yanOrta() {
+    const m = dal([26, 422], [60, 396], [90, 448], [122, 420], 3, 1.3, .6);
+    yapraklar(m, [[.2, -1, 15, 5, 46], [.36, 1, 15, 5, 46], [.54, -1, 13, 4.4, 44], [.7, 1, 12, 4, 44]]);
+    kivrim(122, 420, -36, 6.5, -1, 1.2, 1.4, .55);
+    nokta(26, 422, 4.6, .9);
+  }
+  // Kapak kenarlarına paralel kabarık ince çizgiler (köşegenlerin 7 birim içinde): üstte V, altta Λ, yanlarda < ve >
+  function kenarlar() {
+    const c = 7 * Math.sqrt(1 + EG * EG), y = (342 - c) / EG;
+    kabarik([[-30, 80 - 30 * EG - c], [195, 422 - c], [420, 80 - 30 * EG - c]], 1.3, .52);
+    kabarik([[-30, 764 + 30 * EG + c], [195, 422 + c], [420, 764 + 30 * EG + c]], 1.3, .52);
+    kabarik([[-30, 80 - 30 * EG + c], [y, 422], [-30, 764 + 30 * EG - c]], 1.3, .52);
+    kabarik([[420, 80 - 30 * EG + c], [390 - y, 422], [420, 764 + 30 * EG - c]], 1.3, .52);
+  }
+  // Bir çizim grubunu SVG'ye çevirir; art arda gelen aynı türdeki yollar tek yolda birleşir
+  function grup(id, fn) {
+    seq = []; fn();
+    const hex = h => '#' + Math.max(0, Math.min(255, Math.round(h * 255))).toString(16).padStart(2, '0') + '0000', parca = [];
+    let son = null;
+    for (const e of seq) {
+      const anahtar = e.t + (e.t === 'o' ? e.w : e.t === 'd' ? hex(e.h) : e.w + hex(e.h));
+      if (son && son.anahtar === anahtar) son.d += e.d; else parca.push(son = { anahtar, e, d: e.d });
+    }
+    return `<g id="${id}">` + parca.map(p => (p.e.t === 'd' ? `<path fill="${hex(p.e.h)}" d="${p.d}"/>`
+      : p.e.t === 'o' ? `<path fill="none" stroke="#000" stroke-width="${p.e.w}" stroke-linecap="round" stroke-linejoin="round" d="${p.d}"/>`
+      : `<path fill="none" stroke="${hex(p.e.h)}" stroke-width="${p.e.w}" stroke-linecap="round" d="${p.d}"/>`)).join('') + '</g>';
+  }
+  // Işık-gölge filtresi (kabartma) ve altın ışık filtresi; filtre alanı desenden geniş, kenarlarda çizgi oluşmasın
+  const ALAN = 'filterUnits="userSpaceOnUse" x="-20" y="-20" width="430" height="884" color-interpolation-filters="sRGB"';
+  const KABART = `<filter id="k" ${ALAN}><feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0" result="h"/><feGaussianBlur in="h" stdDeviation=".75" result="b1"/><feGaussianBlur in="h" stdDeviation="2.2" result="b2"/><feComposite in="b1" in2="b2" operator="arithmetic" k2=".5" k3=".5" result="b"/><feDiffuseLighting in="b" surfaceScale="3.6" diffuseConstant="1" lighting-color="#fff" result="l"><feDistantLight azimuth="225" elevation="50"/></feDiffuseLighting><feColorMatrix in="l" values="0 0 0 0 1 0 0 0 0 .99 0 0 0 0 .96 2.3 0 0 0 -1.762" result="p"/><feColorMatrix in="l" values="0 0 0 0 .5 0 0 0 0 .4 0 0 0 0 .27 -1.6 0 0 0 1.2257" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="p"/></feMerge></filter>`;
+  const ALTIN = `<filter id="a" ${ALAN}><feColorMatrix in="SourceGraphic" values="0 0 0 0 1 0 0 0 0 .93 0 0 0 0 .74 2.6 0 0 0 -1.25" result="c"/><feGaussianBlur in="c" stdDeviation="2.4" result="cb"/><feMerge><feMergeNode in="cb"/><feMergeNode in="cb"/><feMergeNode in="c"/></feMerge></filter>`;
+  const M = { x: 'matrix(-1 0 0 1 390 0)', y: 'matrix(1 0 0 -1 0 844)', xy: 'matrix(-1 0 0 -1 390 844)' };
+  const dort = id => `<use href="#${id}"/><use href="#${id}" transform="${M.x}"/><use href="#${id}" transform="${M.y}"/><use href="#${id}" transform="${M.xy}"/>`;
+  const G = {};      // çizim grupları, ilk gerektiğinde bir kez üretilir
+  const gr = (...ids) => ids.map(id => G[id] || (G[id] = grup(id, { 'zd-u': ustKapak, 'zd-y': yanKapak, 'zd-m': yanOrta, 'zd-k': kenarlar }[id]))).join('');
+  const svg = (vb, w, h, defs, govde) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" width="${w}" height="${h}"><defs>${defs}</defs>${govde}</svg>`;
+  const kabart = govde => `<g filter="url(#k)"><rect x="-20" y="-20" width="430" height="884" fill="#4D0000"/>${govde}</g>`;
+  const hazir = {};
+  // Görsel, gövdeye CSS değişkeni olarak verilir (sayfa betiği <html>'deki değişkenleri yönetir, buradakilere dokunmaz)
+  const ata = (ad, s) => document.body.style.setProperty(ad, `url("data:image/svg+xml,${encodeURIComponent(s)}")`);
+  // ne: 'zarf' (kapaklar ve ışık dalgası) | 'kemer' (kapaktaki köşe demetleri ve masaüstündeki yan sarmaşıklar)
+  window.desenleriHazirla = ne => {
+    if (hazir[ne]) return;
+    hazir[ne] = true;
+    if (ne === 'zarf') {
+      const tum = dort('zd-u') + dort('zd-y') + `<use href="#zd-m"/><use href="#zd-m" transform="${M.x}"/>`;
+      ata('--zd-desen', svg('0 0 390 844', 390, 844, gr('zd-u', 'zd-y', 'zd-m', 'zd-k') + KABART, kabart(tum + '<use href="#zd-k"/>')));
+      ata('--zd-isik', svg('0 0 390 844', 390, 844, gr('zd-u', 'zd-y', 'zd-m') + ALTIN, `<g filter="url(#a)">${tum}</g>`));
+    } else {
+      const yan = '<use href="#zd-y"/><use href="#zd-y" transform="matrix(1 0 0 -1 0 844)"/>';
+      ata('--kose-sol', svg('20 70 180 180', 180, 180, gr('zd-u') + KABART, kabart('<use href="#zd-u"/>')));
+      ata('--kose-sag', svg('190 70 180 180', 180, 180, gr('zd-u') + KABART, kabart(`<use href="#zd-u" transform="${M.x}"/>`)));
+      ata('--yan-desen-sol', svg('0 170 76 504', 76, 504, gr('zd-y') + KABART, kabart(yan)));
+      ata('--yan-desen-sag', svg('314 170 76 504', 76, 504, gr('zd-y') + KABART, kabart(`<g transform="${M.x}">${yan}</g>`)));
+    }
+  };
+  // Zarf kalkınca görselleri bırakır
+  window.desenleriBirak = () => { document.body.style.removeProperty('--zd-desen'); document.body.style.removeProperty('--zd-isik'); hazir.zarf = false; };
+  const k = document.documentElement.classList;
+  try {
+    if (k.contains('zarf-acik')) desenleriHazirla('zarf');
+    if (!k.contains('no-kemer')) desenleriHazirla('kemer');
+  } catch (e) { console.warn('Desenler çizilemedi:', e); }
+})();
+</script>
 
-<!-- ===== Kapak ===== -->
+<!-- ===== Açılış zarfı: düğünden önce sayfa açılınca görünür; mühre dokununca açılır ===== -->
+<div class="zarf" id="zarf" role="dialog" aria-modal="true" aria-labelledby="zarf-baslik">
+  <div class="zarf-kutu">
+    <h2 class="sr-only" id="zarf-baslik">Davetiye zarfı</h2>
+    <div class="zarf-ic"></div>
+    <div class="zk zk-sol"><i></i></div>
+    <div class="zk zk-sag"><i></i></div>
+    <div class="zk zk-alt"><i></i></div>
+    <div class="zk zk-ust"><i></i></div>
+    <div class="zarf-isik"></div>
+    <i class="zarf-sizinti"></i>
+    <button class="muhur" id="muhur" type="button" data-action="open-invite" aria-label="Davetiyeyi aç">
+      <span class="muhur-tam"><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#muhur-cizim"/></svg></span>
+      <span class="muhur-yari sol"><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#muhur-cizim"/></svg></span>
+      <span class="muhur-yari sag"><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#muhur-cizim"/></svg></span>
+      <svg class="muhur-catlak" viewBox="0 0 200 200" aria-hidden="true"><polyline points="106,0 94,54 112,102 92,150 104,200"/></svg>
+      <span class="muhur-suzme"></span>
+      <span class="muhur-parilti"></span>
+    </button>
+    <p class="zarf-ipucu" aria-hidden="true"><svg class="ic"><use href="#i-up"/></svg><span data-c="zarf_ipucu">Davetiyeyi Aç</span></p>
+  </div>
+</div>
+
+<!-- ===== Kapak: kemerin içinde gece sahnesi (kemer kapatılırsa bütün ekran) ===== -->
 <header class="hero" id="top">
-  <div class="hero-photo" aria-hidden="true"></div>
+  <div class="kemer-sus sol" aria-hidden="true"></div>
+  <div class="kemer-sus sag" aria-hidden="true"></div>
+  <div class="kemer-ic" aria-hidden="true">
+    <div class="hero-photo"></div>
+    <div class="sparks" id="sparks"></div>
+    <i class="fener sol"><svg viewBox="0 0 60 132"><use href="#fener"/></svg><i class="isik"></i></i>
+    <i class="fener sag"><svg viewBox="0 0 60 132"><use href="#fener"/></svg><i class="isik"></i></i>
+  </div>
+  <svg class="kemer-cerceve" viewBox="0 0 100 200" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 200V62C0 34 36 18 50 0 64 18 100 34 100 62V200" stroke="rgba(70, 50, 20, .38)" stroke-width="7" style="filter: blur(2px)"/>
+    <path d="M0 200V62C0 34 36 18 50 0 64 18 100 34 100 62V200" stroke="var(--duvar)" stroke-width="5"/>
+    <path d="M0 200V62C0 34 36 18 50 0 64 18 100 34 100 62V200" stroke="var(--shine-3)" stroke-width="1.6"/>
+  </svg>
   <div class="hero-frame" aria-hidden="true"></div>
   <svg class="branch tl" aria-hidden="true"><use href="#branch"/></svg>
   <svg class="branch br" aria-hidden="true"><use href="#branch"/></svg>
-  <div class="sparks" id="sparks" aria-hidden="true"></div>
   <div class="hero-inner">
     <p class="eyebrow in-1" id="hero-eyebrow">Evleniyoruz</p>
+    <div class="davetli-blok in-1">
+      <p class="davetli" id="kapak-davetli">Davetlisiniz</p>
+      <p class="davetli-alt" id="kapak-davetli-alt">Düğün Törenimize</p>
+      <svg class="orn" aria-hidden="true"><use href="#orn"/></svg>
+    </div>
     <h1 class="names in-2"><span data-c="gelin_adi">Elif</span><span class="amp">&amp;</span><span data-c="damat_adi">Yunus</span></h1>
     <svg class="orn in-3" aria-hidden="true"><use href="#orn"/></svg>
     <p class="hero-date in-3"><span data-d="tarih">15 Kasım 2026</span><i>·</i><span data-d="gun">Pazar</span><i>·</i><span data-d="saat">19.00</span></p>
     <p class="hero-venue in-3" data-c="mekan_adi">Nazar Düğün Salonu</p>
-    <p class="cd-note in-4" id="cd-note">Büyük güne kalan süre</p>
-    <div class="cd in-4" id="cd" role="timer" aria-label="Düğüne kalan süre">
-      <div class="cd-cell"><b class="cd-num" data-u="d">00</b><span class="cd-lbl">Gün</span></div>
-      <div class="cd-cell"><b class="cd-num" data-u="h">00</b><span class="cd-lbl">Saat</span></div>
-      <div class="cd-cell"><b class="cd-num" data-u="m">00</b><span class="cd-lbl">Dakika</span></div>
-      <div class="cd-cell"><b class="cd-num" data-u="s">00</b><span class="cd-lbl">Saniye</span></div>
-    </div>
+    <p class="kapak-not in-4" id="kapak-not" hidden></p>
     <div class="hero-cta in-5" id="hero-cta">
       <a class="btn btn-gold" href="#davet" data-action="open-invite">Davetiyeyi Aç</a>
       <a class="btn btn-line" href="#paylas">Anı &amp; Dilek Bırak</a>
     </div>
   </div>
-  <a class="scroll-hint" href="#davet" aria-label="Aşağı kaydır"></a>
+  <a class="kaydir" href="#tarih"><span data-c="kapak_kaydir">Aşağı kaydırın</span><svg class="ic" aria-hidden="true"><use href="#i-down"/></svg></a>
 </header>
 
 <main>
+  <!-- ===== Tarih: altın kartları kazıyınca görünür (bir kez kazınınca o telefonda hep açık kalır) ===== -->
+  <section class="section tarih" id="tarih">
+    <div class="wrap">
+      <header class="sec-head rv">
+        <p class="eyebrow" data-c="tarih_ust">Bu Tarihi Kaydedin</p>
+        <h2 class="sec-title" data-c="tarih_baslik">Düğün Tarihi</h2>
+        <p class="kazi-ipucu" id="kazi-ipucu"><i aria-hidden="true">+</i><span data-c="tarih_ipucu">Tarihi görmek için kazıyın</span><i aria-hidden="true">+</i></p>
+      </header>
+      <p class="sr-only" data-d="tamCumle">15 Kasım 2026 Pazar, saat 19.00</p>
+      <div class="kazi rv" id="kazi">
+        <div class="kazi-kart"><b data-d="gunIki">15</b><canvas aria-hidden="true"></canvas></div>
+        <div class="kazi-kart"><b data-d="ayIki">11</b><canvas aria-hidden="true"></canvas></div>
+        <div class="kazi-kart yil"><b data-d="yil">2026</b><canvas aria-hidden="true"></canvas></div>
+      </div>
+      <div class="kazi-etiket" aria-hidden="true"><span>Gün</span><span>Ay</span><span>Yıl</span></div>
+      <p class="kazi-saat" aria-hidden="true"><svg class="ic"><use href="#i-clock"/></svg><span data-d="gun">Pazar</span><i>·</i><span data-d="saat">19.00</span></p>
+    </div>
+  </section>
+
   <!-- ===== Davetiye ===== -->
   <section class="section" id="davet">
     <h2 class="sr-only">Davetiye</h2>
@@ -827,26 +1386,55 @@ textarea.input { min-height: 132px; resize: vertical; }
         <p class="eyebrow"><span data-d="tarih">15 Kasım 2026</span> · <span data-d="gun">Pazar</span></p>
         <h2 class="sec-title" data-c="program_baslik">Düğün Programı</h2>
       </header>
-      <div class="card program rv">
-        <div class="pg-item">
+      <!-- etkinlik akışı: çizgi kaydırdıkça dolar; ek etkinlikler yönetimden doldurulunca görünür -->
+      <ol class="akis" id="akis">
+        <li class="pg-item">
           <div class="pg-dot"><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg></div>
-          <div>
+          <div class="pg-kart">
             <p class="pg-time" data-c="gelin_alma_saat">18.00</p>
             <h3 class="pg-title" data-c="gelin_alma_baslik">Gelin Alma</h3>
             <p class="pg-desc" data-c="gelin_alma_aciklama">Kirazlıkçay Mh. Zülal Işıl Çörtük Sk. Apt: 4, Aykul Elektronik’in aşağısındaki erkek evinden kız almaya gidilecektir.</p>
             <a class="btn btn-line btn-sm" data-map="home" href="#" target="_blank" rel="noopener">Yol Tarifi</a>
           </div>
-        </div>
-        <div class="pg-item">
+        </li>
+        <li class="pg-item">
           <div class="pg-dot"><svg class="ic" aria-hidden="true"><use href="#i-rings"/></svg></div>
-          <div>
+          <div class="pg-kart">
             <p class="pg-time" data-d="saat">19.00</p>
             <h3 class="pg-title" data-c="toren_baslik">Düğün Töreni</h3>
             <p class="pg-desc" data-c="toren_aciklama">Mutluluğumuzu sizlerle paylaşacağımız düğün törenimiz.</p>
             <p class="addr"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span><span data-c="mekan_adi">Nazar Düğün Salonu</span><small data-c="mekan_adresi">Sarıcalı, Güven Sk. No: 1, Çarşamba / Samsun</small></span></p>
             <a class="btn btn-line btn-sm" data-map="venue" href="#" target="_blank" rel="noopener">Yol Tarifi</a>
           </div>
-        </div>
+        </li>
+        <li class="pg-item akis-ek" data-ek="1" hidden>
+          <div class="pg-dot"><svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg></div>
+          <div class="pg-kart"><p class="pg-time" data-c="akis1_saat"></p><h3 class="pg-title" data-c="akis1_baslik"></h3><p class="pg-desc" data-c="akis1_aciklama"></p></div>
+        </li>
+        <li class="pg-item akis-ek" data-ek="2" hidden>
+          <div class="pg-dot"><svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg></div>
+          <div class="pg-kart"><p class="pg-time" data-c="akis2_saat"></p><h3 class="pg-title" data-c="akis2_baslik"></h3><p class="pg-desc" data-c="akis2_aciklama"></p></div>
+        </li>
+        <li class="pg-item akis-ek" data-ek="3" hidden>
+          <div class="pg-dot"><svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg></div>
+          <div class="pg-kart"><p class="pg-time" data-c="akis3_saat"></p><h3 class="pg-title" data-c="akis3_baslik"></h3><p class="pg-desc" data-c="akis3_aciklama"></p></div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===== Geri sayım (düğün başlayınca gizlenir) ===== -->
+  <section class="section sayac" id="geri-sayim">
+    <div class="wrap">
+      <header class="sec-head rv">
+        <p class="eyebrow" data-c="sayac_ust">Geri Sayım</p>
+        <h2 class="sec-title" data-c="sayac_once">Büyük Güne Kalan Süre</h2>
+      </header>
+      <div class="cd rv" id="cd" role="timer" aria-label="Düğüne kalan süre">
+        <div class="cd-cell"><div class="cd-daire"><svg class="cd-halka" viewBox="0 0 36 36" aria-hidden="true"><circle class="iz" cx="18" cy="18" r="17"/><circle class="dolu" cx="18" cy="18" r="17" pathLength="100"/></svg><b class="cd-num" data-u="d">00</b></div><span class="cd-lbl">Gün</span></div>
+        <div class="cd-cell"><div class="cd-daire"><svg class="cd-halka" viewBox="0 0 36 36" aria-hidden="true"><circle class="iz" cx="18" cy="18" r="17"/><circle class="dolu" cx="18" cy="18" r="17" pathLength="100"/></svg><b class="cd-num" data-u="h">00</b></div><span class="cd-lbl">Saat</span></div>
+        <div class="cd-cell"><div class="cd-daire"><svg class="cd-halka" viewBox="0 0 36 36" aria-hidden="true"><circle class="iz" cx="18" cy="18" r="17"/><circle class="dolu" cx="18" cy="18" r="17" pathLength="100"/></svg><b class="cd-num" data-u="m">00</b></div><span class="cd-lbl">Dakika</span></div>
+        <div class="cd-cell"><div class="cd-daire"><svg class="cd-halka" viewBox="0 0 36 36" aria-hidden="true"><circle class="iz" cx="18" cy="18" r="17"/><circle class="dolu" cx="18" cy="18" r="17" pathLength="100"/></svg><b class="cd-num" data-u="s">00</b></div><span class="cd-lbl">Saniye</span></div>
       </div>
       <div class="cal rv">
         <p data-c="takvim_cagri">Bu tarihi takviminize ekleyin</p>
@@ -858,6 +1446,26 @@ textarea.input { min-height: 132px; resize: vertical; }
       </div>
     </div>
   </section>
+
+  <!-- ===== Konum: harita ekrana yaklaşınca yüklenir ===== -->
+  <section class="section alt" id="konum">
+    <div class="wrap">
+      <header class="sec-head rv">
+        <p class="eyebrow" data-c="konum_ust">Buluşma Noktamız</p>
+        <h2 class="sec-title" data-c="konum_baslik">Düğün Mekânı</h2>
+      </header>
+      <div class="konum rv">
+        <svg class="konum-pin" aria-hidden="true"><use href="#i-pin"/></svg>
+        <p class="venue-name" data-c="mekan_adi">Nazar Düğün Salonu</p>
+        <p class="venue-addr" data-c="mekan_adresi">Sarıcalı, Güven Sk. No: 1, Çarşamba / Samsun</p>
+        <div class="harita" id="harita">
+          <iframe id="harita-cerceve" title="Düğün salonunun haritadaki yeri" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+        <a class="btn btn-gold" data-map="venue" href="#" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span data-c="konum_dugme">Yol Tarifi Al</span></a>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== Anı & dilek bırak: fotoğraf, dilek ya da ikisi birden tek formdan ===== -->
   <section class="section" id="paylas">
     <div class="wrap">
@@ -924,6 +1532,8 @@ textarea.input { min-height: 132px; resize: vertical; }
 </main>
 
 <footer class="footer">
+  <svg class="kapanis-kemer" viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><path d="M0 51V50C0 27.4 36 14.5 50 0 64 14.5 100 27.4 100 50V51Z"/><path class="cizgi" d="M0 50C0 27.4 36 14.5 50 0 64 14.5 100 27.4 100 50"/></svg>
+  <p class="kapanis-baslik" data-c="kapanis_baslik">Sizi Aramızda Görmekten Mutluluk Duyarız</p>
   <svg class="orn" aria-hidden="true"><use href="#orn"/></svg>
   <p class="footer-names"><span data-c="gelin_adi">Elif</span> &amp; <span data-c="damat_adi">Yunus</span></p>
   <p><span data-d="tarih">15 Kasım 2026</span> · <span data-c="mekan_adi">Nazar Düğün Salonu</span></p>
@@ -1176,9 +1786,11 @@ textarea.input { min-height: 132px; resize: vertical; }
         </fieldset>
         <fieldset class="set-card">
           <legend>Kapak ve süslemeler</legend>
-          <label class="set-switch"><span>Kapaktaki dal süslemeleri</span><input type="checkbox" role="switch" id="lk-dallar"></label>
+          <label class="set-switch"><span>Açılışta zarf<small>Düğünden önce sayfa, mühre dokununca açılan kabartmalı bir zarfla başlar</small></span><input type="checkbox" role="switch" id="lk-zarf"></label>
+          <label class="set-switch"><span>Kemerli kapak<small>Krem duvarda sivri kemer, fenerler ve kabartma güller; kapalıyken kapak bütün ekranı kaplar</small></span><input type="checkbox" role="switch" id="lk-kemer"></label>
           <label class="set-switch"><span>Kapakta yükselen ışıltılar</span><input type="checkbox" role="switch" id="lk-isiltilar"></label>
-          <label class="set-switch"><span>Kapaktaki ince çerçeve</span><input type="checkbox" role="switch" id="lk-cerceve"></label>
+          <label class="set-switch"><span>Kapaktaki dal süslemeleri<small>Yalnızca kemersiz kapakta</small></span><input type="checkbox" role="switch" id="lk-dallar"></label>
+          <label class="set-switch"><span>Kapaktaki ince çerçeve<small>Yalnızca kemersiz kapakta</small></span><input type="checkbox" role="switch" id="lk-cerceve"></label>
           <label class="set-switch"><span>Kâğıt dokusu</span><input type="checkbox" role="switch" id="lk-doku"></label>
         </fieldset>
         <fieldset class="set-card">
@@ -1189,7 +1801,7 @@ textarea.input { min-height: 132px; resize: vertical; }
             <button class="btn btn-dark btn-sm" type="button" id="lk-muzik-sec">Müzik Yükle</button>
           </div>
           <button class="ic-reset lk-default" type="button" id="lk-muzik-varsayilan" hidden>Varsayılan müziğe dön</button>
-          <p class="lk-note">MP3 ya da M4A, en çok 15 MB. Müzik, misafir “Davetiyeyi Aç”a dokununca başlar; tamamen kapatmak için Ayarlar sekmesini kullanın.</p>
+          <p class="lk-note">MP3 ya da M4A, en çok 15 MB. Müzik, misafir zarfın mührüne (zarf kapalıysa “Davetiyeyi Aç”a) dokununca başlar; tamamen kapatmak için Ayarlar sekmesini kullanın.</p>
           <input type="file" id="lk-muzik-dosya" class="sr-only" accept=".mp3,.m4a,audio/mpeg,audio/mp4,audio/x-m4a" tabindex="-1" aria-hidden="true">
         </fieldset>
         <div class="lk-actions">
@@ -1432,8 +2044,9 @@ function phase(t = now()) {
 
 /* ---------- Geri sayım ---------- */
 const cdNums = Object.fromEntries($$('.cd-num').map(n => [n.dataset.u, n]));
+const cdRings = Object.fromEntries($$('.cd-num').map(n => [n.dataset.u, n.parentElement.querySelector('.cd-halka')]));
 const PHASE_TEXT = {
-  before: 'Büyük güne kalan süre',
+  before: 'Büyük Güne Kalan Süre',
   today: 'Bugün evleniyoruz! Akşam görüşmek üzere…',
   live: 'Düğünümüz başladı! Bu gecenin anılarını albümümüze eklemeyi unutmayın.',
   after: 'Bu güzel günü bizimle paylaştığınız için teşekkür ederiz.',
@@ -1443,8 +2056,15 @@ function applyPhase(p) {
   currentPhase = p;
   document.body.dataset.phase = p;
   $('#hero-eyebrow').textContent = txt(p === 'after' ? 'kapak_ust_sonra' : p === 'live' ? 'kapak_ust_dugun' : 'kapak_ust');
-  $('#cd-note').textContent = txt({ before: 'sayac_once', today: 'sayac_bugun', live: 'sayac_dugun', after: 'sayac_sonra' }[p]);
-  $('#cd').hidden = p === 'live' || p === 'after';
+  // Kemerli kapağın büyük yazısı: düğünden önce ve düğün günü davet; düğün sırasında ve sonrasında kapaktaki üst yazı
+  const davet = p === 'before' || p === 'today';
+  $('#kapak-davetli').textContent = davet ? txt('kapak_davetli') : $('#hero-eyebrow').textContent;
+  $('#kapak-davetli-alt').textContent = davet ? txt('kapak_davetli_alt') : '';
+  // Kapaktaki durum yazısı (düğün günü, sırasında, sonrasında); geri sayım düğün başlayınca gizlenir
+  const not = { today: 'sayac_bugun', live: 'sayac_dugun', after: 'sayac_sonra' }[p];
+  $('#kapak-not').hidden = !not;
+  $('#kapak-not').textContent = not ? txt(not) : '';
+  $('#geri-sayim').hidden = p === 'live' || p === 'after';
   // Kapak düğmeleri ayarlara göre: paylaşım kapalıysa ya da albüm gizliyse ilgili düğme çıkmaz
   const share = shareLabel(), album = !!ayar.album_gorunur;
   $('#hero-cta').replaceChildren(...(p === 'before'
@@ -1461,9 +2081,14 @@ function tickCountdown() {
   if (p !== 'before' && p !== 'today') return;
   const s = Math.max(0, Math.floor((WED - t) / 1000));
   const v = { d: Math.floor(s / 86400), h: Math.floor(s % 86400 / 3600), m: Math.floor(s % 3600 / 60), s: s % 60 };
+  // Dairelerin çevresindeki halka: bir üst birimden ne kadar kaldığı (günlerde hep dolu)
+  const oran = { d: 1, h: v.h / 24, m: v.m / 60, s: v.s / 60 };
   for (const k in v) {
     const val = String(v[k]).padStart(2, '0'), n = cdNums[k];
-    if (n.textContent !== val) { n.textContent = val; n.classList.remove('tick'); void n.offsetWidth; n.classList.add('tick'); }
+    if (n.textContent !== val) {
+      n.textContent = val; n.classList.remove('tick'); void n.offsetWidth; n.classList.add('tick');
+      cdRings[k]?.style.setProperty('--p', oran[k].toFixed(4));
+    }
   }
 }
 
@@ -1526,9 +2151,12 @@ const fmtTarih = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, day: 'numeric'
 const fmtGun = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, weekday: 'long' });
 const fmtGunNo = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, day: 'numeric' });
 const fmtAyYil = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, month: 'long', year: 'numeric' });
+const fmtSayilar = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, day: '2-digit', month: '2-digit', year: 'numeric' });
 function dateText(kind, t = WED) {
   const tarih = fmtTarih.format(t), gun = fmtGun.format(t), saat = fmtClock.format(t).replace(':', '.');
-  return { tarih, gun, saat, gunNo: fmtGunNo.format(t), ayYil: fmtAyYil.format(t), tamCumle: `${tarih} ${gun}, saat ${saat}` }[kind] ?? '';
+  const s = Object.fromEntries(fmtSayilar.formatToParts(t).map(p => [p.type, p.value]));   // kazı kartları: 15 · 11 · 2026
+  return { tarih, gun, saat, gunNo: fmtGunNo.format(t), ayYil: fmtAyYil.format(t), tamCumle: `${tarih} ${gun}, saat ${saat}`,
+    gunIki: s.day, ayIki: s.month, yil: s.year }[kind] ?? '';
 }
 const partyHours = () => Number(txt('dugun_suresi')) + 2;   // düğünden sonra 2 saat daha "düğün sürüyor" sayılır
 
@@ -1539,16 +2167,30 @@ const CONTENT_GROUPS = [
     ['dugun_zamani', 'Düğün tarihi ve saati (Türkiye saati)', { type: 'datetime', def: CONFIG.weddingAt }],
     ['dugun_suresi', 'Düğünün süresi (saat; takvime de bu süre yazılır)', { type: 'number', min: 1, max: 12, def: String(CONFIG.calendarHours) }],
   ]],
+  ['Açılış zarfı', [
+    ['zarf_ipucu', 'Mührün altındaki yazı'],
+  ], 'Düğünden önce sayfa açılınca görünen kabartmalı zarf. Misafir mühre dokununca zarf açılır ve müzik başlar. Zarfı Görünüm sekmesinden kapatabilir, adresin sonuna ?zarf yazarak her zaman deneyebilirsiniz.'],
   ['Kapak', [
-    ['kapak_ust', 'Üst yazı (düğünden önce ve düğün günü)', { def: 'Evleniyoruz' }],
-    ['kapak_ust_dugun', 'Üst yazı (düğün sırasında)', { def: 'Bugün Evleniyoruz' }],
-    ['kapak_ust_sonra', 'Üst yazı (düğünden sonra)', { def: 'Evlendik' }],
-    ['sayac_once', 'Geri sayımın üstündeki yazı', { def: PHASE_TEXT.before }],
-    ['sayac_bugun', 'Düğün günü, tören başlayana kadar', { def: PHASE_TEXT.today, area: true }],
-    ['sayac_dugun', 'Düğün sırasında', { def: PHASE_TEXT.live, area: true }],
-    ['sayac_sonra', 'Düğünden sonra', { def: PHASE_TEXT.after, area: true }],
-    ['dugme_davetiye', 'Davetiyeyi açma düğmesi', { def: 'Davetiyeyi Aç' }],
+    ['kapak_davetli', 'Büyük yazı (düğünden önce ve düğün günü)', { def: 'Davetlisiniz' }],
+    ['kapak_davetli_alt', 'Büyük yazının altındaki satır', { def: 'Düğün Törenimize' }],
+    ['kapak_ust', 'Kapağın adı (sekme başlığında, paylaşım kartında; kemersiz kapakta isimlerin üstünde)', { def: 'Evleniyoruz' }],
+    ['kapak_ust_dugun', 'Düğün sırasında kapaktaki yazı', { def: 'Bugün Evleniyoruz' }],
+    ['kapak_ust_sonra', 'Düğünden sonra kapaktaki yazı', { def: 'Evlendik' }],
+    ['sayac_bugun', 'Kapaktaki not: düğün günü, tören başlayana kadar', { def: PHASE_TEXT.today, area: true }],
+    ['sayac_dugun', 'Kapaktaki not: düğün sırasında', { def: PHASE_TEXT.live, area: true }],
+    ['sayac_sonra', 'Kapaktaki not: düğünden sonra', { def: PHASE_TEXT.after, area: true }],
+    ['kapak_kaydir', 'Kapağın altındaki kaydırma ipucu'],
+    ['dugme_davetiye', 'Davetiyeyi açma düğmesi (yalnızca kemersiz kapakta)', { def: 'Davetiyeyi Aç' }],
     ['dugme_album', 'Albüme gitme düğmesi', { def: 'Albümü Gör' }],
+  ]],
+  ['Düğün tarihi (kazı kartları)', [
+    ['tarih_ust', 'Üst yazı'],
+    ['tarih_baslik', 'Başlık'],
+    ['tarih_ipucu', 'Kartların üstündeki ipucu'],
+  ], 'Tarih üç altın kartın altındadır; misafir kazıdıkça görünür. Bir kez kazıyan misafirde kartlar o telefonda hep açık kalır.'],
+  ['Geri sayım', [
+    ['sayac_ust', 'Üst yazı'],
+    ['sayac_once', 'Başlık', { def: PHASE_TEXT.before }],
   ]],
   ['Davetiye', [
     ['davet_ust', 'Üst yazı'],
@@ -1571,6 +2213,9 @@ const CONTENT_GROUPS = [
     ['harita_ev', 'Gelin alma evinin Google Haritalar bağlantısı', { url: true, def: CONFIG.mapHome }],
     ['toren_baslik', 'Tören başlığı'],
     ['toren_aciklama', 'Tören açıklaması', { area: true }],
+    ['akis1_saat', 'Ek etkinlik 1: saat (ör. 21.00)'], ['akis1_baslik', 'Ek etkinlik 1: başlık (boşsa görünmez)'], ['akis1_aciklama', 'Ek etkinlik 1: açıklama', { area: true }],
+    ['akis2_saat', 'Ek etkinlik 2: saat'], ['akis2_baslik', 'Ek etkinlik 2: başlık (boşsa görünmez)'], ['akis2_aciklama', 'Ek etkinlik 2: açıklama', { area: true }],
+    ['akis3_saat', 'Ek etkinlik 3: saat'], ['akis3_baslik', 'Ek etkinlik 3: başlık (boşsa görünmez)'], ['akis3_aciklama', 'Ek etkinlik 3: açıklama', { area: true }],
     ['takvim_baslik', 'Takvime eklenen etkinliğin adı', { def: () => `${cift()}${ekIlgi(txt('damat_adi'))} Düğünü` }],
     ['takvim_cagri', 'Takvim çağrısı'],
     ['takvim_dugme', 'Takvim düğmesi'],
@@ -1631,7 +2276,13 @@ const CONTENT_GROUPS = [
     ['dilekler_daha', 'Daha fazla dilek düğmesi'],
   ]],
   ['Alt menü', [['menu_davet', 'Davet'], ['menu_program', 'Program'], ['menu_album', 'Albüm'], ['menu_dilekler', 'Dilekler']]],
-  ['Alt bilgi', [['alt_tesekkur', 'Teşekkür yazısı', { area: true }], ['alt_imza', 'İmza']]],
+  ['Konum', [
+    ['konum_ust', 'Üst yazı'],
+    ['konum_baslik', 'Başlık'],
+    ['harita_konum', 'Haritada gösterilecek yer (salonun adı ve adresi ya da enlem, boylam)', { def: () => `${txt('mekan_adi')}, ${txt('mekan_adresi')}` }],
+    ['konum_dugme', 'Yol tarifi düğmesi'],
+  ], 'Salonun adı ve adresi "Davetiye" grubundadır. Harita yanlış yeri gösterirse buraya Google Haritalar’da görünen tam adı ya da “41.2, 36.7” gibi enlem ve boylamı yazın.'],
+  ['Alt bilgi', [['kapanis_baslik', 'Kapanış başlığı (düğünden sonra gizlenir)'], ['alt_tesekkur', 'Teşekkür yazısı', { area: true }], ['alt_imza', 'İmza']]],
   ['WhatsApp önizlemesi', [
     ['og_baslik', 'Başlık', { def: () => `${cift()} · ${txt('kapak_ust')}` }],
     ['og_aciklama', 'Açıklama', { area: true, def: () => `${dateText('tarih')} ${dateText('gun')} · ${dateText('saat')} · ${txt('mekan_adi')} — Sizleri de aramızda görmekten mutluluk duyarız.` }],
@@ -1686,6 +2337,7 @@ function applyContent() {
   $$('[data-cp]').forEach(el => { el.placeholder = txt(el.dataset.cp); });
   $$('[data-i]').forEach(el => { el.textContent = basHarf(txt(el.dataset.i)); });   // monogram baş harfleri
   $$('[data-d]').forEach(el => { el.textContent = dateText(el.dataset.d); });
+  $$('.akis-ek').forEach(li => { li.hidden = !txt(`akis${li.dataset.ek}_baslik`); });   // ek etkinlikler: başlığı varsa
   document.title = `${cift()} · ${txt('kapak_ust')} · ${dateText('tarih')}`;
   updateLinks();
   applySettings();                                      // paylaşım formu, kapak düğmeleri, boş albüm yazıları
@@ -1728,6 +2380,9 @@ async function loadContent() {
 /* ---------- Harita ve takvim bağlantıları (İçerik sekmesindeki salon/program bilgileriyle) ---------- */
 function updateLinks() {
   $$('[data-map]').forEach(a => { a.href = txt(a.dataset.map === 'home' ? 'harita_ev' : 'harita_salon'); });
+  // Gömülü harita (Konum bölümü): "loading=lazy" sayesinde bölüm ekrana yaklaşınca yüklenir
+  const harita = $('#harita-cerceve'), src = `https://www.google.com/maps?q=${encodeURIComponent(txt('harita_konum'))}&hl=tr&z=16&output=embed`;
+  if (harita.getAttribute('src') !== src) harita.src = src;
   const stamp = t => new Date(t).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const q = new URLSearchParams({
     action: 'TEMPLATE',
@@ -1786,12 +2441,12 @@ const FONTS = Object.fromEntries(Object.entries({
 const fontOf = (g, k) => FONTS[g].find(f => f.k === k) || FONTS[g][0];
 const LOOK_DEFAULT = Object.freeze({
   tema: 'zumrut', koyu: '', vurgu: '', zemin: '', el: 'great-vibes', serif: 'cormorant', sans: 'jost', olcek: 100, olcek_el: 100,
-  dallar: true, isiltilar: true, cerceve: true, doku: true,
+  dallar: true, isiltilar: true, cerceve: true, doku: true, zarf: true, kemer: true,
   kapak: 'degrade', kapak_foto: '', kapak_karartma: 55, kapak_odak: 50,   // kapak arka planı: renk geçişi ya da fotoğraf
   muzik_dosya: '', muzik_ad: '',                                            // yüklenen müzik (yoksa sayfanın kendi müziği)
 });
 const LOOK_SCALES = { olcek: [90, 115], olcek_el: [85, 115], kapak_karartma: [30, 85], kapak_odak: [0, 100] };
-const LOOK_SWITCHES = { dallar: 'no-branch', isiltilar: 'no-sparks', cerceve: 'no-frame', doku: 'no-texture' };
+const LOOK_SWITCHES = { dallar: 'no-branch', isiltilar: 'no-sparks', cerceve: 'no-frame', doku: 'no-texture', zarf: 'no-zarf', kemer: 'no-kemer' };
 const LOOK_CLASSES = [...Object.values(LOOK_SWITCHES), 'kapak-foto'];
 const HEX_RE = /^#[0-9a-f]{6}$/i, KAPAK_RE = /^kapak\/[0-9a-f-]{36}\.jpg$/, MUZIK_RE = /^muzik\/[0-9a-f-]{36}\.(mp3|m4a)$/;
 // Yönetimden yüklenen dosyaların ("site" deposu) herkese açık adresi. Önizleme modunda yalnızca bu sekmede yaşarlar.
@@ -1909,7 +2564,8 @@ function lookOutput(g) {
   return {
     v, c: cls.join(' '),
     f: families.length ? `https://fonts.googleapis.com/css2?${families.join('&')}&display=swap` : '',
-    t: v['--forest'] || '#1C2A23',
+    // tarayıcı çubuğunun rengi: kemerli kapakta duvarın rengi, kemersizde gece rengi
+    t: g.kemer ? mixHex(v['--sand'] || '#F1E8D8', v['--gold-deep'] || '#7A5B2F', .05) : v['--forest'] || '#1C2A23',
     p: foto.startsWith('https:') ? foto : '',       // önceden indirilsin diye (blob: önizleme adresleri saklanmaz)
   };
 }
@@ -1937,6 +2593,7 @@ function applyLook() {
   $('meta[name="theme-color"]').content = out.t;
   out.i = favicon();
   $('link[rel="icon"]').href = out.i;
+  if (!root.classList.contains('no-kemer')) window.desenleriHazirla?.('kemer');   // kemer sonradan açıldıysa süsleri çiz
   lookFontsP.then(() => document.fonts?.ready).then(fitNames, () => {});
   fitNames();
   syncMusicSrc();
@@ -1988,8 +2645,9 @@ function recolor(css) {
 // Alan, isimlerle birlikte genişlemeyen kapak/alt bilgi kutusundan ölçülür.
 function fitNames() {
   for (const box of $$('.names, .footer-names')) {
-    const host = box.closest('.hero, .footer'), cs = getComputedStyle(host);
-    const avail = host.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const host = box.closest('.hero, .footer'), cs = getComputedStyle(host), inner = box.closest('.hero-inner');
+    // kapakta isimler kemerin içine sığmalı (kemersiz kapakta da aynı kutu, yalnızca daha geniş)
+    const avail = Math.min(host.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), inner ? inner.clientWidth : Infinity);
     box.style.removeProperty('--fit');
     box.style.width = 'min-content';
     const need = box.getBoundingClientRect().width;
@@ -3931,6 +4589,110 @@ function afterSave(logEl) {
 }
 
 /* =====================================================================
+   AÇILIŞ ZARFI — düğünden önce sayfa kabartmalı bir zarfla açılır (gösterilip gösterilmeyeceğine <head>'deki
+   betik karar verir). Misafir mühre dokununca müzik başlar (mühür de "Davetiyeyi Aç" gibi davranır), zarf yaklaşık
+   üç saniyede açılıp kalkar. Aynı sekmede ikinci kez gösterilmez. Zarf açıkken arkadaki sayfaya dokunulamaz.
+   ===================================================================== */
+function initZarf() {
+  const root = document.documentElement, zarf = $('#zarf');
+  if (!root.classList.contains('zarf-acik')) { zarf.remove(); window.desenleriBirak?.(); return; }
+  const arka = $$('body > header, body > main, body > footer, body > nav');
+  arka.forEach(n => { n.inert = true; });
+  $('#muhur').addEventListener('click', () => {
+    try { sessionStorage.setItem('elif-yunus:zarf', '1'); } catch { /* gizli sekme */ }
+    const hizli = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    root.classList.add('aciliyor');
+    setTimeout(() => {                         // kapaklar açıldı: kapak belirmeye başlar
+      root.classList.replace('zarf-acik', 'zarf-kalkiyor');
+      arka.forEach(n => { n.inert = false; });
+      fitSoon();
+    }, hizli ? 0 : 2300);
+    setTimeout(() => {
+      root.classList.remove('zarf-kalkiyor', 'aciliyor');
+      zarf.remove();
+      window.desenleriBirak?.();
+    }, hizli ? 60 : 3000);
+  }, { once: true });
+}
+
+/* =====================================================================
+   TARİH KARTLARI — üç altın kart (gün, ay, yıl). Misafir parmağıyla kazıdıkça altındaki rakam görünür; kartın
+   yarısı kazınınca kendiliğinden açılır. Üçü de açılınca küçük bir kutlama olur ve kartlar o telefonda artık hep
+   açık gelir. Klavyeyle de açılır (kart seçilip Enter). Tarih ayrıca düz metin olarak da sayfadadır.
+   ===================================================================== */
+const KAZI_KEY = 'elif-yunus:kazindi';
+// Kazınacak altın yüzey: temanın altın tonlarıyla çapraz parıltı, fırçalanmış metal çizgileri, ince çerçeve, "KAZI"
+function altinYuzey(x, w, h) {
+  const css = getComputedStyle(document.documentElement), v = n => css.getPropertyValue(n).trim();
+  x.globalCompositeOperation = 'source-over';
+  x.clearRect(0, 0, w, h);
+  const g = x.createLinearGradient(0, 0, w, h);
+  g.addColorStop(0, v('--btn-1')); g.addColorStop(.32, v('--shine-2')); g.addColorStop(.56, v('--gold'));
+  g.addColorStop(.8, v('--shine-4')); g.addColorStop(1, v('--btn-3'));
+  x.fillStyle = g; x.fillRect(0, 0, w, h);
+  for (let y = 0; y < h; y += 2) { x.fillStyle = `rgba(255, 255, 255, ${(Math.random() * .09).toFixed(3)})`; x.fillRect(0, y, w, 1); }
+  x.strokeStyle = 'rgba(255, 249, 232, .6)'; x.lineWidth = 1.2;
+  x.beginPath(); x.roundRect?.(5, 5, w - 10, h - 10, 11); x.stroke();
+  x.font = `500 ${Math.max(9, Math.round(w * .085))}px ${v('--sans') || 'sans-serif'}`;
+  if ('letterSpacing' in x) x.letterSpacing = `${Math.round(w * .025)}px`;
+  x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = 'rgba(105, 76, 32, .55)';
+  x.fillText('KAZI', w / 2 + Math.round(w * .012), h / 2);
+}
+function initKazi() {
+  const kutu = $('#kazi'), bolum = $('#tarih'), kartlar = $$('.kazi-kart', kutu), adlar = ['Gün', 'Ay', 'Yıl'];
+  const etiket = (kart, i) => kart.setAttribute('aria-label', kart.classList.contains('acik') ? `${adlar[i]}: ${$('b', kart).textContent}` : `${adlar[i]}: kazıyarak ya da Enter ile açın`);
+  const bitir = kutla => { bolum.classList.add('tamam'); if (kutla) { ls.set(KAZI_KEY, '1'); celebrate(kutu); } };
+  if (ls.get(KAZI_KEY) === '1') {     // bu telefonda daha önce kazındı
+    kartlar.forEach((k, i) => { k.classList.add('acik'); k.setAttribute('role', 'img'); etiket(k, i); });
+    bitir(false);
+    return;
+  }
+  kartlar.forEach((kart, i) => {
+    const c = $('canvas', kart), x = c.getContext('2d', { willReadFrequently: true });
+    let w = 0, h = 0, kaziyor = false, son = null, hamle = 0, dokunuldu = false;
+    kart.tabIndex = 0; kart.setAttribute('role', 'button'); etiket(kart, i);
+    function boya(zorla) {
+      const kw = kart.offsetWidth, kh = kart.offsetHeight, dpr = Math.min(2, devicePixelRatio || 1);   // kayarak gelirken de gerçek boyut
+      if (!kw || (!zorla && kw === w && kh === h)) return;
+      w = kw; h = kh;
+      c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+      altinYuzey(x, w, h);
+    }
+    const nokta = e => { const r = c.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+    function kazi(a, b) {
+      x.globalCompositeOperation = 'destination-out';
+      x.lineCap = x.lineJoin = 'round'; x.lineWidth = Math.max(18, w * .22);
+      x.beginPath(); x.moveTo(a[0], a[1]); x.lineTo(b[0] + .01, b[1]); x.stroke();
+    }
+    // Kazınan oran (seyrek örnekle): yarıdan fazlasıysa kart kendiliğinden açılır
+    function olc() {
+      const d = x.getImageData(0, 0, c.width, c.height).data;
+      let bos = 0, n = 0;
+      for (let k = 3; k < d.length; k += 4 * 7) { n++; if (d[k] < 128) bos++; }
+      if (n && bos / n > .5) ac();
+    }
+    function ac() {
+      if (kart.classList.contains('acik')) return;
+      kart.classList.remove('kaziliyor'); kart.classList.add('acik'); etiket(kart, i);
+      try { if (navigator.userActivation?.hasBeenActive !== false) navigator.vibrate?.(12); } catch { /* desteklenmiyor */ }
+      if (kartlar.every(k => k.classList.contains('acik'))) bitir(true);
+    }
+    c.addEventListener('pointerdown', e => {
+      if (kart.classList.contains('acik')) return;
+      e.preventDefault(); kaziyor = dokunuldu = true; kart.classList.add('kaziliyor');
+      son = nokta(e); try { c.setPointerCapture(e.pointerId); } catch { /* yakalanamadı: parmak kartta kaldıkça kazır */ }
+      kazi(son, son);
+    });
+    c.addEventListener('pointermove', e => { if (!kaziyor) return; const p = nokta(e); kazi(son, p); son = p; if (++hamle % 8 === 0) olc(); });
+    const birak = () => { if (kaziyor) { kaziyor = false; olc(); } };
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(t => c.addEventListener(t, birak));
+    kart.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ac(); } });
+    if ('ResizeObserver' in window) new ResizeObserver(() => { if (!dokunuldu) boya(); }).observe(kart); else boya();
+    document.fonts?.ready.then(() => { if (!dokunuldu) boya(true); });   // "KAZI" yazısı sayfanın yazı tipiyle
+  });
+}
+
+/* =====================================================================
    MÜZİK — tarayıcılar sesi kendiliğinden başlatmaya izin vermez. Misafir "Davetiyeyi Aç"a
    dokununca yavaşça başlar; sağ üstteki düğmeyle her an kapatılabilir ve seçim o cihazda
    hatırlanır. "Davetiyeyi Aç" düğmesi düğün günü görünmediği için o gün kendiliğinden başlamaz.
@@ -4937,7 +5699,7 @@ function initAdmin() {
    ===================================================================== */
 let store = null;
 function init() {
-  initContent(); initNames(); initSparks(); initScrollUi(); initComposer(); initLightbox(); initDialog(); initMusic();
+  initContent(); initZarf(); initKazi(); initNames(); initSparks(); initScrollUi(); initComposer(); initLightbox(); initDialog(); initMusic();
   // İsimler ekran döndürülünce ve yazı tipleri yüklenince yeniden sığdırılır
   addEventListener('resize', fitSoon);
   document.fonts?.addEventListener?.('loadingdone', fitSoon);
