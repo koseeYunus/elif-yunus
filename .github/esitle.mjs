@@ -11,6 +11,7 @@
 // değildir; tarayıcıda da denenebilir.
 
 export const SURUM = 1;
+// eslint-disable-next-line no-control-regex -- denetim karakterleri bilerek temizlenir (sekme ve satır sonu kalır)
 const KONTROL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F\u2028\u2029]/g;
 const metin = (v, max) => (typeof v === 'string' ? v.replace(/\r/g, '').replace(KONTROL, '').replace(/[^\S\n]+/g, ' ').replace(/ *\n */g, '\n').trim().slice(0, max) : '');
 const tekSatir = (v, max) => metin(v, max).replace(/\n+/g, ' ');

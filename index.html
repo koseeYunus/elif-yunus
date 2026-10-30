@@ -38,13 +38,13 @@
   d.className = 'js icerik-bekle';
   setTimeout(function () { d.classList.remove('icerik-bekle'); }, 1500);
   try {
-    var g = null, s = null, o, k, l;
+    let g = null, s = null, l;
     try { g = JSON.parse(localStorage.getItem('elif-yunus:gorunum') || 'null'); } catch (e) { /* gizli sekme */ }
     try { s = JSON.parse(document.getElementById('ilk-veri').textContent || '{}'); } catch (e) { /* bozuk */ }
-    o = s && s.icerik && s.icerik.ozet;
+    const o = s && s.icerik && s.icerik.ozet;
     if (o && o.gorunum && typeof o.gorunum === 'object' && (!g || String(o.zaman || '') > String(g.z || ''))) g = o.gorunum;
     if (!g || typeof g !== 'object') g = { v: {} };   // kayıtlı görünüm yok: varsayılan (zarf kararı yine aşağıda)
-    for (k in g.v) if (/^--[a-z0-9-]+$/.test(k)) d.style.setProperty(k, String(g.v[k]));
+    for (const k in g.v) if (/^--[a-z0-9-]+$/.test(k)) d.style.setProperty(k, String(g.v[k]));
     if (/^[a-z -]+$/.test(g.c || '')) d.className += ' ' + g.c;
     if (/^#[0-9A-F]{6}$/i.test(g.t || '')) document.querySelector('meta[name="theme-color"]').content = g.t;
     if (/^data:image\/svg\+xml,/.test(g.i || '')) document.querySelector('link[rel="icon"]').href = g.i;
@@ -61,15 +61,16 @@
   // Açılış zarfı: düğün gününden önce, sayfa doğrudan bir bölümle (#paylas gibi) açılmadıysa ve bu sekmede zarf
   // henüz açılmadıysa gösterilir. Adresin sonuna ?zarf yazılırsa her zaman gösterilir (deneme için).
   try {
-    var q = new URLSearchParams(location.search), ic = null, em = null, kay, wed, gun, an, h;
+    const q = new URLSearchParams(location.search);
+    let ic = null, em = null;
     try { ic = JSON.parse(localStorage.getItem('elif-yunus:icerik') || 'null'); } catch (e) { /* gizli sekme */ }
     try { em = JSON.parse(document.getElementById('ilk-veri').textContent || '{}').icerik; } catch (e) { /* yok */ }
-    kay = em && (!ic || String((em.ozet || {}).zaman || '') > String((ic.ozet || {}).zaman || '')) ? em : ic || em || {};
-    wed = Date.parse(kay.dugun_zamani || '') || Date.parse('2026-11-15T19:00:00+03:00');
-    h = new Date(wed + 3 * 3600e3);
-    gun = Date.UTC(h.getUTCFullYear(), h.getUTCMonth(), h.getUTCDate()) - 3 * 3600e3;   // düğün günü 00.00 (TR)
-    an = Date.parse(q.get('zaman') || '') || Date.now();
-    var acildi = false;
+    const kay = em && (!ic || String((em.ozet || {}).zaman || '') > String((ic.ozet || {}).zaman || '')) ? em : ic || em || {};
+    const wed = Date.parse(kay.dugun_zamani || '') || Date.parse('2026-11-15T19:00:00+03:00');
+    const h = new Date(wed + 3 * 3600e3);
+    const gun = Date.UTC(h.getUTCFullYear(), h.getUTCMonth(), h.getUTCDate()) - 3 * 3600e3;   // düğün günü 00.00 (TR)
+    const an = Date.parse(q.get('zaman') || '') || Date.now();
+    let acildi = false;
     try { acildi = sessionStorage.getItem('elif-yunus:zarf') === '1'; } catch (e) { /* gizli sekme */ }
     // eski tarayıcılarda (kapsayıcı birimleri olmayan) zarf gösterilmez; sayfa doğrudan açılır
     if (window.self === window.top && window.CSS && CSS.supports('width: 1cqw') && CSS.supports('color: color-mix(in srgb, red, blue)')
@@ -327,7 +328,7 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
   background: radial-gradient(circle at 34% 28%, #fff, var(--paper) 46%, var(--cream) 100%);
   box-shadow: 0 12px 22px -14px rgba(var(--forest-rgb), .5), inset 0 0 0 1px rgba(var(--gold-rgb), .3), inset 0 -6px 12px -8px rgba(var(--gold-deep-rgb), .25); }
 .cd-halka { position: absolute; inset: -5px; width: calc(100% + 10px); height: calc(100% + 10px); rotate: -90deg; overflow: visible; }
-.cd-halka circle { fill: none; stroke-width: 1.6; }
+.cd-halka :is(circle, path) { fill: none; stroke-width: 1.6; }   /* dolu halka path: tam turu pathLength="100" (SVG 1.1 doğrulayıcıları da kabul eder) */
 .cd-halka .iz { stroke: rgba(var(--gold-rgb), .2); }
 .cd-halka .dolu { stroke: var(--gold); stroke-linecap: round; stroke-dasharray: 100 100; stroke-dashoffset: calc(100 - var(--p, 1) * 100); transition: stroke-dashoffset .5s var(--ease); }
 .cd-halka.sifir .dolu { transition: none; }
@@ -1563,8 +1564,8 @@ body[data-phase="after"] .kapanis-baslik { display: none; }
   window.desenleriBirak = () => { ZD.forEach(p => document.body.style.removeProperty(p)); hazir.zarf = false; };
   const k = document.documentElement.classList;
   try {
-    if (k.contains('zarf-acik')) desenleriHazirla('zarf');
-    if (!k.contains('no-kemer')) desenleriHazirla('kemer');
+    if (k.contains('zarf-acik')) window.desenleriHazirla('zarf');
+    if (!k.contains('no-kemer')) window.desenleriHazirla('kemer');
   } catch (e) { console.warn('Desenler çizilemedi:', e); }
 })();
 </script>
@@ -1725,10 +1726,10 @@ body[data-phase="after"] .kapanis-baslik { display: none; }
         <h2 class="sec-title" data-c="sayac_once">Büyük Güne Kalan Süre</h2>
       </header>
       <div class="cd rv" id="cd" role="timer" aria-label="Düğüne kalan süre">
-        <div class="cd-cell"><div class="cd-daire"><svg class="cd-halka" viewBox="0 0 36 36" aria-hidden="true"><circle class="iz" cx="18" cy="18" r="17"/><circle class="dolu" cx="18" cy="18" r="17" pathLength="100"/></svg><b class="cd-num" data-u="d">00</b></div><span class="cd-lbl">Gün</span></div>
-        <div class="cd-cell"><div class="cd-daire"><svg class="cd-halka" viewBox="0 0 36 36" aria-hidden="true"><circle class="iz" cx="18" cy="18" r="17"/><circle class="dolu" cx="18" cy="18" r="17" pathLength="100"/></svg><b class="cd-num" data-u="h">00</b></div><span class="cd-lbl">Saat</span></div>
-        <div class="cd-cell"><div class="cd-daire"><svg class="cd-halka" viewBox="0 0 36 36" aria-hidden="true"><circle class="iz" cx="18" cy="18" r="17"/><circle class="dolu" cx="18" cy="18" r="17" pathLength="100"/></svg><b class="cd-num" data-u="m">00</b></div><span class="cd-lbl">Dakika</span></div>
-        <div class="cd-cell"><div class="cd-daire"><svg class="cd-halka" viewBox="0 0 36 36" aria-hidden="true"><circle class="iz" cx="18" cy="18" r="17"/><circle class="dolu" cx="18" cy="18" r="17" pathLength="100"/></svg><b class="cd-num" data-u="s">00</b></div><span class="cd-lbl">Saniye</span></div>
+        <div class="cd-cell"><div class="cd-daire"><svg class="cd-halka" viewBox="0 0 36 36" aria-hidden="true"><circle class="iz" cx="18" cy="18" r="17"/><path class="dolu" d="M35 18a17 17 0 1 1-34 0a17 17 0 1 1 34 0" pathLength="100"/></svg><b class="cd-num" data-u="d">00</b></div><span class="cd-lbl">Gün</span></div>
+        <div class="cd-cell"><div class="cd-daire"><svg class="cd-halka" viewBox="0 0 36 36" aria-hidden="true"><circle class="iz" cx="18" cy="18" r="17"/><path class="dolu" d="M35 18a17 17 0 1 1-34 0a17 17 0 1 1 34 0" pathLength="100"/></svg><b class="cd-num" data-u="h">00</b></div><span class="cd-lbl">Saat</span></div>
+        <div class="cd-cell"><div class="cd-daire"><svg class="cd-halka" viewBox="0 0 36 36" aria-hidden="true"><circle class="iz" cx="18" cy="18" r="17"/><path class="dolu" d="M35 18a17 17 0 1 1-34 0a17 17 0 1 1 34 0" pathLength="100"/></svg><b class="cd-num" data-u="m">00</b></div><span class="cd-lbl">Dakika</span></div>
+        <div class="cd-cell"><div class="cd-daire"><svg class="cd-halka" viewBox="0 0 36 36" aria-hidden="true"><circle class="iz" cx="18" cy="18" r="17"/><path class="dolu" d="M35 18a17 17 0 1 1-34 0a17 17 0 1 1 34 0" pathLength="100"/></svg><b class="cd-num" data-u="s">00</b></div><span class="cd-lbl">Saniye</span></div>
       </div>
       <div class="cal rv">
         <p data-c="takvim_cagri">Bu tarihi takviminize ekleyin</p>
@@ -4940,21 +4941,21 @@ function initZarf() {
    ===================================================================== */
 const KAZI_KEY = 'elif-yunus:kazindi';
 // Kazınacak altın yüzey: temanın altın tonlarıyla çapraz parıltı, fırçalanmış metal çizgileri, ince çerçeve, "KAZI"
-function altinYuzey(x, w, h) {
+function altinYuzey(x, w, yuk) {
   const css = getComputedStyle(document.documentElement), v = n => css.getPropertyValue(n).trim();
   x.globalCompositeOperation = 'source-over';
-  x.clearRect(0, 0, w, h);
-  const g = x.createLinearGradient(0, 0, w, h);
+  x.clearRect(0, 0, w, yuk);
+  const g = x.createLinearGradient(0, 0, w, yuk);
   g.addColorStop(0, v('--btn-1')); g.addColorStop(.32, v('--shine-2')); g.addColorStop(.56, v('--gold'));
   g.addColorStop(.8, v('--shine-4')); g.addColorStop(1, v('--btn-3'));
-  x.fillStyle = g; x.fillRect(0, 0, w, h);
-  for (let y = 0; y < h; y += 2) { x.fillStyle = `rgba(255, 255, 255, ${(Math.random() * .09).toFixed(3)})`; x.fillRect(0, y, w, 1); }
+  x.fillStyle = g; x.fillRect(0, 0, w, yuk);
+  for (let y = 0; y < yuk; y += 2) { x.fillStyle = `rgba(255, 255, 255, ${(Math.random() * .09).toFixed(3)})`; x.fillRect(0, y, w, 1); }
   x.strokeStyle = 'rgba(255, 249, 232, .6)'; x.lineWidth = 1.2;
-  x.beginPath(); x.roundRect?.(5, 5, w - 10, h - 10, 11); x.stroke();
+  x.beginPath(); x.roundRect?.(5, 5, w - 10, yuk - 10, 11); x.stroke();
   x.font = `500 ${Math.max(9, Math.round(w * .085))}px ${v('--sans') || 'sans-serif'}`;
   if ('letterSpacing' in x) x.letterSpacing = `${Math.round(w * .025)}px`;
   x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = 'rgba(105, 76, 32, .55)';
-  x.fillText('KAZI', w / 2 + Math.round(w * .012), h / 2);
+  x.fillText('KAZI', w / 2 + Math.round(w * .012), yuk / 2);
 }
 function initKazi() {
   const kutu = $('#kazi'), bolum = $('#tarih'), kartlar = $$('.kazi-kart', kutu), adlar = ['Gün', 'Ay', 'Yıl'];
@@ -4967,14 +4968,14 @@ function initKazi() {
   }
   kartlar.forEach((kart, i) => {
     const c = $('canvas', kart), x = c.getContext('2d', { willReadFrequently: true });
-    let w = 0, h = 0, kaziyor = false, son = null, hamle = 0, dokunuldu = false;
+    let w = 0, yuk = 0, kaziyor = false, son = null, hamle = 0, dokunuldu = false;
     kart.tabIndex = 0; kart.setAttribute('role', 'button'); etiket(kart, i);
     function boya(zorla) {
       const kw = kart.offsetWidth, kh = kart.offsetHeight, dpr = Math.min(2, devicePixelRatio || 1);   // kayarak gelirken de gerçek boyut
-      if (!kw || (!zorla && kw === w && kh === h)) return;
-      w = kw; h = kh;
-      c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); x.setTransform(dpr, 0, 0, dpr, 0, 0);
-      altinYuzey(x, w, h);
+      if (!kw || (!zorla && kw === w && kh === yuk)) return;
+      w = kw; yuk = kh;
+      c.width = Math.round(w * dpr); c.height = Math.round(yuk * dpr); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+      altinYuzey(x, w, yuk);
     }
     const nokta = e => { const r = c.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
     function kazi(a, b) {
