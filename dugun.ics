@@ -3,29 +3,31 @@ VERSION:2.0
 PRODID:-//Elif ve Yunus//Dugun//TR
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
-X-WR-CALNAME:Elif & Yunus'un Düğünü
+X-WR-CALNAME:Elif & Yunus’un Düğünü
 X-WR-TIMEZONE:Europe/Istanbul
 REFRESH-INTERVAL;VALUE=DURATION:P1D
 X-PUBLISHED-TTL:P1D
 BEGIN:VEVENT
 UID:elif-yunus-dugun-20261115@elif-yunus
-DTSTAMP:20261021T090000Z
-DTSTART:20261115T160000Z
-DTEND:20261115T200000Z
-SUMMARY:Elif & Yunus'un Düğünü
-LOCATION:Nazar Düğün Salonu\, Sarıcalı\, Güven Sk. No:1\, 
- 55500 Çarşamba/Samsun
+DTSTAMP:20261030T181149Z
+SEQUENCE:1
+DTSTART:20261115T153000Z
+DTEND:20261115T193000Z
+SUMMARY:Elif & Yunus’un Düğünü
+LOCATION:Nazar Düğün Salonu\, Sarıcalı\, Güven Sk. No: 1\, Çarşamba
+  / Samsun
 URL:https://koseeyunus.github.io/elif-yunus/
-DESCRIPTION:Gelin alma: 18.00\nDüğün: 19.00 - Nazar Düğün Salonu
+DESCRIPTION:Gelin Alma: 18.15\nDüğün Töreni: 18.30 - Nazar Düğün Sal
+ onu
 BEGIN:VALARM
 TRIGGER:-P1D
 ACTION:DISPLAY
-DESCRIPTION:Yarın Elif & Yunus'un düğünü
+DESCRIPTION:Yarın: Elif & Yunus’un Düğünü
 END:VALARM
 BEGIN:VALARM
 TRIGGER:-PT3H
 ACTION:DISPLAY
-DESCRIPTION:Elif & Yunus'un düğünü bu akşam 19.00'da
+DESCRIPTION:Bu akşam 18.30: Elif & Yunus’un Düğünü
 END:VALARM
 END:VEVENT
 END:VCALENDAR
