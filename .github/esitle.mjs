@@ -30,7 +30,7 @@ export function ozetiDogrula(o) {
     baslik: tekSatir(o.baslik, 200), aciklama: tekSatir(o.aciklama, 400),
     og_baslik: tekSatir(o.og_baslik, 200), og_aciklama: tekSatir(o.og_aciklama, 400), gorsel_alt: tekSatir(o.gorsel_alt, 200),
     gorsel: /^paylasim\/[0-9a-f-]{36}\.jpg$/.test(o.gorsel || '') ? o.gorsel : '',
-    tema_rengi: /^#[0-9A-F]{6}$/i.test(g.t || '') ? g.t.toUpperCase() : '#0C4939',
+    tema_rengi: /^#[0-9A-F]{6}$/i.test(g.t || '') ? g.t.toUpperCase() : '#1C2A23',
     ikon: typeof g.i === 'string' && g.i.length < 4000 && /^data:image\/svg\+xml,[\w%.!~*'()-]+$/.test(g.i) ? g.i : '',
     takvim: {
       baslik: tekSatir(t.baslik, 160), baslangic: zamanOku(t.baslangic), bitis: zamanOku(t.bitis), konum: tekSatir(t.konum, 300),
