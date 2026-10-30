@@ -152,9 +152,10 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 }
 
 /* ===== Kapak (hero) ===== */
-/* İki biçim: kemerli (varsayılan) — krem, kabartmalı bir duvarda sivri kemer; kemerin içinde gece sahnesi, fenerler
-   ve ışıltılar. Yönetim › Görünüm'den kemer kapatılırsa (.no-kemer) gece sahnesi bütün ekranı kaplar (klasik kapak).
-   Gece sahnesinin kendisi .kemer-ic'tedir; kapak fotoğrafı da onun içinde görünür. */
+/* İki biçim: kemerli (varsayılan) — krem, kabartmalı bir duvarda yuvarlak kemer; kemerin içinde aydınlık bir tören
+   sahnesi: tül perdeler, beyaz gül demetleri, süzülen gül yaprakları. Yönetim › Görünüm'den kemer kapatılırsa
+   (.no-kemer) gece sahnesi bütün ekranı kaplar (klasik kapak). Kapak fotoğrafı kemerin içinde görünür; o zaman
+   fotoğraf koyulaştırılır ve yazılar açık renkte kalır. */
 :root { --kw: min(88vw, 47svh); }           /* kemer genişliği (kapakta ve sayfanın sonundaki kapanışta) */
 .hero {
   --duvar: var(--sand);
@@ -169,44 +170,54 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 }
 .kemer-ic {
   position: absolute; z-index: -3; left: 50%; bottom: 0; top: var(--kt); width: var(--kw); translate: -50% 0;
-  clip-path: url(#kemer-kirp); overflow: hidden;
+  border-radius: calc(var(--kw) / 2) calc(var(--kw) / 2) 0 0; overflow: hidden;
   background:
-    radial-gradient(90% 34% at 50% 104%, rgba(var(--gold-light-rgb), .3), transparent 70%),
-    radial-gradient(120% 60% at 50% 30%, rgba(var(--gold-light-rgb), .14), transparent 62%),
-    linear-gradient(180deg, var(--hero-1) 0%, var(--hero-2) 55%, var(--hero-3) 100%);
+    radial-gradient(70% 36% at 50% 14%, rgba(255, 255, 255, .95), rgba(255, 255, 255, 0) 72%),
+    radial-gradient(100% 42% at 50% 104%, rgba(var(--gold-light-rgb), .42), transparent 72%),
+    linear-gradient(180deg, var(--paper) 0%, var(--ivory) 42%, var(--cream) 100%);
 }
-.kemer-ic::before { content: ""; position: absolute; inset: 0; background: var(--noise-light); opacity: .9; }
+/* tepeden süzülen ışık huzmeleri */
+.kemer-ic::before { content: ""; position: absolute; z-index: -2; inset: 0;
+  background: repeating-conic-gradient(from 150deg at 50% -8%, transparent 0deg 5deg, rgba(var(--gold-light-rgb), .2) 7deg 8deg, transparent 10deg 15deg);
+  -webkit-mask: radial-gradient(90% 75% at 50% 0%, #000 10%, transparent 80%); mask: radial-gradient(90% 75% at 50% 0%, #000 10%, transparent 80%); }
 /* duvar ve zarf kâğıdı: temanın kum renginin bir tık sıcak tonu (renk karıştırmayı bilmeyen tarayıcıda düz kum rengi) */
 @supports (color: color-mix(in srgb, red, blue)) { .hero, .zarf-kutu { --duvar: color-mix(in srgb, var(--sand), var(--gold-deep) 5%); } }
-/* kemerin pervazı (altın çizgi) ve kenarındaki derinlik gölgesi */
-.kemer-cerceve { position: absolute; z-index: -2; left: 50%; bottom: 0; top: var(--kt); width: var(--kw); height: calc(100% - var(--kt)); translate: -50% 0; overflow: visible; pointer-events: none; }
-.kemer-cerceve path { fill: none; vector-effect: non-scaling-stroke; }
+/* kemerin pervazı: dışta ve içte altın çizgi, aralarında duvar renginde bir bant; kemerin içine düşen yumuşak gölge */
+.kemer-cerceve { position: absolute; z-index: -2; left: 50%; bottom: -2px; top: var(--kt); width: var(--kw); translate: -50% 0; pointer-events: none;
+  border-radius: calc(var(--kw) / 2) calc(var(--kw) / 2) 0 0;
+  box-shadow: inset 0 0 0 1.5px var(--shine-3), inset 0 0 0 6px var(--duvar), inset 0 0 0 7px rgba(var(--gold-rgb), .75), inset 0 16px 24px -12px rgba(var(--gold-deep-rgb), .32),
+    0 0 0 4px var(--duvar), 0 0 0 5px rgba(var(--gold-rgb), .5), 0 8px 18px 2px rgba(70, 50, 20, .2); }
 /* kemerin iki üst köşesindeki kabartma gül demetleri (desenler sayfa açılırken çizilir) */
 .kemer-sus { position: absolute; z-index: -4; top: calc(var(--kt) - 24px); width: calc(var(--kw) * .5 + 40px); aspect-ratio: 1; pointer-events: none; }
 .kemer-sus.sol { right: calc(50% + var(--kw) * .2); background: var(--kose-sol, none) 100% 0 / contain no-repeat; }
 .kemer-sus.sag { left: calc(50% + var(--kw) * .2); background: var(--kose-sag, none) 0 0 / contain no-repeat; }
-/* fenerler kemerin tavanından sarkar; zincirin üstü kemerin kenarında kesilir */
-.fener { position: absolute; top: 21%; width: calc(var(--kw) * .12); pointer-events: none; --zincir: calc(var(--kw) * .2); transform-origin: 50% calc(-1 * var(--zincir)); animation: fener-sallan 7s ease-in-out infinite; }
-.fener.sol { left: 9%; }
-.fener.sag { right: 9%; animation-delay: -3.4s; }
-.fener::before { content: ""; position: absolute; left: 50%; bottom: 100%; width: 1.5px; height: var(--zincir); translate: -50% 0; background: repeating-linear-gradient(180deg, var(--shine-3) 0 3px, transparent 3px 5px); }
-.fener svg { width: 100%; height: auto; overflow: visible; }
-.fener .isik { position: absolute; left: 50%; top: 52%; width: 340%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; mix-blend-mode: screen;
-  background: radial-gradient(closest-side, rgba(255, 214, 140, .55), rgba(255, 190, 100, .18) 45%, transparent); animation: titre 3.1s steps(1) infinite, titre-y 2.3s ease-in-out infinite; }
-.fener.sag .isik { animation-delay: -1.3s, -.8s; }
-.fener .alev { transform-box: fill-box; transform-origin: 50% 100%; animation: alev 1.7s ease-in-out infinite alternate; }
-@keyframes fener-sallan { 0%, 100% { transform: rotate(1.6deg); } 50% { transform: rotate(-1.6deg); } }
-@keyframes titre { 0% { opacity: .92; } 13% { opacity: .78; } 21% { opacity: 1; } 37% { opacity: .85; } 52% { opacity: .97; } 64% { opacity: .8; } 79% { opacity: 1; } 91% { opacity: .88; } }
-@keyframes titre-y { 0%, 100% { scale: 1; } 50% { scale: 1.06; } }
-@keyframes alev { 0% { transform: scale(1, 1); } 40% { transform: scale(.92, 1.08); } 100% { transform: scale(1.05, .95); } }
+/* tül perdeler: tepede toplanır, iki yanda kemerin kenarına bağlanır (düğümü çiçek demeti örter) */
+.perde { position: absolute; z-index: -1; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; filter: drop-shadow(0 6px 10px rgba(var(--gold-deep-rgb), .16)); }
+.perde-tul { fill: rgba(255, 255, 255, .5); }
+.perde-kivrim, .perde-isik, .perde-kenar { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; }
+.perde-kivrim { stroke: rgba(var(--gold-deep-rgb), .12); stroke-width: 2.4; }
+.perde-isik { stroke: rgba(255, 255, 255, .9); stroke-width: 1.3; }
+.perde-kenar { stroke: rgba(var(--gold-deep-rgb), .2); stroke-width: 1.2; }
+.kapak-foto .perde { opacity: .6; }
+/* renkli çiçek demetleri: kemerin tepesinde, perdelerin bağlandığı yerde ve kemerin dibinde (sayfa açılırken çizilir) */
+.demet { position: absolute; z-index: -1; pointer-events: none; background: 50% 50% / 100% 100% no-repeat; animation: demet-gel 1.6s var(--ease) .15s both; }
+.demet.tepe { width: calc(var(--kw) * .78); aspect-ratio: 360 / 190; left: 50%; translate: -50% 0; top: calc(var(--kt) - var(--kw) * .1387); background-image: var(--demet-tepe, none); }
+.demet.yan { width: calc(var(--kw) * .32); aspect-ratio: 150 / 210; top: calc(var(--kt) + (100% - var(--kt)) * .69 - var(--kw) * .1323); animation-delay: .35s; }
+.demet.yan.sol { left: calc(50% - var(--kw) * .7061); background-image: var(--demet-yan-sol, none); }
+.demet.yan.sag { right: calc(50% - var(--kw) * .7061); background-image: var(--demet-yan-sag, none); }
+.demet.alt { bottom: 0; width: calc(var(--kw) * .44); aspect-ratio: 210 / 200; animation-delay: .5s; }
+.demet.alt.sol { left: calc(50% - var(--kw) * .6048); background-image: var(--demet-alt-sol, none); }
+.demet.alt.sag { right: calc(50% - var(--kw) * .6048); background-image: var(--demet-alt-sag, none); }
+@keyframes demet-gel { from { opacity: 0; scale: .94; } }
 /* Klasik kapak: gece sahnesi bütün ekranı kaplar */
 .no-kemer .hero { padding: calc(64px + var(--safe-t)) 22px 92px; }
-.no-kemer .kemer-ic { inset: 0; width: auto; translate: none; clip-path: none;
+.no-kemer .kemer-ic { inset: 0; width: auto; translate: none; border-radius: 0;
   background:
     radial-gradient(120% 70% at 50% 32%, rgba(var(--gold-light-rgb), .17), transparent 62%),
     radial-gradient(90% 50% at 50% 112%, rgba(0, 0, 0, .38), transparent 70%),
     linear-gradient(180deg, var(--hero-1) 0%, var(--hero-2) 55%, var(--hero-3) 100%); }
-.no-kemer :is(.kemer-cerceve, .kemer-sus, .fener, .davetli-blok) { display: none; }
+.no-kemer .kemer-ic::before { background: var(--noise-light); -webkit-mask: none; mask: none; opacity: .9; }
+.no-kemer :is(.kemer-cerceve, .kemer-sus, .perde, .demet, .davetli-blok) { display: none; }
 :root:not(.no-kemer) :is(.hero-frame, .branch, #hero-eyebrow, .hero-cta [data-action="open-invite"]) { display: none; }
 .hero-frame { position: absolute; inset: calc(12px + var(--safe-t)) 12px 12px; border: 1px solid rgba(var(--gold-light-rgb), .2); border-radius: 26px; pointer-events: none; }
 .hero-frame::after { content: ""; position: absolute; inset: 5px; border: 1px solid rgba(var(--gold-light-rgb), .08); border-radius: 22px; }
@@ -227,12 +238,26 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
   80% { opacity: var(--o); }
   100% { transform: translate3d(var(--x), -112vh, 0); opacity: 0; }
 }
+/* kemerli kapakta ışıltıların yerine yukarıdan süzülen beyaz ve pembe gül yaprakları */
+:root:not(.no-kemer) .sparks i {
+  top: -18px; bottom: auto; width: calc(var(--s) * 1.3 + 6px); height: calc(var(--s) + 4px); border-radius: 70% 10% 70% 30%;
+  background: linear-gradient(135deg, #FFFFFF 0%, #FBF1EA 55%, #EAD6CA 100%); box-shadow: 0 2px 4px rgba(var(--gold-deep-rgb), .14);
+  animation: yaprak-dus var(--d) linear var(--delay) infinite, yaprak-salin 3.6s ease-in-out var(--delay) infinite alternate;
+}
+:root:not(.no-kemer) .sparks i:nth-child(2n) { background: linear-gradient(135deg, #FDF3EF 0%, #F3D9CF 60%, #E2B9AB 100%); }
+@keyframes yaprak-dus {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg) rotateX(0deg); opacity: 0; }
+  10% { opacity: calc(var(--o) + .25); }
+  85% { opacity: calc(var(--o) + .25); }
+  100% { transform: translate3d(var(--x), 105svh, 0) rotate(400deg) rotateX(540deg); opacity: 0; }
+}
+@keyframes yaprak-salin { from { translate: -16px 0; } to { translate: 16px 0; } }
 .hero-inner { position: relative; width: 100%; max-width: 900px; }
 :root:not(.no-kemer) .hero-inner { max-width: calc(var(--kw) - 36px); }
 .davetli { max-width: 74%; margin: 0 auto; font: 400 calc(clamp(36px, 9.6vw, 50px) * var(--fs-el))/1.05 var(--script); color: var(--cream-hi); text-wrap: balance; }
 .davetli-alt { margin: 6px 0 0; padding-left: .3em; font: 500 calc(11px * var(--fs-sans))/1.3 var(--sans); letter-spacing: .32em; text-transform: uppercase; color: rgba(var(--cream-rgb), .75); }
 .davetli-alt:empty { display: none; }
-.hero .davetli-blok .orn { width: 190px; margin: 14px auto 12px; }
+.hero .davetli-blok .orn { width: 190px; height: 20px; margin: 12px auto 10px; }
 .eyebrow { margin: 0 0 16px; padding-left: .4em; font: 500 calc(12px * var(--fs-sans))/1.3 var(--sans); letter-spacing: .4em; text-transform: uppercase; color: var(--gold-deep); }
 .hero .eyebrow { color: var(--gold-light); }
 /* --fit: isimler ekrana sığmazsa (uzun isim, geniş yazı tipi) fitNames() küçültür */
@@ -262,6 +287,7 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 
 /* Kapaktaki durum yazısı (düğün günü, düğün sırasında ve sonrasında) */
 .kapak-not { margin: 22px auto 0; max-width: 24em; font: italic 400 calc(clamp(17px, 4.4vw, 20px) * var(--fs-serif))/1.45 var(--serif); color: rgba(var(--cream-rgb), .9); }
+:root:not(.no-kemer) .kapak-not { padding: 0 12px; }
 .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 30px; }
 :root:not(.no-kemer) .hero-cta { gap: 8px; margin-top: 22px; }
 :root:not(.no-kemer) .hero-cta .btn { min-height: 44px; padding: 0 16px; gap: 8px; font-size: calc(11px * var(--fs-sans)); letter-spacing: .12em; }
@@ -272,6 +298,22 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 .kaydir .ic { width: 16px; height: 16px; stroke-width: 1.4; animation: kaydir 2s var(--ease) infinite; }
 @keyframes kaydir { 0%, 100% { transform: translateY(0); opacity: .6; } 50% { transform: translateY(4px); opacity: 1; } }
 @media (max-height: 640px) { .kaydir { display: none; } }
+/* Aydınlık kemerde (kapak fotoğrafı yokken) yazılar koyu: isimler koyu altın, diğerleri mürekkep rengi */
+:root:not(.no-kemer):not(.kapak-foto) .hero { color: var(--ink); }
+:root:not(.no-kemer):not(.kapak-foto) .davetli { color: var(--gold-deep); }
+:root:not(.no-kemer):not(.kapak-foto) .davetli-alt { color: var(--ink-2); }
+:root:not(.no-kemer):not(.kapak-foto) .hero .orn { color: var(--gold); opacity: 1; }
+:root:not(.no-kemer):not(.kapak-foto) .names span { color: var(--gold-deep);
+  background:
+    linear-gradient(105deg, transparent calc(var(--glint) - 9%), rgba(255, 252, 242, .9) var(--glint), transparent calc(var(--glint) + 9%)),
+    linear-gradient(100deg, var(--gold-deep) 0%, var(--btn-3) 26%, var(--gold-deep) 50%, var(--btn-3) 74%, var(--gold-deep) 100%);
+  background-size: 100% 100%, 220% 100%; -webkit-background-clip: text; background-clip: text; }
+:root:not(.no-kemer):not(.kapak-foto) .hero-date { color: var(--ink); }
+:root:not(.no-kemer):not(.kapak-foto) .hero-date i { color: var(--gold); }
+:root:not(.no-kemer):not(.kapak-foto) :is(.hero-venue, .kapak-not) { color: var(--ink-2); }
+:root:not(.no-kemer):not(.kapak-foto) .hero .btn-line { border-color: rgba(var(--gold-deep-rgb), .38); color: var(--ink); background: rgba(255, 255, 255, .6); }
+@media (hover: hover) { :root:not(.no-kemer):not(.kapak-foto) .hero .btn-line:hover { background: rgba(255, 255, 255, .92); } }
+:root:not(.no-kemer):not(.kapak-foto) .kaydir { color: var(--gold-deep); }
 @media (min-width: 760px) {
   .no-kemer .names { flex-direction: row; justify-content: center; align-items: baseline; }
   .no-kemer .names .amp { margin: 0; }
@@ -487,6 +529,8 @@ html.zarf-acik, html.zarf-acik body, html.zarf-kalkiyor, html.zarf-kalkiyor body
   background: radial-gradient(circle at 34% 26%, #fff, var(--paper) 48%, var(--cream)); box-shadow: 0 16px 26px -18px rgba(var(--forest-rgb), .6), inset 0 0 0 1px rgba(var(--gold-rgb), .35); }
 .kazi-kart b { font: 500 calc(clamp(34px, 11vw, 54px) * var(--fs-serif))/1 var(--serif); color: var(--gold-deep); font-variant-numeric: lining-nums; }
 .kazi-kart.yil b { font-size: calc(clamp(24px, 7.6vw, 38px) * var(--fs-serif)); }
+/* kazınmamış kartta rakam yalnızca kazımaya başlanınca belirir (ekran okuyucu da kart açılmadan rakamı okumaz) */
+.kazi-kart[role="button"]:not(.kaziliyor):not(.acik) b { visibility: hidden; }
 .kazi-kart canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; transition: opacity .7s var(--ease); }
 .kazi-kart::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, .6) 50%, transparent 62%) 150% 0 / 260% 100% no-repeat; animation: kazi-parilti 3.8s ease-in-out infinite; }
 .kazi-kart:nth-child(2)::after { animation-delay: .45s; }
@@ -590,11 +634,13 @@ textarea.input { min-height: 132px; resize: vertical; }
 
 /* Alt bilgi: kemerli kapakta sayfa, kapaktakiyle aynı kemerle kapanır */
 .footer { position: relative; padding: 76px 20px calc(130px + var(--safe-b)); background: var(--forest) var(--noise-light); color: var(--cream); text-align: center; }
-:root:not(.no-kemer) .footer { margin-top: calc(var(--kw) * .5); padding-top: 30px; }
-.kapanis-kemer { position: absolute; left: 50%; bottom: calc(100% - 1px); width: var(--kw); height: calc(var(--kw) * .63); translate: -50% 0; overflow: visible; pointer-events: none; }
-.kapanis-kemer path { fill: var(--forest); }
-.kapanis-kemer .cizgi { fill: none; stroke: var(--shine-3); stroke-width: 1.6; vector-effect: non-scaling-stroke; }
-.no-kemer .kapanis-kemer { display: none; }
+:root:not(.no-kemer) .footer { margin-top: calc(var(--kw) * .5); padding-top: 1px; isolation: isolate; }
+.kapanis-kemer { position: absolute; z-index: -1; left: 50%; bottom: calc(100% - 1px); width: var(--kw); height: calc(var(--kw) * .5 + 1px); translate: -50% 0; pointer-events: none;
+  border: 1.6px solid var(--shine-3); border-bottom: 0; border-radius: calc(var(--kw) / 2) calc(var(--kw) / 2) 0 0; background: var(--forest) var(--noise-light); }
+.kapanis-demet { position: absolute; z-index: -1; left: 50%; bottom: calc(100% - 1px + var(--kw) * .227); width: calc(var(--kw) * .78); aspect-ratio: 360 / 190; translate: -50% 0; background: var(--demet-tepe, none) 50% 50% / 100% 100% no-repeat; pointer-events: none; }
+/* başlık kemerin içinde başlar (son aşamada başlık yokken ilk süs) */
+:root:not(.no-kemer) .footer > .kapanis-baslik, :root:not(.no-kemer) body[data-phase="after"] .footer > .kapanis-baslik + .orn { margin-top: calc(var(--kw) * -.2); }
+.no-kemer :is(.kapanis-kemer, .kapanis-demet) { display: none; }
 .kapanis-baslik { margin: 0 auto; max-width: 11em; font: 400 calc(clamp(34px, 9.4vw, 48px) * var(--fs-el))/1.15 var(--script); color: var(--cream-hi); }
 body[data-phase="after"] .kapanis-baslik { display: none; }
 .footer .orn { color: var(--gold-light); opacity: .6; }
@@ -833,6 +879,14 @@ body[data-phase="after"] .kapanis-baslik { display: none; }
 .lk-pv-text { font: 400 calc(12.5px * var(--fs-serif))/1.4 var(--serif); color: var(--ink); }
 .lk-pv-name { font: 500 calc(8px * var(--fs-sans))/1.3 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--gold-deep); }
 .lk-pv-hint { font: 400 calc(9px * var(--fs-sans))/1.35 var(--sans); color: var(--ink-3); }
+/* kemerli kapak (fotoğrafsız) aydınlık olduğu için önizleme de aydınlık */
+:root:not(.no-kemer):not(.kapak-foto) .lk-pv-hero { color: var(--ink); border-radius: 70px 70px 14px 14px; box-shadow: inset 0 0 0 1px rgba(var(--gold-rgb), .55);
+  background: radial-gradient(70% 40% at 50% 12%, #fff, transparent 72%), linear-gradient(180deg, var(--paper), var(--cream)); }
+:root:not(.no-kemer):not(.kapak-foto) .lk-pv-eyebrow { color: var(--gold-deep); }
+:root:not(.no-kemer):not(.kapak-foto) .lk-pv-names span { color: var(--gold-deep); background-image: linear-gradient(100deg, var(--gold-deep) 0%, var(--btn-3) 50%, var(--gold-deep) 100%); }
+:root:not(.no-kemer):not(.kapak-foto) .lk-pv-names i { color: var(--gold); }
+:root:not(.no-kemer):not(.kapak-foto) .lk-pv-date { color: var(--ink); }
+:root:not(.no-kemer):not(.kapak-foto) .lk-pv-btns .l { color: var(--ink); border-color: rgba(var(--gold-deep-rgb), .38); }
 @media (min-width: 560px) {
   .lk-pv-hero, .lk-pv-card { min-height: 170px; }
   .lk-pv-names { font-size: calc(38px * var(--fs-el)); } .lk-pv-title { font-size: calc(32px * var(--fs-el)); }
@@ -1004,22 +1058,20 @@ body[data-phase="after"] .kapanis-baslik { display: none; }
     <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
     <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
     <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
-    <!-- Kapaktaki sivri kemer (kemerin içi bu biçimde kırpılır; pervaz çizgisi de aynı yolu izler) -->
-    <clipPath id="kemer-kirp" clipPathUnits="objectBoundingBox"><path d="M0 1V.31C0 .17.36.09.5 0 .64.09 1 .17 1 .31V1Z"/></clipPath>
-    <!-- Fener: altın gövde, sıcak ışıklı camlar, titreyen alev -->
-    <linearGradient id="fn-altin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color: var(--shine-2)"/><stop offset=".5" style="stop-color: var(--shine-3)"/><stop offset="1" style="stop-color: var(--shine-1)"/></linearGradient>
-    <radialGradient id="fn-cam" cx=".5" cy=".62" r=".6"><stop offset="0" stop-color="#FFF6D8"/><stop offset=".35" stop-color="#FFD98A"/><stop offset="1" stop-color="#C98A3A" stop-opacity=".85"/></radialGradient>
-    <symbol id="fener" viewBox="0 0 60 132">
-      <circle cx="30" cy="3" r="2.6" fill="none" stroke="url(#fn-altin)" stroke-width="1.4"/>
-      <path d="M30 6c0 5-2 6-2 9h4c0-3-2-4-2-9z" fill="url(#fn-altin)"/>
-      <path d="M30 14c-5 4-14 8-17 16-1 2 0 3 2 3h30c2 0 3-1 2-3-3-8-12-12-17-16z" fill="url(#fn-altin)"/>
-      <path d="M13 33h34l-2 5H15z" fill="url(#fn-altin)" opacity=".9"/>
-      <path d="M16 38h28l-1 52H17z" fill="url(#fn-cam)"/>
-      <path class="alev" d="M30 56c-3 4-4 8-4 11 0 3 2 5 4 5s4-2 4-5c0-3-1-7-4-11z" fill="#FFFBEA" opacity=".95"/>
-      <g fill="none" stroke="url(#fn-altin)" stroke-width="1.6"><path d="M16 38l1 52M44 38l-1 52M30 38v52"/><path d="M17 50c4-7 9-7 13 0 4-7 9-7 13 0"/><path d="M17 64h26M17 80h26" stroke-width="1"/></g>
-      <path d="M14 90h32l-3 6H17z" fill="url(#fn-altin)"/>
-      <path d="M18 96h24c-2 6-7 9-12 9s-10-3-12-9z" fill="url(#fn-altin)" opacity=".92"/>
-      <path d="M30 105v8" stroke="url(#fn-altin)" stroke-width="1.4"/><circle cx="30" cy="117" r="3.2" fill="url(#fn-altin)"/><path d="M30 120l-2 6 2 4 2-4z" fill="url(#fn-altin)"/>
+    <!-- Kapaktaki tül perde, sol yarı (sağdaki aynasıdır). Kemerin içini 100×200 sayan bir kutuda çizilir: tepede toplanır,
+         kemerin kenarında bağlanır (çiçek demetinin altında) ve yere dökülür. Kemerin dışında kalan yeri kemer keser. -->
+    <g id="perde-yari">
+      <path class="perde-tul" d="M-2-2H50C30 6 8 40 4 132C3 136 3 140 4 144C9 168 15 186 19 202H-2Z"/>
+      <path class="perde-kivrim" d="M43-2C27 10 9 50 5 130M35-2C22 14 7 54 4 130M26-2C16 20 5 60 3 132M17-2C10 30 3 70 2 134M8 6C4 40 1 80 1 136M4 144C8 166 12 184 15 202M3 144C5 168 7 186 9 202M2 144C2 170 3 188 3 202"/>
+      <path class="perde-isik" d="M39-2C24 12 8 52 4.5 130M30-2C19 17 6 57 3.5 131M21-2C13 25 4 65 2.5 133M3.5 144C7 167 10 185 12 202M2.5 144C3.5 169 5 187 6 202"/>
+      <path class="perde-kenar" d="M50-2C30 6 8 40 4 132C3 136 3 140 4 144C9 168 15 186 19 202"/>
+    </g>
+    <!-- İç içe geçmiş iki nikâh yüzüğü olan ayraç (kemerli kapakta "Davetlisiniz"in altında) -->
+    <symbol id="orn-yuzuk" viewBox="0 0 240 24">
+      <path d="M10 13H96M144 13H230" fill="none" stroke="currentColor" stroke-width=".9"/>
+      <circle cx="101" cy="13" r="1.7" fill="currentColor"/><circle cx="139" cy="13" r="1.7" fill="currentColor"/>
+      <g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="114" cy="14" r="7.5"/><circle cx="126" cy="14" r="7.5"/></g>
+      <path d="M126 4.2l2.6-2.6 2.6 2.6-2.6 2.2z" fill="currentColor" transform="translate(-2.6 -.2)"/>
     </symbol>
     <!-- Mum mühür: renk katmanı (tema altını) + ışık katmanı. Işık katmanındaki kırmızı ton "yükseklik"tir: filtre
          onu kabartmaya çevirir (dış mum taşması, halka, çukur iç disk ve kabarık baş harfler). -->
@@ -1075,11 +1127,13 @@ body[data-phase="after"] .kapanis-baslik { display: none; }
     return s + (kapali ? 'z' : '');
   }
   const bez = (p0, p1, p2, p3, u) => { const v = 1 - u; return [0, 1].map(i => v * v * v * p0[i] + 3 * v * v * u * p1[i] + 3 * v * u * u * p2[i] + u * u * u * p3[i]); };
-  // Çizim sırası korunur: sonra gelen dolgu öncekinin oyuğunu örter (taç yapraklar birbirinin üstüne biner)
-  let seq = [];
-  const dolgu = (pts, h) => seq.push({ t: 'd', d: yol(pts), h });
-  const oyuk = (pts, w) => seq.push({ t: 'o', d: yol(pts, false), w });
-  const kabarik = (pts, w, h) => seq.push({ t: 'k', d: yol(pts, false), w, h });
+  // Çizim sırası korunur: sonra gelen dolgu öncekinin oyuğunu örter (taç yapraklar birbirinin üstüne biner).
+  // renk: renkli çiçeklerde parçanın sınıfı (0 beyaz taç yaprak, 1 yeşil yaprak, 2 pembe); kabartmada kullanılmaz.
+  let seq = [], renk = 0;
+  const dolgu = (pts, h) => seq.push({ t: 'd', d: yol(pts), h, c: renk });
+  const oyuk = (pts, w) => seq.push({ t: 'o', d: yol(pts, false), w, c: renk });
+  const kabarik = (pts, w, h) => seq.push({ t: 'k', d: yol(pts, false), w, h, c: renk });
+  const boya = (c, fn) => { const o = renk; renk = c; fn(); renk = o; };
   // Kalınlığı değişen şerit (dal, kıvrım)
   function serit(merkez, gen, h) {
     const L = [], R = [];
@@ -1145,14 +1199,16 @@ body[data-phase="after"] .kapanis-baslik { display: none; }
     dolgu([...ust, ...alt.reverse()], h);
     oyuk([T(L * .32, -L * .2), T(L * .62, L * .02), T(L * .95, L * .02)], .8);
     oyuk([T(L * .4, L * .24), T(L * .66, L * .12)], .6);
-    for (const k of [-1, 1]) {     // çanak yapraklar
-      const pts = [];
-      for (let j = 0; j <= 10; j++) { const u = j / 10; pts.push(T(L * (.12 + .5 * u), k * L * (.3 * Math.sin(Math.PI * u) + .02 * u))); }
-      for (let j = 10; j >= 0; j--) { const u = j / 10; pts.push(T(L * (.12 + .5 * u), k * L * (.12 * Math.sin(Math.PI * u)))); }
-      dolgu(pts, h * .8);
-    }
-    for (let j = 0; j <= 8; j++) { const u = j / 8; sap.push(T(-L * .45 * u, L * .06 * Math.sin(u * 3))); }
-    serit(sap, sap.map((p, i) => 2.4 - i * .1), .6);
+    boya(1, () => {
+      for (const k of [-1, 1]) {     // çanak yapraklar
+        const pts = [];
+        for (let j = 0; j <= 10; j++) { const u = j / 10; pts.push(T(L * (.12 + .5 * u), k * L * (.3 * Math.sin(Math.PI * u) + .02 * u))); }
+        for (let j = 10; j >= 0; j--) { const u = j / 10; pts.push(T(L * (.12 + .5 * u), k * L * (.12 * Math.sin(Math.PI * u)))); }
+        dolgu(pts, h * .8);
+      }
+      for (let j = 0; j <= 8; j++) { const u = j / 8; sap.push(T(-L * .45 * u, L * .06 * Math.sin(u * 3))); }
+      serit(sap, sap.map((p, i) => 2.4 - i * .1), .6);
+    });
   }
   // Bezier dal (incelir); dal üzerindeki bir noktayı ve yönünü veren işlev döndürür
   function dal(p0, p1, p2, p3, w0, w1, h = .6) {
@@ -1173,6 +1229,22 @@ body[data-phase="after"] .kapanis-baslik { display: none; }
   }
   function nokta(x, y, r, h = .7) { const p = []; for (let j = 0; j <= 12; j++) { const t = j / 12 * 2 * Math.PI; p.push([x + r * Math.cos(t), y + r * Math.sin(t)]); } dolgu(p, h); }
   function yapraklar(d, liste) { for (const [u, taraf, L, W, fark = 42, h = .7] of liste) { const p = d(u); yaprak(p.x, p.y, L, W, p.a + taraf * fark, h, .1 * taraf); } }
+  // Okaliptüs: dal boyunca sırayla iki yana açılan yuvarlak yapraklar (L0 dibinde, L1 ucunda)
+  function okaliptus(d, adet, L0, L1, h = .64) {
+    for (let i = 0; i < adet; i++) { const u = .12 + i / adet * .86, p = d(u), L = L0 + (L1 - L0) * u; yaprak(p.x, p.y, L, L * .5, p.a + (i % 2 ? 62 : -62), h, 0); }
+  }
+  // Cipsofil (gelin duvağı çiçeği): (x,y)'den a yönünde yelpaze gibi açılan ince saplar, uçlarında minik beyaz toplar
+  function cipsofil(x, y, a, L, tohum = 5) {
+    const rnd = rastgele(tohum), uclar = [];
+    boya(1, () => {
+      for (let i = 0; i < 5; i++) {
+        const aa = rad(a + (i - 2) * 16 + (rnd() - .5) * 8), l = L * (.7 + rnd() * .35), c = Math.cos(aa), s = Math.sin(aa);
+        dal([x, y], [x + c * l * .3, y + s * l * .3], [x + c * l * .7, y + s * l * .7], [x + c * l, y + s * l], .9, .5, .5);
+        uclar.push([x + c * l, y + s * l]);
+      }
+    });
+    for (const [ux, uy] of uclar) for (let k = 0; k < 4; k++) nokta(ux + (rnd() - .5) * 9, uy + (rnd() - .5) * 9, 1.5 + rnd() * 1.3, .85);
+  }
   const EG = 342 / 195;          // kapak köşegenlerinin eğimi
   // Üst kapak, sol yarı (sağ yarı ve alt kapak aynalarıdır): köşede iki gül, tomurcuklar; köşegene paralel mühre inen dal
   function ustKapak() {
@@ -1220,33 +1292,101 @@ body[data-phase="after"] .kapanis-baslik { display: none; }
     kabarik([[-30, 80 - 30 * EG + c], [y, 422], [-30, 764 + 30 * EG - c]], 1.3, .52);
     kabarik([[420, 80 - 30 * EG + c], [390 - y, 422], [420, 764 + 30 * EG - c]], 1.3, .52);
   }
-  // Bir çizim grubunu SVG'ye çevirir; art arda gelen aynı türdeki yollar tek yolda birleşir
+  // ===== Kemerli kapaktaki renkli çiçek demetleri: beyaz ve pudra pembesi güller, adaçayı yeşili yapraklar =====
+  // Kemerin tepesi. Kutu 360×190; kemerin tepesi (180, 64), yarıçapı 300 birim (demet, kemer genişliğinin %60'ı).
+  // Ortada büyük beyaz gül, iki yanında güller; yapraklı dallar kemerin çizgisi boyunca iki yana iner.
+  function demetTepe() {
+    const yay = (t, r) => [180 + r * Math.sin(rad(t)), 364 - r * Math.cos(rad(t))];
+    boya(1, () => {
+      for (const s of [-1, 1]) {
+        const d = dal(yay(s * 5, 304), yay(s * 15, 306), yay(s * 26, 302), yay(s * 37, 298), 3.2, 1.2, .55);
+        yapraklar(d, [[.08, 1, 26, 8, 40], [.18, -1, 25, 8, 46], [.3, 1, 24, 7.6, 44], [.42, -1, 22, 7, 46], [.54, 1, 21, 6.6, 44], [.66, -1, 19, 6, 46], [.78, 1, 17, 5.4, 44], [.9, -1, 14, 4.6, 42]].map(v => [v[0], v[1] * s, v[2], v[3], v[4]]));
+        okaliptus(dal(yay(s * 3, 292), yay(s * 11, 282), yay(s * 19, 276), yay(s * 28, 268), 2, .9, .55), 8, 14, 9);
+        for (const [a, L, W, h] of [[-150, 48, 14, .66], [-118, 40, 12, .64], [168, 46, 13, .7], [140, 42, 12, .68], [112, 34, 10, .66]])
+          yaprak(180 + s * 6, 80, L, W, s > 0 ? 180 - a : a, h, .1 * s);
+      }
+      yaprak(180, 70, 36, 11, -90, .62);
+    });
+    cipsofil(146, 70, -150, 32, 3); cipsofil(214, 70, -30, 32, 9); cipsofil(160, 96, 128, 28, 4); cipsofil(200, 96, 52, 28, 8);
+    gul(130, 84, 25, 18, .95, 5); gul(232, 82, 26, -14, .95, 13);
+    boya(2, () => { gul(94, 98, 16, 40, .9, 21); gul(268, 96, 17, 8, .9, 17); tomurcuk(110, 108, 18, 160, .86); tomurcuk(252, 108, 18, 20, .86); });
+    gul(181, 74, 34, 4, 1, 3);
+    boya(2, () => { tomurcuk(152, 50, 15, -118, .86); tomurcuk(210, 48, 15, -62, .86); });
+  }
+  // Perdenin bağlandığı yer (sol; sağdaki aynasıdır). Kutu 150×210; düğüm (106, 62) kemerin kenarına gelir.
+  function demetYan() {
+    boya(1, () => {
+      const d = dal([106, 70], [96, 108], [114, 140], [100, 204], 2.6, 1, .55);
+      yapraklar(d, [[.12, 1, 22, 7, 44], [.26, -1, 21, 6.6, 44], [.4, 1, 20, 6.2, 46], [.55, -1, 18, 5.6, 44], [.7, 1, 16, 5, 44], [.86, -1, 13, 4.2, 40]]);
+      okaliptus(dal([100, 70], [74, 96], [62, 128], [56, 176], 2, .9, .55), 7, 13, 8);
+      for (const [a, L, W] of [[-150, 36, 11], [-100, 30, 9], [-40, 30, 9], [175, 36, 11], [140, 30, 9], [30, 24, 7]]) yaprak(106, 64, L, W, a, .68);
+    });
+    cipsofil(98, 58, -130, 28, 6); cipsofil(116, 56, -70, 22, 2);
+    boya(2, () => { gul(80, 82, 14, 30, .9, 19); tomurcuk(128, 84, 15, 50, .86); });
+    gul(106, 60, 23, -10, 1, 7);
+  }
+  // Kemerin dibi (sol; sağdaki aynasıdır). Kutu 210×200; kemerin kenarı x=70. Yerden yükselen dallar, iki gül, tomurcuklar.
+  function demetAlt() {
+    boya(1, () => {
+      const d = dal([72, 196], [76, 150], [62, 110], [74, 30], 3, 1.2, .55);
+      yapraklar(d, [[.18, 1, 24, 7.5, 44], [.32, -1, 23, 7, 44], [.46, 1, 22, 6.8, 46], [.6, -1, 20, 6.2, 44], [.74, 1, 18, 5.6, 44], [.88, -1, 15, 4.6, 42]]);
+      okaliptus(dal([90, 196], [112, 170], [128, 150], [150, 140], 2.4, 1, .55), 7, 14, 9);
+      okaliptus(dal([56, 196], [34, 166], [20, 136], [6, 100], 2.2, 1, .55), 7, 14, 9);
+      for (const [a, L, W] of [[-100, 46, 13], [-60, 44, 12], [-140, 42, 12], [-20, 38, 11], [-165, 38, 11]]) yaprak(76, 176, L, W, a, .7);
+    });
+    cipsofil(70, 150, -100, 34, 11); cipsofil(104, 158, -55, 30, 12); cipsofil(44, 168, -140, 28, 14);
+    boya(2, () => { gul(118, 172, 17, 12, .92, 23); tomurcuk(72, 116, 20, -94, .86); tomurcuk(108, 128, 16, -56, .86); });
+    gul(80, 166, 29, -6, 1, 9); gul(40, 180, 20, 40, .96, 15);
+  }
+  // Bir çizim grubunu SVG'ye çevirir; art arda gelen aynı türdeki yollar tek yolda birleşir.
+  // Renk: kırmızı = yükseklik; yeşil ve mavi parçanın sınıfı (yaprak, pembe). Kabartma filtresi yalnızca kırmızıyı okur.
   function grup(id, fn) {
-    seq = []; fn();
-    const hex = h => '#' + Math.max(0, Math.min(255, Math.round(h * 255))).toString(16).padStart(2, '0') + '0000', parca = [];
+    seq = []; renk = 0; fn();
+    const hex = (h, c) => '#' + [h, c === 1 ? 1 : 0, c === 2 ? 1 : 0].map(v => Math.max(0, Math.min(255, Math.round(v * 255))).toString(16).padStart(2, '0')).join(''), parca = [];
     let son = null;
     for (const e of seq) {
-      const anahtar = e.t + (e.t === 'o' ? e.w : e.t === 'd' ? hex(e.h) : e.w + hex(e.h));
+      const anahtar = e.t + (e.t === 'o' ? e.w + hex(0, e.c) : e.t === 'd' ? hex(e.h, e.c) : e.w + hex(e.h, e.c));
       if (son && son.anahtar === anahtar) son.d += e.d; else parca.push(son = { anahtar, e, d: e.d });
     }
-    return `<g id="${id}">` + parca.map(p => (p.e.t === 'd' ? `<path fill="${hex(p.e.h)}" d="${p.d}"/>`
-      : p.e.t === 'o' ? `<path fill="none" stroke="#000" stroke-width="${p.e.w}" stroke-linecap="round" stroke-linejoin="round" d="${p.d}"/>`
-      : `<path fill="none" stroke="${hex(p.e.h)}" stroke-width="${p.e.w}" stroke-linecap="round" d="${p.d}"/>`)).join('') + '</g>';
+    return `<g id="${id}">` + parca.map(p => (p.e.t === 'd' ? `<path fill="${hex(p.e.h, p.e.c)}" d="${p.d}"/>`
+      : p.e.t === 'o' ? `<path fill="none" stroke="${hex(0, p.e.c)}" stroke-width="${p.e.w}" stroke-linecap="round" stroke-linejoin="round" d="${p.d}"/>`
+      : `<path fill="none" stroke="${hex(p.e.h, p.e.c)}" stroke-width="${p.e.w}" stroke-linecap="round" d="${p.d}"/>`)).join('') + '</g>';
   }
   // Işık-gölge filtresi (kabartma) ve altın ışık filtresi; filtre alanı desenden geniş, kenarlarda çizgi oluşmasın
   const ALAN = 'filterUnits="userSpaceOnUse" x="-20" y="-20" width="430" height="884" color-interpolation-filters="sRGB"';
   const KABART = `<filter id="k" ${ALAN}><feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0" result="h"/><feGaussianBlur in="h" stdDeviation=".75" result="b1"/><feGaussianBlur in="h" stdDeviation="2.2" result="b2"/><feComposite in="b1" in2="b2" operator="arithmetic" k2=".5" k3=".5" result="b"/><feDiffuseLighting in="b" surfaceScale="3.6" diffuseConstant="1" lighting-color="#fff" result="l"><feDistantLight azimuth="225" elevation="50"/></feDiffuseLighting><feColorMatrix in="l" values="0 0 0 0 1 0 0 0 0 .99 0 0 0 0 .96 2.3 0 0 0 -1.762" result="p"/><feColorMatrix in="l" values="0 0 0 0 .5 0 0 0 0 .4 0 0 0 0 .27 -1.6 0 0 0 1.2257" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="p"/></feMerge></filter>`;
   const ALTIN = `<filter id="a" ${ALAN}><feColorMatrix in="SourceGraphic" values="0 0 0 0 1 0 0 0 0 .93 0 0 0 0 .74 2.6 0 0 0 -1.25" result="c"/><feGaussianBlur in="c" stdDeviation="2.4" result="cb"/><feMerge><feMergeNode in="cb"/><feMergeNode in="cb"/><feMergeNode in="c"/></feMerge></filter>`;
+  // Renkli çiçek filtresi: yükseklik ışık-gölgeye çevrilir; her nokta, sınıfının aydınlık rengiyle gölge rengi arasında
+  // ışığa göre karışır (aydınlık·ışık + gölge·(1 − ışık)); altına yumuşak bir gölge düşer.
+  const CR = { acik: ['#FFFCF5', '#A9BA9F', '#F5DDD2'], koyu: ['#C8B394', '#4B6150', '#BC8E7F'] };   // [taç yaprak, yaprak, pembe]
+  const sinifRengi = t => {
+    const [a, y, p] = t.map(s => [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16) / 255)), k = v => Math.round(v * 1000) / 1000;
+    return [0, 1, 2].map(i => `0 ${k(y[i] - a[i])} ${k(p[i] - a[i])} 0 ${k(a[i])}`).join(' ') + ' 0 0 0 0 1';
+  };
+  const RENKLI = (x, y, w, h) => `<filter id="c" filterUnits="userSpaceOnUse" x="${x}" y="${y}" width="${w}" height="${h}" color-interpolation-filters="sRGB">`
+    + '<feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0" result="h"/>'
+    + '<feGaussianBlur in="h" stdDeviation=".7" result="b1"/><feGaussianBlur in="h" stdDeviation="2.4" result="b2"/>'
+    + '<feComposite in="b1" in2="b2" operator="arithmetic" k2=".5" k3=".5" result="b"/>'
+    + '<feDiffuseLighting in="b" surfaceScale="4.2" diffuseConstant="1.32" lighting-color="#fff" result="L"><feDistantLight azimuth="225" elevation="52"/></feDiffuseLighting>'
+    + `<feColorMatrix in="SourceGraphic" values="${sinifRengi(CR.acik)}" result="ra"/><feColorMatrix in="SourceGraphic" values="${sinifRengi(CR.koyu)}" result="rk"/>`
+    + '<feColorMatrix in="L" values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 0 0 0 0 1" result="Li"/>'
+    + '<feComposite in="L" in2="ra" operator="arithmetic" k1="1" result="A"/><feComposite in="Li" in2="rk" operator="arithmetic" k1="1" result="B"/>'
+    + '<feComposite in="A" in2="B" operator="arithmetic" k2="1" k3="1" result="F"/><feComposite in="F" in2="SourceAlpha" operator="in" result="M"/>'
+    + '<feGaussianBlur in="SourceAlpha" stdDeviation="3.2"/><feOffset dx="2" dy="4"/><feColorMatrix values="0 0 0 0 .3 0 0 0 0 .22 0 0 0 0 .12 0 0 0 .32 0" result="g"/>'
+    + '<feMerge><feMergeNode in="g"/><feMergeNode in="M"/></feMerge></filter>';
   const M = { x: 'matrix(-1 0 0 1 390 0)', y: 'matrix(1 0 0 -1 0 844)', xy: 'matrix(-1 0 0 -1 390 844)' };
   const dort = id => `<use href="#${id}"/><use href="#${id}" transform="${M.x}"/><use href="#${id}" transform="${M.y}"/><use href="#${id}" transform="${M.xy}"/>`;
   const G = {};      // çizim grupları, ilk gerektiğinde bir kez üretilir
-  const gr = (...ids) => ids.map(id => G[id] || (G[id] = grup(id, { 'zd-u': ustKapak, 'zd-y': yanKapak, 'zd-m': yanOrta, 'zd-k': kenarlar }[id]))).join('');
+  const gr = (...ids) => ids.map(id => G[id] || (G[id] = grup(id, { 'zd-u': ustKapak, 'zd-y': yanKapak, 'zd-m': yanOrta, 'zd-k': kenarlar, 'dm-t': demetTepe, 'dm-y': demetYan, 'dm-a': demetAlt }[id]))).join('');
   const svg = (vb, w, h, defs, govde) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" width="${w}" height="${h}"><defs>${defs}</defs>${govde}</svg>`;
   const kabart = govde => `<g filter="url(#k)"><rect x="-20" y="-20" width="430" height="884" fill="#4D0000"/>${govde}</g>`;
   const hazir = {};
   // Görsel, gövdeye CSS değişkeni olarak verilir (sayfa betiği <html>'deki değişkenleri yönetir, buradakilere dokunmaz)
   const ata = (ad, s) => document.body.style.setProperty(ad, `url("data:image/svg+xml,${encodeURIComponent(s)}")`);
-  // ne: 'zarf' (kapaklar ve ışık dalgası) | 'kemer' (kapaktaki köşe demetleri ve masaüstündeki yan sarmaşıklar)
+  // Renkli demet görseli: kutu [x, y, gen, yük]; ayna=true ise soldan sağa çevrilir (ışık yine sol üstten gelir)
+  const demet = (id, [x, y, w, h], ayna) => svg(`${x} ${y} ${w} ${h}`, w, h, gr(id) + RENKLI(x - 12, y - 12, w + 24, h + 24),
+    `<g filter="url(#c)"><use href="#${id}"${ayna ? ` transform="matrix(-1 0 0 1 ${2 * x + w} 0)"` : ''}/></g>`);
+  // ne: 'zarf' (kapaklar ve ışık dalgası) | 'kemer' (kapaktaki köşe demetleri, masaüstündeki yan sarmaşıklar, çiçek demetleri)
   window.desenleriHazirla = ne => {
     if (hazir[ne]) return;
     hazir[ne] = true;
@@ -1260,6 +1400,15 @@ body[data-phase="after"] .kapanis-baslik { display: none; }
       ata('--kose-sag', svg('190 70 180 180', 180, 180, gr('zd-u') + KABART, kabart(`<use href="#zd-u" transform="${M.x}"/>`)));
       ata('--yan-desen-sol', svg('0 170 76 504', 76, 504, gr('zd-y') + KABART, kabart(yan)));
       ata('--yan-desen-sag', svg('314 170 76 504', 76, 504, gr('zd-y') + KABART, kabart(`<g transform="${M.x}">${yan}</g>`)));
+      // Çiçek demetleri sayfa ilk kez göründükten sonra çizilir (açılış gecikmesin; demetler zaten yavaşça belirir)
+      const demetler = () => {
+        try {
+          ata('--demet-tepe', demet('dm-t', [0, 0, 360, 190]));
+          ata('--demet-yan-sol', demet('dm-y', [0, 0, 150, 210])); ata('--demet-yan-sag', demet('dm-y', [0, 0, 150, 210], true));
+          ata('--demet-alt-sol', demet('dm-a', [0, 0, 210, 200])); ata('--demet-alt-sag', demet('dm-a', [0, 0, 210, 200], true));
+        } catch (e) { console.warn('Çiçek demetleri çizilemedi:', e); }
+      };
+      if (window.requestIdleCallback) requestIdleCallback(demetler, { timeout: 250 }); else setTimeout(demetler, 50);
     }
   };
   // Zarf kalkınca görselleri bırakır
@@ -1295,21 +1444,21 @@ body[data-phase="after"] .kapanis-baslik { display: none; }
   </div>
 </div>
 
-<!-- ===== Kapak: kemerin içinde gece sahnesi (kemer kapatılırsa bütün ekran) ===== -->
+<!-- ===== Kapak: krem duvarda kemer, içinde aydınlık tören sahnesi (kemer kapatılırsa bütün ekranda gece sahnesi) ===== -->
 <header class="hero" id="top">
   <div class="kemer-sus sol" aria-hidden="true"></div>
   <div class="kemer-sus sag" aria-hidden="true"></div>
   <div class="kemer-ic" aria-hidden="true">
     <div class="hero-photo"></div>
+    <svg class="perde" viewBox="0 0 100 200" preserveAspectRatio="none"><use href="#perde-yari"/><use href="#perde-yari" transform="matrix(-1 0 0 1 100 0)"/></svg>
     <div class="sparks" id="sparks"></div>
-    <i class="fener sol"><svg viewBox="0 0 60 132"><use href="#fener"/></svg><i class="isik"></i></i>
-    <i class="fener sag"><svg viewBox="0 0 60 132"><use href="#fener"/></svg><i class="isik"></i></i>
   </div>
-  <svg class="kemer-cerceve" viewBox="0 0 100 200" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0 200V62C0 34 36 18 50 0 64 18 100 34 100 62V200" stroke="rgba(70, 50, 20, .38)" stroke-width="7" style="filter: blur(2px)"/>
-    <path d="M0 200V62C0 34 36 18 50 0 64 18 100 34 100 62V200" stroke="var(--duvar)" stroke-width="5"/>
-    <path d="M0 200V62C0 34 36 18 50 0 64 18 100 34 100 62V200" stroke="var(--shine-3)" stroke-width="1.6"/>
-  </svg>
+  <div class="kemer-cerceve" aria-hidden="true"></div>
+  <div class="demet tepe" aria-hidden="true"></div>
+  <div class="demet yan sol" aria-hidden="true"></div>
+  <div class="demet yan sag" aria-hidden="true"></div>
+  <div class="demet alt sol" aria-hidden="true"></div>
+  <div class="demet alt sag" aria-hidden="true"></div>
   <div class="hero-frame" aria-hidden="true"></div>
   <svg class="branch tl" aria-hidden="true"><use href="#branch"/></svg>
   <svg class="branch br" aria-hidden="true"><use href="#branch"/></svg>
@@ -1318,7 +1467,7 @@ body[data-phase="after"] .kapanis-baslik { display: none; }
     <div class="davetli-blok in-1">
       <p class="davetli" id="kapak-davetli">Davetlisiniz</p>
       <p class="davetli-alt" id="kapak-davetli-alt">Düğün Törenimize</p>
-      <svg class="orn" aria-hidden="true"><use href="#orn"/></svg>
+      <svg class="orn" aria-hidden="true"><use href="#orn-yuzuk"/></svg>
     </div>
     <h1 class="names in-2"><span data-c="gelin_adi">Elif</span><span class="amp">&amp;</span><span data-c="damat_adi">Yunus</span></h1>
     <svg class="orn in-3" aria-hidden="true"><use href="#orn"/></svg>
@@ -1532,7 +1681,8 @@ body[data-phase="after"] .kapanis-baslik { display: none; }
 </main>
 
 <footer class="footer">
-  <svg class="kapanis-kemer" viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><path d="M0 51V50C0 27.4 36 14.5 50 0 64 14.5 100 27.4 100 50V51Z"/><path class="cizgi" d="M0 50C0 27.4 36 14.5 50 0 64 14.5 100 27.4 100 50"/></svg>
+  <div class="kapanis-kemer" aria-hidden="true"></div>
+  <div class="kapanis-demet" aria-hidden="true"></div>
   <p class="kapanis-baslik" data-c="kapanis_baslik">Sizi Aramızda Görmekten Mutluluk Duyarız</p>
   <svg class="orn" aria-hidden="true"><use href="#orn"/></svg>
   <p class="footer-names"><span data-c="gelin_adi">Elif</span> &amp; <span data-c="damat_adi">Yunus</span></p>
@@ -1787,8 +1937,8 @@ body[data-phase="after"] .kapanis-baslik { display: none; }
         <fieldset class="set-card">
           <legend>Kapak ve süslemeler</legend>
           <label class="set-switch"><span>Açılışta zarf<small>Düğünden önce sayfa, mühre dokununca açılan kabartmalı bir zarfla başlar</small></span><input type="checkbox" role="switch" id="lk-zarf"></label>
-          <label class="set-switch"><span>Kemerli kapak<small>Krem duvarda sivri kemer, fenerler ve kabartma güller; kapalıyken kapak bütün ekranı kaplar</small></span><input type="checkbox" role="switch" id="lk-kemer"></label>
-          <label class="set-switch"><span>Kapakta yükselen ışıltılar</span><input type="checkbox" role="switch" id="lk-isiltilar"></label>
+          <label class="set-switch"><span>Kemerli kapak<small>Krem duvarda kemer; içinde tül perdeler, beyaz gül demetleri ve aydınlık bir tören sahnesi. Kapalıyken kapak bütün ekranı kaplar</small></span><input type="checkbox" role="switch" id="lk-kemer"></label>
+          <label class="set-switch"><span>Kapakta süzülen süsler<small>Kemerli kapakta gül yaprakları, kemersiz kapakta altın ışıltılar</small></span><input type="checkbox" role="switch" id="lk-isiltilar"></label>
           <label class="set-switch"><span>Kapaktaki dal süslemeleri<small>Yalnızca kemersiz kapakta</small></span><input type="checkbox" role="switch" id="lk-dallar"></label>
           <label class="set-switch"><span>Kapaktaki ince çerçeve<small>Yalnızca kemersiz kapakta</small></span><input type="checkbox" role="switch" id="lk-cerceve"></label>
           <label class="set-switch"><span>Kâğıt dokusu</span><input type="checkbox" role="switch" id="lk-doku"></label>
