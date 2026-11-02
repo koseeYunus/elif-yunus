@@ -268,12 +268,13 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
    içine boyandığı için kutu bu payı her platformda kapsayacak kadar büyük; negatif boşlukla eski aralık korunur. */
 .names span {
   padding: .5em .3em .42em; margin: -.4em 0 -.26em; color: var(--gold-light);
-  /* Üstte dönemsel bir ışık süzmesi (--glint), altta yavaşça dalgalanan altın */
+  /* Üstte dönemsel bir ışık süzmesi (--glint), altta yavaşça dalgalanan altın. İkisi de her karede yeniden boyanır;
+     kapağın giriş animasyonu akıcı olsun diye giriş bitince başlarlar. */
   background:
     linear-gradient(105deg, transparent calc(var(--glint) - 9%), rgba(255, 249, 232, .95) var(--glint), transparent calc(var(--glint) + 9%)),
     linear-gradient(100deg, var(--shine-1) 0%, var(--shine-2) 26%, var(--shine-3) 50%, var(--shine-4) 74%, var(--shine-1) 100%);
   background-size: 100% 100%, 220% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  animation: shimmer 11s ease-in-out infinite, glint 7s ease-in-out 2.4s infinite;
+  animation: shimmer 11s ease-in-out 1.6s infinite, glint 7s ease-in-out 2.4s infinite;
 }
 .names .amp { font: italic 400 .34em/1 var(--serif); padding: 0 .4em .12em; margin: -.12em 0 -.02em; }
 @keyframes shimmer { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
@@ -353,7 +354,7 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 .in-1, .in-2, .in-3, .in-4, .in-5 { animation: enter 1.3s var(--ease) both; }
 .in-2 { animation-delay: .15s; } .in-3 { animation-delay: .35s; } .in-4 { animation-delay: .55s; } .in-5 { animation-delay: .75s; }
 @keyframes enter { from { opacity: 0; transform: translateY(18px); } }
-.names.in-2 span { animation: shimmer 11s ease-in-out infinite, glint 7s ease-in-out 2.4s infinite; }
+.names.in-2 span { animation: shimmer 11s ease-in-out 1.6s infinite, glint 7s ease-in-out 2.4s infinite; }
 
 /* ===== Açılış zarfı ===== */
 /* Kabartmalı krem bir zarf, ortasında mum mühür. Telefonda dikey zarf; tablette ve bilgisayarda ekranın kendi oranında
@@ -362,9 +363,16 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
    arkadaki kapak belirir (~3 sn). Zarf açıkken kapaktaki animasyonlar bekler.
    Kabartma desenler sayfa açılırken bir kez çizilir (bkz. "Zarf ve kemer desenleri" betiği). */
 html.zarf-acik, html.zarf-acik body, html.zarf-kalkiyor, html.zarf-kalkiyor body { overflow: hidden; }
-.zarf { position: fixed; inset: 0; z-index: 44; display: none; container-type: size; background: rgba(var(--night-rgb), .9); -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.zarf { position: fixed; inset: 0; z-index: 44; display: none; container-type: size; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+/* arkadaki karartma ayrı katmanda: açılırken yalnızca saydamlığı değişir, her karede yeniden boyanmaz */
+.zarf::before { content: ""; position: absolute; inset: 0; background: rgba(var(--night-rgb), .9); }
 .zarf-acik .zarf, .zarf-kalkiyor .zarf { display: block; }
-.zarf-acik .hero *, .zarf-acik .hero *::before, .zarf-acik .hero *::after { animation-play-state: paused; }
+/* Görünmeyen süs animasyonları bekler: zarf açıkken kapaktakiler, ekran dışındaki kapak ve tarih kartları (.ekran-disi,
+   betik ekler). Telefonu boşuna yormasınlar. Bekleme miras alınan bir değişkenle iner: kökteki sınıf değişince yalnızca
+   kapağın stili yeniden hesaplanır (".zarf-acik .hero *" gibi bir kural bütün sayfayı yeniden hesaplatıyordu).
+   !important şart: isim parıltısı ve yaprak kuralları daha özgül. */
+.zarf-acik .hero, .ekran-disi { --susler: paused; }
+:is(.hero, .kazi) *, :is(.hero, .kazi) *::before, :is(.hero, .kazi) *::after { animation-play-state: var(--susler, running) !important; }
 .zarf-kutu {
   --zarf-kagit: var(--duvar, var(--sand));
   --zs: max(100cqw / var(--zd-w, 390), 100cqh / var(--zd-h, 844));   /* desen birimi → piksel (dikey desen 390×844; yatay desen ekran oranında, 760 yüksek) */
@@ -374,11 +382,16 @@ html.zarf-acik, html.zarf-acik body, html.zarf-kalkiyor, html.zarf-kalkiyor body
 }
 .zk { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; will-change: transform; }
 .zk i { position: absolute; inset: 0; background: var(--zd-desen, none) center / cover no-repeat, var(--noise), var(--zarf-kagit); }
+/* Üst ve alt kapağın gölgesi içteki <b>'de: kapağın katmanına bir kez çizilir. (Gölge kapağın kendisinde olunca
+   ekran kartı iki tam ekran gölgeyi her karede yeniden hesaplıyordu.) */
+.zk > b { position: absolute; inset: 0; display: block; }
+.zk-ust > b { filter: drop-shadow(0 calc(2 * var(--zs)) calc(2.5 * var(--zs)) rgba(70, 50, 20, .26)); }
+.zk-alt > b { filter: drop-shadow(0 calc(-1.5 * var(--zs)) calc(2.5 * var(--zs)) rgba(70, 50, 20, .2)); }
 /* açılırken kapakların ışığı değişir: üst ve sol kapak gölgelenir, alt ve sağ kapak aydınlanır (ışık sol üstten) */
 .zk i::after { content: ""; position: absolute; inset: 0; opacity: 0; background: rgba(var(--gold-deep-rgb), .2); }
 .zk-alt i::after, .zk-sag i::after { background: rgba(255, 252, 244, .42); }
-.zk-ust { z-index: 4; transform-origin: 50% 0; filter: drop-shadow(0 calc(2 * var(--zs)) calc(2.5 * var(--zs)) rgba(70, 50, 20, .26)); }
-.zk-alt { z-index: 3; transform-origin: 50% 100%; filter: drop-shadow(0 calc(-1.5 * var(--zs)) calc(2.5 * var(--zs)) rgba(70, 50, 20, .2)); }
+.zk-ust { z-index: 4; transform-origin: 50% 0; }
+.zk-alt { z-index: 3; transform-origin: 50% 100%; }
 .zk-sol { z-index: 2; transform-origin: 0 50%; }
 .zk-sag { z-index: 2; transform-origin: 100% 50%; }
 /* kapakların kenarları desenin köşegenleriyle aynı eğimde ve ortadan geçer: her ekran oranında desenle örtüşür */
@@ -431,12 +444,16 @@ html.zarf-acik, html.zarf-acik body, html.zarf-kalkiyor, html.zarf-kalkiyor body
 .aciliyor .muhur { pointer-events: none; }
 .aciliyor .muhur::before, .aciliyor .zarf-ipucu, .aciliyor .zarf-sizinti { animation: sonuk .4s forwards; }
 @keyframes sonuk { to { opacity: 0; } }
+/* Mühür yalnızca konum, saydamlık ve parlaklıkla canlanır: hepsini ekran kartı yürütür. (Bulanıklık ve gölge
+   canlandırılınca mühür, içindeki ışık-gölge filtresiyle birlikte her karede yeniden çiziliyordu.) */
 .aciliyor .muhur-tam { transition: none; animation: muhur-kalk 1.05s cubic-bezier(.3, 0, .25, 1) both; }
+.aciliyor .muhur-tam svg { animation: muhur-isil 1.05s cubic-bezier(.3, 0, .25, 1) both; }
 @keyframes muhur-kalk {
   14% { transform: scale(.955); }
-  52% { transform: translateY(-4%) scale(1.06) rotate(-3deg); opacity: 1; filter: drop-shadow(0 calc(4 * var(--zs)) calc(5 * var(--zs)) rgba(70, 48, 18, .3)) brightness(1) blur(0); }
-  100% { transform: translateY(-8%) scale(1.15) rotate(-7deg); opacity: 0; filter: drop-shadow(0 calc(4 * var(--zs)) calc(5 * var(--zs)) rgba(70, 48, 18, 0)) brightness(1.4) blur(calc(1.2 * var(--zs))); }
+  52% { transform: translateY(-4%) scale(1.06) rotate(-3deg); opacity: 1; }
+  100% { transform: translateY(-8%) scale(1.15) rotate(-7deg); opacity: 0; }
 }
+@keyframes muhur-isil { 0%, 52% { filter: brightness(1); } 100% { filter: brightness(1.4); } }
 .aciliyor .muhur-golge { animation: golge-kalk 1.05s cubic-bezier(.3, 0, .25, 1) both; }
 @keyframes golge-kalk { 0%, 14% { opacity: 0; transform: none; } 52% { opacity: 1; transform: translateY(6%) scale(1.04); } 100% { opacity: 0; transform: translateY(8%) scale(1.25); } }
 .aciliyor .muhur-parilti { animation: parilti 1.75s .2s cubic-bezier(.3, .1, .3, 1) both; }
@@ -448,8 +465,7 @@ html.zarf-acik, html.zarf-acik body, html.zarf-kalkiyor, html.zarf-kalkiyor body
   78% { opacity: .85; }
   100% { opacity: 0; -webkit-mask-size: 150cqmax 150cqmax; mask-size: 150cqmax 150cqmax; }
 }
-.aciliyor .zarf { animation: perde-ac .9s 1.3s forwards; }
-@keyframes perde-ac { to { background-color: transparent; } }
+.aciliyor .zarf::before { animation: sonuk .9s 1.3s forwards; }
 .aciliyor .zarf-kutu { animation: kutu-ac .9s 1.25s forwards; }
 @keyframes kutu-ac { 0% { background-color: var(--zarf-kagit); } 1%, 100% { background-color: transparent; box-shadow: 0 30px 80px -24px transparent; } }
 .aciliyor .zk-ust { animation: ac-ust 1.15s 1.22s cubic-bezier(.5, .04, .3, 1) both; }
@@ -963,12 +979,13 @@ body:is([data-phase="live"], [data-phase="after"]) .kapanis-baslik { display: no
 .music-btn:active { transform: scale(.92); }
 .music-btn .ic { width: 19px; height: 19px; }
 .music-btn .bars { display: none; align-items: flex-end; gap: 3px; height: 16px; }
-.music-btn .bars i { width: 3px; height: 5px; border-radius: 2px; background: currentColor; animation: bar 1.1s ease-in-out infinite; }
+/* çubuklar yükseklikle değil dikey ölçekle oynar: ekran kartı yürütür, sayfa düzeni her karede yeniden hesaplanmaz */
+.music-btn .bars i { width: 3px; height: 16px; border-radius: 2px; background: currentColor; transform-origin: 50% 100%; transform: scaleY(.3125); animation: bar 1.1s ease-in-out infinite; }
 .music-btn .bars i:nth-child(2) { animation-delay: -.35s; }
 .music-btn .bars i:nth-child(3) { animation-delay: -.7s; }
 .music-btn.on .ic { display: none; }
 .music-btn.on .bars { display: flex; }
-@keyframes bar { 0%, 100% { height: 5px; } 50% { height: 16px; } }
+@keyframes bar { 0%, 100% { transform: scaleY(.3125); } 50% { transform: scaleY(1); } }
 .has-music .adm-pill { right: 70px; }
 /* Onay penceresi */
 .dlg-bg { z-index: 86; }
@@ -1500,8 +1517,18 @@ body:is([data-phase="live"], [data-phase="after"]) .kapanis-baslik { display: no
   const svg = (vb, w, h, defs, govde) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" width="${w}" height="${h}"><defs>${defs}</defs>${govde}</svg>`;
   const kabart = (govde, W = 390, H = 844) => `<g filter="url(#k)"><rect x="-20" y="-20" width="${W + 40}" height="${H + 40}" fill="#4D0000"/>${govde}</g>`;
   const hazir = {};
-  // Görsel, gövdeye CSS değişkeni olarak verilir (sayfa betiği <html>'deki değişkenleri yönetir, buradakilere dokunmaz)
-  const ata = (ad, s) => document.body.style.setProperty(ad, `url("data:image/svg+xml,${encodeURIComponent(s)}")`);
+  // Görseller ve ölçüler CSS değişkeni olarak yalnızca onları kullanan öğelere verilir (ör. .zarf { --zd-desen: url(…) }).
+  // <body>'ye yazılsaydı değişken bütün sayfaya miras geçer, her değişiklikte 2000'i aşkın öğenin stili yeniden
+  // hesaplanırdı (zarf kalkarken takılma). Her değişkenin kendi <style>'ı var: biri değişince ötekiler yeniden okunmaz.
+  const KAPSAM = { zarf: '.zarf', kemer: '.hero, .kapanis-demet' }, kurallar = {};
+  const yaz = (kapsam, ad, deger) => {
+    let st = kurallar[ad];
+    if (!deger) { if (st) { st.remove(); delete kurallar[ad]; } return; }
+    if (!st) { st = kurallar[ad] = document.createElement('style'); document.head.append(st); }
+    st.textContent = `${KAPSAM[kapsam]}{${ad}:${deger}}`;
+  };
+  const svgUrl = s => `url("data:image/svg+xml,${encodeURIComponent(s)}")`;
+  const ata = (ad, s) => yaz('kemer', ad, svgUrl(s));
   // Renkli demet görseli: kutu [x, y, gen, yük]; ayna=true ise soldan sağa çevrilir (ışık yine sol üstten gelir)
   const demet = (id, [x, y, w, h], ayna) => svg(`${x} ${y} ${w} ${h}`, w, h, gr(id) + RENKLI(x - 12, y - 12, w + 24, h + 24),
     `<g filter="url(#c)"><use href="#${id}"${ayna ? ` transform="matrix(-1 0 0 1 ${2 * x + w} 0)"` : ''}/></g>`);
@@ -1509,15 +1536,60 @@ body:is([data-phase="live"], [data-phase="after"]) .kapanis-baslik { display: no
   // oranında yatay desen, bütün ekranı kaplar. Desen ölçüsü ve kapak kenarlarının eğimi CSS'e değişken olarak verilir.
   const zarfGenisligi = () => { const r = innerWidth / Math.max(1, innerHeight); return r >= .75 ? Math.round(YH * Math.min(r, 2.6)) : 0; };
   const ZD = ['--zd-desen', '--zd-isik', '--zd-w', '--zd-h', '--zd-eg', '--zd-gen', '--zd-siz'];
+  const zarfa = (ad, deger) => yaz('zarf', ad, deger);
+  // Altın ışık deseni ekran çizildikten sonra boşta bir kez resme (bitmap) çevrilir: açılırken ışık dalgasının maskesi
+  // her karede değişir; SVG kalsaydı ışık filtresi her karede baştan çalışırdı (açılıştaki en büyük takılma). Bu desen
+  // yumuşak bir parıltı olduğundan çevirmek ucuzdur. Kabartma deseni SVG kalır (o bir kez çizilir; çevirmek pahalı).
+  // Çevrilemezse (eski tarayıcı vb.) SVG kalır, görünüm aynıdır.
+  let surum = 0, blob = '';
+  const bloblariBirak = () => { if (blob) URL.revokeObjectURL(blob); blob = ''; };
+  const resim = (s, w, h, olcek) => new Promise((ok, red) => {
+    const cw = Math.max(1, Math.round(w * olcek)), ch = Math.max(1, Math.round(h * olcek)), img = new Image();
+    img.onload = () => {
+      try {
+        const c = document.createElement('canvas');
+        c.width = cw; c.height = ch;
+        c.getContext('2d').drawImage(img, 0, 0, cw, ch);
+        c.toBlob(b => { c.width = c.height = 0; if (b) ok(URL.createObjectURL(b)); else red(new Error('toBlob')); }, 'image/png');
+      } catch (e) { red(e); }
+    };
+    img.onerror = () => red(new Error('SVG yüklenemedi'));
+    // SVG kendi boyutunda çizilsin (bazı tarayıcılar küçük çizip büyütür, bulanık olur)
+    img.src = 'data:image/svg+xml,' + encodeURIComponent(s.replace(/ width="[\d.]+" height="[\d.]+"/, ` width="${cw}" height="${ch}"`));
+  });
+  function resmeCevir(isik, W, H) {
+    const benim = ++surum;
+    const boste = window.requestIdleCallback || (f => setTimeout(f, 400));
+    boste(async () => {
+      let u = '';
+      try {
+        const kutu = document.querySelector('.zarf-kutu');
+        if (!kutu || benim !== surum) return;
+        const r = kutu.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const kapla = Math.max(r.width / W, r.height / H);   // background-size: cover
+        // en çok ~2 milyon piksel (büyük ekranda biraz büyütülür; yumuşak parıltıda fark edilmez)
+        u = await resim(isik, W, H, kapla * Math.min(dpr, Math.sqrt(2e6 / (W * H * kapla * kapla))));
+        // resim çözülmeden değişken değişirse ışık bir an kaybolur; önce çözülür
+        const im = new Image(); im.src = u; await im.decode();
+        if (benim !== surum || !hazir.zarf) throw new Error('eski');
+        bloblariBirak(); blob = u;
+        zarfa('--zd-isik', `url("${u}")`);
+      } catch {
+        if (u && u !== blob) URL.revokeObjectURL(u);   // SVG kalır
+      }
+    }, { timeout: 1500 });
+  }
   let zarfW = -1;
   function zarfCiz(W) {
     zarfW = W;
-    const st = document.body.style;
+    bloblariBirak();
     if (!W) {
       const tum = dort('zd-u') + dort('zd-y') + `<use href="#zd-m"/><use href="#zd-m" transform="${M.x}"/>`;
-      ata('--zd-desen', svg('0 0 390 844', 390, 844, gr('zd-u', 'zd-y', 'zd-m', 'zd-k') + KABART, kabart(tum + '<use href="#zd-k"/>')));
-      ata('--zd-isik', svg('0 0 390 844', 390, 844, gr('zd-u', 'zd-y', 'zd-m') + ALTIN, `<g filter="url(#a)">${tum}</g>`));
-      ZD.slice(2).forEach(p => st.removeProperty(p));
+      const desen = svg('0 0 390 844', 390, 844, gr('zd-u', 'zd-y', 'zd-m', 'zd-k') + KABART, kabart(tum + '<use href="#zd-k"/>'));
+      const isik = svg('0 0 390 844', 390, 844, gr('zd-u', 'zd-y', 'zd-m') + ALTIN, `<g filter="url(#a)">${tum}</g>`);
+      zarfa('--zd-desen', svgUrl(desen)); zarfa('--zd-isik', svgUrl(isik));
+      ZD.slice(2).forEach(p => zarfa(p, null));
+      resmeCevir(isik, 390, 844);
       return;
     }
     const o = yatayOlcu(W), H = o.H, mx = `matrix(-1 0 0 1 ${W} 0)`, my = `matrix(1 0 0 -1 0 ${H})`, mxy = `matrix(-1 0 0 -1 ${W} ${H})`;
@@ -1528,10 +1600,12 @@ body:is([data-phase="live"], [data-phase="after"]) .kapanis-baslik { display: no
       + (celenk ? grup('zy-c', () => yCelenk(o)) : '') + (sarkit ? grup('zy-s', () => ySarkit(o)) : '') + (orta ? grup('zy-o', () => yCelenkOrta(o)) : '');
     const tum = dortY('zy-d') + dortY('zy-k', `translate(0 ${KOSE_Y})`) + dortY('zy-y') + `<use href="#zy-m"/><use href="#zy-m" transform="${mx}"/>`
       + (celenk ? dortY('zy-c') : '') + (sarkit ? ikiY('zy-s') : '') + (orta ? ikiY('zy-o') : '');
-    ata('--zd-desen', svg(`0 0 ${W} ${H}`, W, H, defs + grup('zy-n', () => kenarlar(W, H, o.e, o.s)) + kabartF(W, H), kabart(tum + '<use href="#zy-n"/>', W, H)));
-    ata('--zd-isik', svg(`0 0 ${W} ${H}`, W, H, defs + altinF(W, H), `<g filter="url(#a)">${tum}</g>`));
-    st.setProperty('--zd-w', W); st.setProperty('--zd-h', H); st.setProperty('--zd-eg', o.s.toFixed(5));
-    st.setProperty('--zd-gen', '100cqw'); st.setProperty('--zd-siz', 'hidden');
+    const desen = svg(`0 0 ${W} ${H}`, W, H, defs + grup('zy-n', () => kenarlar(W, H, o.e, o.s)) + kabartF(W, H), kabart(tum + '<use href="#zy-n"/>', W, H));
+    const isik = svg(`0 0 ${W} ${H}`, W, H, defs + altinF(W, H), `<g filter="url(#a)">${tum}</g>`);
+    zarfa('--zd-desen', svgUrl(desen)); zarfa('--zd-isik', svgUrl(isik));
+    zarfa('--zd-w', W); zarfa('--zd-h', H); zarfa('--zd-eg', o.s.toFixed(5));
+    zarfa('--zd-gen', '100cqw'); zarfa('--zd-siz', 'hidden');
+    resmeCevir(isik, W, H);
   }
   // Pencere boyutu ya da telefonun yönü değişirse zarf yeni orana göre yeniden çizilir
   let zt = 0;
@@ -1565,8 +1639,8 @@ body:is([data-phase="live"], [data-phase="after"]) .kapanis-baslik { display: no
       if (window.requestIdleCallback) requestIdleCallback(demetler, { timeout: 250 }); else setTimeout(demetler, 50);
     }
   };
-  // Zarf kalkınca görselleri bırakır
-  window.desenleriBirak = () => { ZD.forEach(p => document.body.style.removeProperty(p)); hazir.zarf = false; };
+  // Zarf kalkınca görselleri bırakır (yalnızca zarfın kuralları silinir; sayfanın geri kalanı etkilenmez)
+  window.desenleriBirak = () => { surum++; ZD.forEach(p => zarfa(p, null)); bloblariBirak(); hazir.zarf = false; };
   const k = document.documentElement.classList;
   try {
     if (k.contains('zarf-acik')) window.desenleriHazirla('zarf');
@@ -1582,8 +1656,8 @@ body:is([data-phase="live"], [data-phase="after"]) .kapanis-baslik { display: no
     <div class="zarf-ic"></div>
     <div class="zk zk-sol"><i></i></div>
     <div class="zk zk-sag"><i></i></div>
-    <div class="zk zk-alt"><i></i></div>
-    <div class="zk zk-ust"><i></i></div>
+    <div class="zk zk-alt"><b><i></i></b></div>
+    <div class="zk zk-ust"><b><i></i></b></div>
     <div class="zarf-isik"></div>
     <i class="zarf-sizinti"></i>
     <button class="muhur" id="muhur" type="button" data-action="open-invite" aria-label="Davetiyeyi aç">
@@ -2415,6 +2489,10 @@ function initScrollUi() {
   }), { rootMargin: '0px 0px -8% 0px' });
   $$('.rv').forEach(n => rv.observe(n));
   new IntersectionObserver(([e]) => dock.classList.toggle('show', e.intersectionRatio < .4), { threshold: [0, .2, .4, .6, 1] }).observe($('.hero'));
+  // Ekrandan çıkan kapak ve tarih kartlarının süs animasyonları (isim parıltısı, yapraklar, kart parıltısı) bekler:
+  // bunlar her karede yeniden boyanıyor, görünmezken telefonu boşuna yorarlar
+  const sus = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('ekran-disi', !e.isIntersecting)), { rootMargin: '80px 0px' });
+  ['top', 'kazi'].forEach(id => { const n = document.getElementById(id); if (n) sus.observe(n); });
   const secs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) setActiveSection(e.target.id); }), { rootMargin: '-45% 0px -50% 0px' });
   ['davet', 'program', 'album', 'dilekler'].forEach(id => secs.observe(document.getElementById(id)));
 }
@@ -2952,7 +3030,7 @@ function fitNames() {
     const avail = Math.min(host.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), inner ? inner.clientWidth : Infinity);
     box.style.removeProperty('--fit');
     box.style.width = 'min-content';
-    const need = box.getBoundingClientRect().width;
+    const need = box.offsetWidth;   // dönüşümden etkilenmez (zarf açılırken kapak bir an %6 büyük görünür)
     box.style.width = '';
     if (avail > 0 && need > avail) box.style.setProperty('--fit', Math.max(.4, avail / need).toFixed(3));
   }
@@ -4929,13 +5007,15 @@ function initZarf() {
     if (!hizli) try { muhurTozu(); } catch { /* süs; açılışı durdurmasın */ }
     setTimeout(() => {                         // kapaklar açılıyor: kapak belirmeye başlar
       root.classList.replace('zarf-acik', 'zarf-kalkiyor');
-      arka.forEach(n => { n.inert = false; });
       fitSoon();
     }, hizli ? 0 : 1950);
     setTimeout(() => {
       root.classList.remove('zarf-kalkiyor', 'aciliyor');
       zarf.remove();
       window.desenleriBirak?.();
+      // Arkadaki sayfa zarf kalkınca etkinleşir (o ana kadar dokunuşları zarf tutar). Bu, bütün sayfanın stilini
+      // yeniden hesaplatır; kapak belirirken değil, ekranda ana iş parçacığına bağlı animasyon yokken yapılır.
+      arka.forEach(n => { n.inert = false; });
     }, hizli ? 60 : 3000);
   }, { once: true });
 }
