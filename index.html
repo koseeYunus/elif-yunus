@@ -360,7 +360,7 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
 /* Kabartmalı krem bir zarf, ortasında mum mühür. Telefonda dikey zarf; tablette ve bilgisayarda ekranın kendi oranında
    çizilmiş yatay zarf bütün ekranı kaplar. Mühre dokununca mühür kâğıttan kalkar, altından sıcak bir ışık sızar ve
    mühür altın tozlara, gül yapraklarına dağılır; ışık kabartmaların üzerinden yayılır, kapaklar sırayla açılır ve
-   arkadaki kapak belirir (~3 sn). Zarf açıkken kapaktaki animasyonlar bekler.
+   arkadaki kapak belirir (~4 sn). Zarf açıkken kapaktaki animasyonlar bekler.
    Kabartma desenler sayfa açılırken bir kez çizilir (bkz. "Zarf ve kemer desenleri" betiği). */
 html.zarf-acik, html.zarf-acik body, html.zarf-kalkiyor, html.zarf-kalkiyor body { overflow: hidden; }
 .zarf { position: fixed; inset: 0; z-index: 44; display: none; container-type: size; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
@@ -372,6 +372,8 @@ html.zarf-acik, html.zarf-acik body, html.zarf-kalkiyor, html.zarf-kalkiyor body
    kapağın stili yeniden hesaplanır (".zarf-acik .hero *" gibi bir kural bütün sayfayı yeniden hesaplatıyordu).
    !important şart: isim parıltısı ve yaprak kuralları daha özgül. */
 .zarf-acik .hero, .ekran-disi { --susler: paused; }
+/* kapak zarfın altında baştan biraz yakından durur (bkz. kapak-yaklas): dokunulduğu anda yeniden çizilmesin */
+.zarf-acik .hero { transform: scale(1.06); }
 :is(.hero, .kazi) *, :is(.hero, .kazi) *::before, :is(.hero, .kazi) *::after { animation-play-state: var(--susler, running) !important; }
 .zarf-kutu {
   --zarf-kagit: var(--duvar, var(--sand));
@@ -439,52 +441,55 @@ html.zarf-acik, html.zarf-acik body, html.zarf-kalkiyor, html.zarf-kalkiyor body
 .muhur-toz i { position: absolute; width: var(--w); height: var(--w); margin: calc(var(--w) / -2) 0 0 calc(var(--w) / -2); border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #FFF6E0, var(--c) 58%); box-shadow: 0 0 1.5px rgba(110, 80, 34, .35), 0 0 calc(var(--w) * 1.4) rgba(var(--spark-rgb), .5); will-change: transform, opacity; }
 .muhur-toz i.yp { height: calc(var(--w) * 1.3); border-radius: 85% 0 85% 0; background: var(--c); box-shadow: inset 1px 1px 2px rgba(255, 255, 255, .6), 0 1px 3px rgba(60, 40, 20, .22); }
-/* Açılış: mühür basılır, kâğıttan kalkar ve altından ışık sızar → mühür tozlara dağılır, ışık kabartmaların üzerinden
-   yayılır → kapaklar sırayla açılır (önce üst, sonra yanlar, en son alt) → zarf kalkar */
+/* Açılış (~4,3 sn; süreler betikteki ZARF_KAPAK ve ZARF_SURE ile uyumlu):
+   0–1,5 sn   mühür belirgince basılır, kâğıttan kalkar, altından ışık sızar; ~0,8 sn'de altın tozlara dağılır
+   0,8–2,9    altın ışık kabartmaların üzerinden kenarlara yayılır
+   1,7–4,1    kapaklar sırayla ve yavaşça açılır: önce üst, sonra yanlar, en son alt
+   1,7 →      arkadaki kapak belirmeye başlar (betik sınıfı değiştirir), 4,3 sn'de zarf kaldırılır */
 .aciliyor .muhur { pointer-events: none; }
 .aciliyor .muhur::before, .aciliyor .zarf-ipucu, .aciliyor .zarf-sizinti { animation: sonuk .4s forwards; }
 @keyframes sonuk { to { opacity: 0; } }
 /* Mühür yalnızca konum, saydamlık ve parlaklıkla canlanır: hepsini ekran kartı yürütür. (Bulanıklık ve gölge
    canlandırılınca mühür, içindeki ışık-gölge filtresiyle birlikte her karede yeniden çiziliyordu.) */
-.aciliyor .muhur-tam { transition: none; animation: muhur-kalk 1.05s cubic-bezier(.3, 0, .25, 1) both; }
-.aciliyor .muhur-tam svg { animation: muhur-isil 1.05s cubic-bezier(.3, 0, .25, 1) both; }
+.aciliyor .muhur-tam { transition: none; animation: muhur-kalk 1.5s cubic-bezier(.3, 0, .25, 1) both; }
+.aciliyor .muhur-tam svg { animation: muhur-isil 1.5s cubic-bezier(.3, 0, .25, 1) both; }
 @keyframes muhur-kalk {
-  14% { transform: scale(.955); }
-  52% { transform: translateY(-4%) scale(1.06) rotate(-3deg); opacity: 1; }
-  100% { transform: translateY(-8%) scale(1.15) rotate(-7deg); opacity: 0; }
+  12% { transform: scale(.92); }
+  24% { transform: scale(.94); }
+  58% { transform: translateY(-9%) scale(1.1) rotate(-5deg); opacity: 1; }
+  100% { transform: translateY(-15%) scale(1.22) rotate(-9deg); opacity: 0; }
 }
-@keyframes muhur-isil { 0%, 52% { filter: brightness(1); } 100% { filter: brightness(1.4); } }
-.aciliyor .muhur-golge { animation: golge-kalk 1.05s cubic-bezier(.3, 0, .25, 1) both; }
-@keyframes golge-kalk { 0%, 14% { opacity: 0; transform: none; } 52% { opacity: 1; transform: translateY(6%) scale(1.04); } 100% { opacity: 0; transform: translateY(8%) scale(1.25); } }
-.aciliyor .muhur-parilti { animation: parilti 1.75s .2s cubic-bezier(.3, .1, .3, 1) both; }
+@keyframes muhur-isil { 0%, 58% { filter: brightness(1); } 100% { filter: brightness(1.45); } }
+.aciliyor .muhur-golge { animation: golge-kalk 1.5s cubic-bezier(.3, 0, .25, 1) both; }
+@keyframes golge-kalk { 0%, 12% { opacity: 0; transform: none; } 58% { opacity: 1; transform: translateY(7%) scale(1.06); } 100% { opacity: 0; transform: translateY(10%) scale(1.3); } }
+.aciliyor .muhur-parilti { animation: parilti 2.1s .3s cubic-bezier(.3, .1, .3, 1) both; }
 @keyframes parilti { 0% { opacity: 0; transform: scale(.5); } 34% { opacity: 1; transform: scale(.92); } 100% { opacity: 0; transform: scale(1.75); } }
-.aciliyor .zarf-isik { animation: zarf-dalga 1.9s .5s cubic-bezier(.35, .2, .55, .95) both; }
+.aciliyor .zarf-isik { animation: zarf-dalga 2.1s .8s cubic-bezier(.35, .2, .55, .95) both; }
 @keyframes zarf-dalga {
   0% { opacity: 0; -webkit-mask-size: 8cqmax 8cqmax; mask-size: 8cqmax 8cqmax; }
   8% { opacity: .85; }
   78% { opacity: .85; }
   100% { opacity: 0; -webkit-mask-size: 150cqmax 150cqmax; mask-size: 150cqmax 150cqmax; }
 }
-.aciliyor .zarf::before { animation: sonuk .9s 1.3s forwards; }
-.aciliyor .zarf-kutu { animation: kutu-ac .9s 1.25s forwards; }
+.aciliyor .zarf::before { animation: sonuk 1.2s 1.9s forwards; }
+.aciliyor .zarf-kutu { animation: kutu-ac 1s 1.7s forwards; }
 @keyframes kutu-ac { 0% { background-color: var(--zarf-kagit); } 1%, 100% { background-color: transparent; box-shadow: 0 30px 80px -24px transparent; } }
-.aciliyor .zk-ust { animation: ac-ust 1.15s 1.22s cubic-bezier(.5, .04, .3, 1) both; }
-.aciliyor .zk-sol { animation: ac-sol 1.15s 1.34s cubic-bezier(.5, .04, .3, 1) both; }
-.aciliyor .zk-sag { animation: ac-sag 1.15s 1.34s cubic-bezier(.5, .04, .3, 1) both; }
-.aciliyor .zk-alt { animation: ac-alt 1.15s 1.46s cubic-bezier(.5, .04, .3, 1) both; }
-@keyframes ac-ust { 55% { opacity: 1; } to { transform: rotateX(96deg); opacity: 0; } }
-@keyframes ac-alt { 55% { opacity: 1; } to { transform: rotateX(-96deg); opacity: 0; } }
-@keyframes ac-sol { 55% { opacity: 1; } to { transform: rotateY(-96deg); opacity: 0; } }
-@keyframes ac-sag { 55% { opacity: 1; } to { transform: rotateY(96deg); opacity: 0; } }
-.aciliyor .zk-ust i::after { animation: isik-don .7s 1.22s ease-in both; }
-.aciliyor :is(.zk-sol, .zk-sag) i::after { animation: isik-don .7s 1.34s ease-in both; }
-.aciliyor .zk-alt i::after { animation: isik-don .7s 1.46s ease-in both; }
+.aciliyor .zk-ust { animation: ac-ust 1.9s 1.7s cubic-bezier(.35, .02, .3, 1) both; }
+.aciliyor .zk-sol { animation: ac-sol 1.9s 1.95s cubic-bezier(.35, .02, .3, 1) both; }
+.aciliyor .zk-sag { animation: ac-sag 1.9s 1.95s cubic-bezier(.35, .02, .3, 1) both; }
+.aciliyor .zk-alt { animation: ac-alt 1.9s 2.2s cubic-bezier(.35, .02, .3, 1) both; }
+@keyframes ac-ust { 62% { opacity: 1; } to { transform: rotateX(96deg); opacity: 0; } }
+@keyframes ac-alt { 62% { opacity: 1; } to { transform: rotateX(-96deg); opacity: 0; } }
+@keyframes ac-sol { 62% { opacity: 1; } to { transform: rotateY(-96deg); opacity: 0; } }
+@keyframes ac-sag { 62% { opacity: 1; } to { transform: rotateY(96deg); opacity: 0; } }
+.aciliyor .zk-ust i::after { animation: isik-don 1.1s 1.7s ease-in both; }
+.aciliyor :is(.zk-sol, .zk-sag) i::after { animation: isik-don 1.1s 1.95s ease-in both; }
+.aciliyor .zk-alt i::after { animation: isik-don 1.1s 2.2s ease-in both; }
 @keyframes isik-don { to { opacity: 1; } }
-.aciliyor .zarf-ic { animation: ic-isik 1.7s 1.2s ease-out both; }
+.aciliyor .zarf-ic { animation: ic-isik 2.1s 1.65s ease-out both; }
 @keyframes ic-isik { 0% { opacity: 0; transform: scale(.4); } 35% { opacity: 1; } 100% { opacity: 0; transform: scale(1.9); } }
-/* kapak, zarf açılırken biraz yakından görünür; zarf kalkarken yavaşça yerine oturur */
-.aciliyor.zarf-acik .hero { transform: scale(1.06); }
-.zarf-kalkiyor .hero { animation: kapak-yaklas 1.3s var(--ease) both; }
+/* kapak, zarf açılırken biraz yakından görünür (yukarıda .zarf-acik .hero); zarf kalkarken yavaşça yerine oturur */
+.zarf-kalkiyor .hero { animation: kapak-yaklas 1.6s var(--ease) both; }
 @keyframes kapak-yaklas { from { transform: scale(1.06); } }
 
 /* ===== Bölümler ===== */
@@ -4971,10 +4976,15 @@ function afterSave(logEl) {
 /* =====================================================================
    AÇILIŞ ZARFI — düğünden önce sayfa kabartmalı bir zarfla açılır (gösterilip gösterilmeyeceğine <head>'deki
    betik karar verir). Misafir mühre dokununca müzik başlar (mühür de "Davetiyeyi Aç" gibi davranır); mühür kalkıp
-   altın tozlara dağılır, zarf yaklaşık üç saniyede açılıp kalkar. Aynı sekmede ikinci kez gösterilmez. Zarf açıkken
-   arkadaki sayfaya dokunulamaz.
+   altın tozlara dağılır, zarf yaklaşık dört saniyede açılıp kalkar (süreler CSS'teki "Açılış" çizelgesiyle aynı).
+   Aynı sekmede ikinci kez gösterilmez. Zarf açıkken arkadaki sayfaya dokunulamaz; zarf kalkınca "zarf-kalkti" olayı.
    ===================================================================== */
-// Mühür dağılırken saçılan altın tozlar ve birkaç gül yaprağı (Web Animations API); hepsi zarf kalkmadan söner
+// Arkadaki kapak, kapaklar açılmaya başladığı anda belirmeye başlar: bu geçiş kapağın stilini yeniden hesaplatıp yeni
+// içeriği çizdirdiği için kısa bir takılma yapar; kapaklar o an henüz çok yavaş hareket ettiğinden görünmez.
+const ZARF_KAPAK = 1700, ZARF_SURE = 4300;   // kapağın belirmeye başladığı an ve zarfın kaldırıldığı an (ms)
+// Mühür dağılırken saçılan altın tozlar ve birkaç gül yaprağı (Web Animations API); hepsi zarf kalkmadan söner.
+// Dokunuştan ~0,6 sn sonra oluşturulur (tozlar ~0,8 sn'de belirir): dokunulan karede yapılınca, o kare ekrana
+// gelmeden önce 52 öğe birden çizildiği için mührün basılışı görünmüyordu.
 function muhurTozu() {
   const kutu = $('.zarf-kutu'), m = $('#muhur').getBoundingClientRect(), k = kutu.getBoundingClientRect();
   const katman = h('div', { class: 'muhur-toz', 'aria-hidden': 'true' });
@@ -4992,7 +5002,7 @@ function muhurTozu() {
       { transform: 'translate(0, 0) scale(.3) rotate(0deg)', opacity: 0 },
       { transform: `translate(${(dx * .55).toFixed(0)}px, ${(dy * .55).toFixed(0)}px) scale(1) rotate(${(don * .4).toFixed(0)}deg)`, opacity: 1, offset: .28 },
       { transform: `translate(${dx.toFixed(0)}px, ${(dy + dus).toFixed(0)}px) scale(.75) rotate(${don.toFixed(0)}deg)`, opacity: 0 },
-    ], { duration: 1500 + Math.random() * 650, delay: 430 + Math.random() * 250, easing: 'cubic-bezier(.2, .6, .35, 1)', fill: 'both' });
+    ], { duration: 1700 + Math.random() * 700, delay: 180 + Math.random() * 260, easing: 'cubic-bezier(.2, .6, .35, 1)', fill: 'both' });
   }
 }
 function initZarf() {
@@ -5004,11 +5014,11 @@ function initZarf() {
     try { sessionStorage.setItem('elif-yunus:zarf', '1'); } catch { /* gizli sekme */ }
     const hizli = matchMedia('(prefers-reduced-motion: reduce)').matches;
     root.classList.add('aciliyor');
-    if (!hizli) try { muhurTozu(); } catch { /* süs; açılışı durdurmasın */ }
+    if (!hizli) setTimeout(() => { try { muhurTozu(); } catch { /* süs; açılışı durdurmasın */ } }, 600);
     setTimeout(() => {                         // kapaklar açılıyor: kapak belirmeye başlar
       root.classList.replace('zarf-acik', 'zarf-kalkiyor');
       fitSoon();
-    }, hizli ? 0 : 1950);
+    }, hizli ? 0 : ZARF_KAPAK);
     setTimeout(() => {
       root.classList.remove('zarf-kalkiyor', 'aciliyor');
       zarf.remove();
@@ -5016,7 +5026,8 @@ function initZarf() {
       // Arkadaki sayfa zarf kalkınca etkinleşir (o ana kadar dokunuşları zarf tutar). Bu, bütün sayfanın stilini
       // yeniden hesaplatır; kapak belirirken değil, ekranda ana iş parçacığına bağlı animasyon yokken yapılır.
       arka.forEach(n => { n.inert = false; });
-    }, hizli ? 60 : 3000);
+      document.dispatchEvent(new Event('zarf-kalkti'));
+    }, hizli ? 60 : ZARF_SURE);
   }, { once: true });
 }
 
@@ -5144,7 +5155,12 @@ function startMusic(auto = false) {
   Promise.resolve(playing).then(() => {
     fadeMusic(CONFIG.musicVolume, 2500);
     ls.set(MUSIC_KEY, 'acik');
-    if (auto && !ls.get(MUSIC_TIP_KEY)) { ls.set(MUSIC_TIP_KEY, '1'); toast(txt('msg_muzik')); }
+    if (auto && !ls.get(MUSIC_TIP_KEY)) {
+      ls.set(MUSIC_TIP_KEY, '1');
+      // zarf açılırken bildirim açılışın üstüne çıkmasın: zarf kalkınca gösterilir
+      if (document.documentElement.classList.contains('aciliyor')) document.addEventListener('zarf-kalkti', () => toast(txt('msg_muzik')), { once: true });
+      else toast(txt('msg_muzik'));
+    }
   }).catch(e => {
     console.warn('Müzik başlatılamadı:', e);
     music.on = false;
