@@ -567,6 +567,8 @@ html.zarf-acik, html.zarf-acik body, html.zarf-kalkiyor, html.zarf-kalkiyor body
   background: radial-gradient(circle at 34% 26%, #fff, var(--paper) 48%, var(--cream)); box-shadow: 0 16px 26px -18px rgba(var(--forest-rgb), .6), inset 0 0 0 1px rgba(var(--gold-rgb), .35); }
 .kazi-kart b { font: 500 calc(clamp(34px, 11vw, 54px) * var(--fs-serif))/1 var(--serif); color: var(--gold-deep); font-variant-numeric: lining-nums; }
 .kazi-kart.yil b { font-size: calc(clamp(24px, 7.6vw, 38px) * var(--fs-serif)); }
+/* ay adı yazıyla (Kasım); uzun ay adı karta sığmazsa fitNames() --fit ile küçültür */
+.kazi-kart.ay b { font-size: calc(clamp(25px, 8vw, 40px) * var(--fs-serif) * var(--fit, 1)); }
 /* kazınmamış kartta rakam yalnızca kazımaya başlanınca belirir (ekran okuyucu da kart açılmadan rakamı okumaz) */
 .kazi-kart[role="button"]:not(.kaziliyor):not(.acik) b { visibility: hidden; }
 .kazi-kart canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; transition: opacity .7s var(--ease); }
@@ -1724,7 +1726,7 @@ body:is([data-phase="live"], [data-phase="after"]) .kapanis-baslik { display: no
       <p class="sr-only" data-d="tamCumle">15 Kasım 2026 Pazar, saat 19.00</p>
       <div class="kazi rv" id="kazi">
         <div class="kazi-kart"><b data-d="gunIki">15</b><canvas aria-hidden="true"></canvas></div>
-        <div class="kazi-kart"><b data-d="ayIki">11</b><canvas aria-hidden="true"></canvas></div>
+        <div class="kazi-kart ay"><b data-d="ayAdi">Kasım</b><canvas aria-hidden="true"></canvas></div>
         <div class="kazi-kart yil"><b data-d="yil">2026</b><canvas aria-hidden="true"></canvas></div>
       </div>
       <div class="kazi-etiket" aria-hidden="true"><span>Gün</span><span>Ay</span><span>Yıl</span></div>
@@ -2536,12 +2538,13 @@ const fmtTarih = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, day: 'numeric'
 const fmtGun = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, weekday: 'long' });
 const fmtGunNo = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, day: 'numeric' });
 const fmtAyYil = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, month: 'long', year: 'numeric' });
-const fmtSayilar = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, day: '2-digit', month: '2-digit', year: 'numeric' });
+const fmtAy = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, month: 'long' });
+const fmtSayilar = new Intl.DateTimeFormat('tr-TR', { timeZone: TZ, day: '2-digit', year: 'numeric' });
 function dateText(kind, t = WED) {
   const tarih = fmtTarih.format(t), gun = fmtGun.format(t), saat = fmtClock.format(t).replace(':', '.');
-  const s = Object.fromEntries(fmtSayilar.formatToParts(t).map(p => [p.type, p.value]));   // kazı kartları: 15 · 11 · 2026
+  const s = Object.fromEntries(fmtSayilar.formatToParts(t).map(p => [p.type, p.value]));   // kazı kartları: 15 · Kasım · 2026
   return { tarih, gun, saat, gunNo: fmtGunNo.format(t), ayYil: fmtAyYil.format(t), tamCumle: `${tarih} ${gun}, saat ${saat}`,
-    gunIki: s.day, ayIki: s.month, yil: s.year }[kind] ?? '';
+    gunIki: s.day, ayAdi: fmtAy.format(t), yil: s.year }[kind] ?? '';
 }
 const partyHours = () => Number(txt('dugun_suresi')) + 2;   // düğünden sonra 2 saat daha "düğün sürüyor" sayılır
 
@@ -2572,7 +2575,7 @@ const CONTENT_GROUPS = [
     ['tarih_ust', 'Üst yazı'],
     ['tarih_baslik', 'Başlık'],
     ['tarih_ipucu', 'Kartların üstündeki ipucu'],
-  ], 'Tarih üç altın kartın altındadır; misafir kazıdıkça görünür. Bir kez kazıyan misafirde kartlar o telefonda hep açık kalır.'],
+  ], 'Tarih üç altın kartın altındadır; misafir kazıdıkça görünür. Bir kez kazıyan misafirde kartlar o telefonda hep açık kalır. Adresin sonuna ?kazi yazarak kartları yeniden kazıyabilirsiniz.'],
   ['Geri sayım', [
     ['sayac_ust', 'Üst yazı'],
     ['sayac_once', 'Başlık', { def: PHASE_TEXT.before }],
@@ -3025,7 +3028,7 @@ function recolor(css) {
   const map = Object.fromEntries(Object.entries(PRINT_DEFAULT).map(([k, v]) => [v, p[k]]));
   return css.replace(/#[0-9A-F]{6}\b/g, x => map[x] || x);
 }
-// İsimler ekrana sığmazsa (uzun isim, geniş yazı tipi ya da büyük yazı seçimi) kendiliğinden küçülür.
+// İsimler ekrana sığmazsa (uzun isim, geniş yazı tipi ya da büyük yazı seçimi) kendiliğinden küçülür (tarih kartındaki ay adı da).
 // Uzun isim satıra bölünebilir; ölçülen, bölünemeyen en geniş parçadır (kutunun en dar hâli, "min-content").
 // Alan, isimlerle birlikte genişlemeyen kapak/alt bilgi kutusundan ölçülür.
 function fitNames() {
@@ -3038,6 +3041,12 @@ function fitNames() {
     const need = box.offsetWidth;   // dönüşümden etkilenmez (zarf açılırken kapak bir an %6 büyük görünür)
     box.style.width = '';
     if (avail > 0 && need > avail) box.style.setProperty('--fit', Math.max(.4, avail / need).toFixed(3));
+  }
+  // Tarih kartındaki ay adı da (ör. Ağustos, Temmuz) karta sığmazsa küçülür
+  for (const ay of $$('.kazi-kart.ay b')) {
+    ay.style.removeProperty('--fit');
+    const avail = ay.parentElement.clientWidth * .84, need = ay.offsetWidth;
+    if (avail > 0 && need > avail) ay.style.setProperty('--fit', Math.max(.5, avail / need).toFixed(3));
   }
 }
 let fitFrame = 0;
@@ -5034,7 +5043,8 @@ function initZarf() {
 /* =====================================================================
    TARİH KARTLARI — üç altın kart (gün, ay, yıl). Misafir parmağıyla kazıdıkça altındaki rakam görünür; kartın
    yarısı kazınınca kendiliğinden açılır. Üçü de açılınca küçük bir kutlama olur ve kartlar o telefonda artık hep
-   açık gelir. Klavyeyle de açılır (kart seçilip Enter). Tarih ayrıca düz metin olarak da sayfadadır.
+   açık gelir (adresin sonuna ?kazi yazılırsa yeniden kazınır). Klavyeyle de açılır (kart seçilip Enter). Tarih ayrıca
+   düz metin olarak da sayfadadır.
    ===================================================================== */
 const KAZI_KEY = 'elif-yunus:kazindi';
 // Kazınacak altın yüzey: temanın altın tonlarıyla çapraz parıltı, fırçalanmış metal çizgileri, ince çerçeve, "KAZI"
@@ -5058,7 +5068,8 @@ function initKazi() {
   const kutu = $('#kazi'), bolum = $('#tarih'), kartlar = $$('.kazi-kart', kutu), adlar = ['Gün', 'Ay', 'Yıl'];
   const etiket = (kart, i) => kart.setAttribute('aria-label', kart.classList.contains('acik') ? `${adlar[i]}: ${$('b', kart).textContent}` : `${adlar[i]}: kazıyarak ya da Enter ile açın`);
   const bitir = kutla => { bolum.classList.add('tamam'); if (kutla) { ls.set(KAZI_KEY, '1'); celebrate(kutu); } };
-  if (ls.get(KAZI_KEY) === '1') {     // bu telefonda daha önce kazındı
+  // bu telefonda daha önce kazındıysa kartlar açık gelir; adresin sonuna ?kazi yazılırsa yeniden kazınır (deneme için)
+  if (ls.get(KAZI_KEY) === '1' && !new URLSearchParams(location.search).has('kazi')) {
     kartlar.forEach((k, i) => { k.classList.add('acik'); k.setAttribute('role', 'img'); etiket(k, i); });
     bitir(false);
     return;
