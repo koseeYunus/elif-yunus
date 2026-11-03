@@ -1,0 +1,31 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Elif ve Yunus//Kina Gecesi//TR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Elif & Yunus’un Kına Gecesi
+X-WR-TIMEZONE:Europe/Istanbul
+BEGIN:VEVENT
+UID:elif-yunus-kina-20261113@elif-yunus
+DTSTAMP:20261103T120000Z
+SEQUENCE:0
+DTSTART:20261113T160000Z
+DTEND:20261113T210000Z
+SUMMARY:Elif & Yunus’un Kına Gecesi
+LOCATION:Firuzan Davet Evi\, Çarşamba / Samsun
+URL:https://koseeyunus.github.io/elif-yunus/kina/
+DESCRIPTION:Kına gecemiz hanımlara özeldir.\nFotoğraf ve videoları
+ nızı gönderebilirsiniz: https://koseeyunus.github.io/elif-yunus/kin
+ a/#paylas
+BEGIN:VALARM
+TRIGGER:-P1D
+ACTION:DISPLAY
+DESCRIPTION:Yarın: Elif & Yunus’un Kına Gecesi
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT3H
+ACTION:DISPLAY
+DESCRIPTION:Bu akşam 19.00: Elif & Yunus’un Kına Gecesi
+END:VALARM
+END:VEVENT
+END:VCALENDAR
