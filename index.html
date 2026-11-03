@@ -2254,7 +2254,8 @@ const CONFIG = {
   storageLimitGB: 1,      // Supabase fotoğraf alanı: ücretsiz plan 1 GB (Pro plana geçerseniz 100 yapın)
 
   // Arka plan müziği: "Davetiyeyi Aç"a dokununca başlar, sağ üstteki düğmeyle kapatılır. Hiç istemezseniz '' yapın.
-  // Parça: Chopin – Nocturne Op. 9 No. 2 (Peter Johnston kaydı, CC0 / telifsiz, Wikimedia Commons)
+  // Parça: Pachelbel – Canon in D (ABD Hava Kuvvetleri Bandosu, Strolling Strings, 2004; kamu malı / telifsiz, Wikimedia Commons).
+  // Baştaki ve sondaki sessizlik kırpıldı, sonu yumuşakça biter (döngüde başa dönerken), 128 kbps.
   music: 'muzik.mp3',
   musicVolume: 0.55,
 };
@@ -5555,7 +5556,7 @@ function renderLookForm() {
   $('#lk-foto-sec').lastChild.textContent = foto ? 'Değiştir' : 'Fotoğraf Seç';
   $('#lk-karartma-out').textContent = '%' + g.kapak_karartma;
   $('#lk-odak-out').textContent = g.kapak_odak <= 10 ? 'Üst' : g.kapak_odak >= 90 ? 'Alt' : g.kapak_odak === 50 ? 'Orta' : '%' + g.kapak_odak;
-  $('#lk-muzik-ad').textContent = lookMedia.muzik_dosya ? lookMedia.muzik_ad || 'Yüklenen müzik' : 'Chopin – Nocturne Op. 9 No. 2 (varsayılan)';
+  $('#lk-muzik-ad').textContent = lookMedia.muzik_dosya ? lookMedia.muzik_ad || 'Yüklenen müzik' : 'Pachelbel – Canon in D (varsayılan)';
   $('#lk-muzik-varsayilan').hidden = !lookMedia.muzik_dosya;
   const dirty = lookDirty(), state = $('#lk-state');
   state.textContent = dirty ? 'Kaydedilmemiş değişiklik var; şu an yalnızca sizin ekranınızda görünüyor.'
