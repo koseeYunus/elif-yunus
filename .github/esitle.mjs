@@ -110,15 +110,27 @@ async function main() {
   const { readFile, writeFile, rm } = await import('node:fs/promises');
   const { createHash } = await import('node:crypto');
   const html = await readFile('index.html', 'utf8');
-  const url = /supabaseUrl: '(https:\/\/[a-z0-9-]+\.supabase\.co)'/.exec(html)?.[1];
-  const key = /supabaseKey: '(sb_publishable_[\w-]+)'/.exec(html)?.[1];   // yalnızca herkese açık anahtar kabul edilir
-  if (!url || !key) { console.log('index.html’de Supabase bilgisi yok (önizleme modu); eşitlenecek bir şey yok.'); return; }
   const site = /<meta property="og:url" content="(https:\/\/[^"]+)">/.exec(html)?.[1];
   if (!site) throw new Error('index.html’de og:url bulunamadı.');
-
-  const res = await fetch(`${url}/rest/v1/icerik?select=veri&id=eq.1`, { headers: { apikey: key, Accept: 'application/json' } });
-  if (!res.ok) throw new Error(`Supabase yanıtı: HTTP ${res.status}`);
-  const veri = (await res.json())?.[0]?.veri;
+  // Sayfanın kullandığı sunucu: Cloudflare (Worker) ya da Supabase
+  const cf = /\bsunucu: 'cloudflare'/.test(html);
+  let veri, siteDosyasi;
+  if (cf) {
+    const api = /\bapi: '(https:\/\/[a-z0-9.-]+)'/.exec(html)?.[1];
+    if (!api) throw new Error('index.html’de Cloudflare sunucusunun adresi (api) bulunamadı.');
+    const res = await fetch(`${api}/veri?icerik=1`, { headers: { Accept: 'application/json' } });
+    if (!res.ok) throw new Error(`Cloudflare sunucusunun yanıtı: HTTP ${res.status}`);
+    veri = (await res.json())?.icerik;
+    siteDosyasi = yol => `${api}/s/${yol}`;
+  } else {
+    const url = /supabaseUrl: '(https:\/\/[a-z0-9-]+\.supabase\.co)'/.exec(html)?.[1];
+    const key = /supabaseKey: '(sb_publishable_[\w-]+)'/.exec(html)?.[1];   // yalnızca herkese açık anahtar kabul edilir
+    if (!url || !key) { console.log('index.html’de Supabase bilgisi yok (önizleme modu); eşitlenecek bir şey yok.'); return; }
+    const res = await fetch(`${url}/rest/v1/icerik?select=veri&id=eq.1`, { headers: { apikey: key, Accept: 'application/json' } });
+    if (!res.ok) throw new Error(`Supabase yanıtı: HTTP ${res.status}`);
+    veri = (await res.json())?.[0]?.veri;
+    siteDosyasi = yol => `${url}/storage/v1/object/public/site/${yol}`;
+  }
   if (!veri || typeof veri !== 'object' || Array.isArray(veri)) { console.log('İçerik kaydı yok; dosyalar olduğu gibi kalır.'); return; }
   if (JSON.stringify(veri).length > 65536) throw new Error('İçerik kaydı beklenenden büyük; eşitleme yapılmadı.');
   const z = ozetiDogrula(veri.ozet);
@@ -127,7 +139,7 @@ async function main() {
   // Önizleme görseli: yönetimin hazırladığı görsel indirilir; adres sonundaki ?v= WhatsApp'ın yenisini almasını sağlar
   let gorselAdresi = new URL('paylasim.jpg', site).href;
   if (z.gorsel) {
-    const r = await fetch(`${url}/storage/v1/object/public/site/${z.gorsel}`);
+    const r = await fetch(siteDosyasi(z.gorsel));
     if (!r.ok) throw new Error(`Önizleme görseli indirilemedi: HTTP ${r.status}`);
     const buf = Buffer.from(await r.arrayBuffer());
     if (buf.length < 2000 || buf.length > 3e6 || buf[0] !== 0xFF || buf[1] !== 0xD8 || buf[2] !== 0xFF) throw new Error('Önizleme görseli geçerli bir JPEG değil.');

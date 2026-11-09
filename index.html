@@ -20,7 +20,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Elif &amp; Yunus · Evleniyoruz · 15 Kasım 2026">
 <meta name="twitter:card" content="summary_large_image">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/ https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/ https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hpmhoursfrtigfyoibvd.supabase.co; connect-src 'self' blob: https://hpmhoursfrtigfyoibvd.supabase.co; media-src 'self' blob: https://hpmhoursfrtigfyoibvd.supabase.co; frame-src https://www.google.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/ https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/ https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hpmhoursfrtigfyoibvd.supabase.co https://elif-yunus-dugun.kose-yunus-55.workers.dev; connect-src 'self' blob: https://hpmhoursfrtigfyoibvd.supabase.co https://elif-yunus-dugun.kose-yunus-55.workers.dev; media-src 'self' blob: https://hpmhoursfrtigfyoibvd.supabase.co https://elif-yunus-dugun.kose-yunus-55.workers.dev; frame-src https://www.google.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2064%2064'%3E%3Ccircle%20cx%3D'32'%20cy%3D'32'%20r%3D'32'%20fill%3D'%231C2A23'%2F%3E%3Ccircle%20cx%3D'32'%20cy%3D'32'%20r%3D'27'%20fill%3D'none'%20stroke%3D'%23C9A464'%20stroke-width%3D'1.5'%2F%3E%3Ctext%20x%3D'32'%20y%3D'40'%20text-anchor%3D'middle'%20font-family%3D'Georgia%2Cserif'%20font-style%3D'italic'%20font-size%3D'21'%20fill%3D'%23E2C994'%3EE%26amp%3BY%3C%2Ftext%3E%3C%2Fsvg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,7 +53,7 @@
       document.head.appendChild(l);
     }
     // Kapak fotoğrafı sayfanın geri kalanından önce inmeye başlasın
-    if (/^https:\/\/[a-z0-9-]+\.supabase\.co\/storage\/v1\/object\/public\/site\/kapak\/[0-9a-f-]{36}\.jpg$/.test(g.p || '')) {
+    if (/^https:\/\/([a-z0-9-]+\.supabase\.co\/storage\/v1\/object\/public\/site|[a-z0-9-]+\.[a-z0-9-]+\.workers\.dev\/s)\/kapak\/[0-9a-f-]{36}\.jpg$/.test(g.p || '')) {
       l = document.createElement('link'); l.rel = 'preload'; l.as = 'image'; l.href = g.p; l.setAttribute('fetchpriority', 'high');
       document.head.appendChild(l);
     }
@@ -2053,7 +2053,7 @@ body:is([data-phase="live"], [data-phase="after"]) .kapanis-baslik { display: no
           <button class="btn btn-line btn-sm btn-block" id="arc-qr-btn" type="button">Yalnızca Karekod</button>
         </div>
       </div>
-      <p class="adm-tips"><b>Hatırlatma:</b> Supabase’in ücretsiz projeleri bir hafta hiç kullanılmazsa duraklatılır. Düğünden sonraki birkaç gün içinde arşivi indirip saklayın.</p>
+      <p class="adm-tips" id="adm-tip-supabase"><b>Hatırlatma:</b> Supabase’in ücretsiz projeleri bir hafta hiç kullanılmazsa duraklatılır. Düğünden sonraki birkaç gün içinde arşivi indirip saklayın.</p>
     </div>
     <div id="adm-pane-settings" class="adm-archive" role="tabpanel" aria-labelledby="adm-tab-settings" data-pane="settings" hidden>
       <form class="set-form" id="set-form" novalidate>
@@ -2242,6 +2242,14 @@ const CONFIG = {
   supabaseKey: 'sb_publishable_1NkpbDIHSAAuhWhQPF3X0A_LB9MDNWp',   // YALNIZCA publishable anahtar. Secret anahtarı ASLA yazmayın!
   bucket: 'fotograflar',
 
+  // Hangi sunucu kullanılır: 'supabase' ya da 'cloudflare' (R2 + D1 + Worker; sunucu/worker.js, kurulum: sunucu/KURULUM.md).
+  // Adresin sonuna ?sunucu=cloudflare (ya da ?sunucu=supabase) yazılırsa yalnızca o sekmede diğeri denenir.
+  // Worker adresini değiştirirseniz <head>'deki Content-Security-Policy satırındaki adresi de değiştirin.
+  sunucu: 'supabase',
+  api: 'https://elif-yunus-dugun.kose-yunus-55.workers.dev',
+  pollSecondsCloudflare: 60,   // Cloudflare'de yoklama aralığı (ücretsiz planda günlük istek kotası var)
+  storageLimitGBCloudflare: 9.5,   // sunucu alan bilgisini kendisi verir; bu yalnızca yedek değer
+
   weddingAt: '2026-11-15T19:00:00+03:00', // düğün başlangıcı (Türkiye saati)
   partyHours: 6,          // düğün kaç saat sürer (bu sürede kapakta "Düğünümüz başladı" yazar)
   calendarHours: 4,       // takvime eklenen etkinliğin süresi
@@ -2265,6 +2273,14 @@ const CONFIG = {
   musicVolume: 0.55,
 };
 /* ===================================================================== */
+
+// Bu sekmede kullanılan sunucu (adresteki ?sunucu= ayarı yalnızca bu sekme içindir; misafirleri etkilemez)
+const SUNUCU = (() => {
+  const s = new URLSearchParams(location.search).get('sunucu');
+  return s === 'cloudflare' || s === 'supabase' ? s : CONFIG.sunucu;
+})();
+const CF_API = String(CONFIG.api || '').trim().replace(/\/+$/, '');
+const CF = SUNUCU === 'cloudflare' && /^https?:\/\/[\w.-]+(:\d{1,5})?$/.test(CF_API);
 
 // Dış kütüphaneler sürümüyle sabit ve bütünlük özetiyle (SRI) yüklenir: dağıtım sunucusu ele geçirilip dosya
 // değiştirilse bile tarayıcı çalıştırmaz. Özetler resmî paketlerden (npm, cdnjs) doğrulandı. Sürüm değişirse
@@ -2845,7 +2861,8 @@ const LOOK_CLASSES = [...Object.values(LOOK_SWITCHES), 'kapak-foto'];
 const HEX_RE = /^#[0-9a-f]{6}$/i, KAPAK_RE = /^kapak\/[0-9a-f-]{36}\.jpg$/, MUZIK_RE = /^muzik\/[0-9a-f-]{36}\.(mp3|m4a)$/;
 // Yönetimden yüklenen dosyaların ("site" deposu) herkese açık adresi. Önizleme modunda yalnızca bu sekmede yaşarlar.
 const previewFiles = new Map();
-const siteUrl = p => (!p ? '' : LIVE ? `${CONFIG.supabaseUrl.trim().replace(/\/+$/, '')}/storage/v1/object/public/site/${p}` : previewFiles.get(p) || '');
+const siteUrl = p => (!p ? '' : CF ? `${CF_API}/s/${p}`
+  : LIVE ? `${CONFIG.supabaseUrl.trim().replace(/\/+$/, '')}/storage/v1/object/public/site/${p}` : previewFiles.get(p) || '');
 
 // Veritabanından gelen değer doğrulanır; tanınmayan her şey varsayılana döner.
 function cleanLook(g) {
@@ -3075,13 +3092,14 @@ function initNames() {
 }
 
 /* =====================================================================
-   VERİ KATMANI — Supabase (canlı) ya da önizleme (yalnızca bu sekmede)
+   VERİ KATMANI — Supabase ya da Cloudflare (canlı) ya da önizleme (yalnızca bu sekmede). Üçü aynı arayüzü sunar;
+   sayfanın geri kalanı hangisinin kullanıldığını bilmez.
    ===================================================================== */
 const PATH_RE = /^(buyuk|kucuk)\/[0-9a-f-]{36}\.jpg$/;
 // Dilekler bağlı fotoğraflarıyla, fotoğraflar da bağlı oldukları dilekle birlikte tek sorguda gelir.
 const NOTE_COLS = 'id,created_at,isim,mesaj,fotograflar(id,created_at,isim,buyuk,kucuk,genislik,yukseklik,not_id)';
 const PHOTO_COLS = 'id,created_at,isim,buyuk,kucuk,genislik,yukseklik,not_id,notlar(mesaj)';
-const LIVE = Boolean(CONFIG.supabaseUrl.trim() && CONFIG.supabaseKey.trim());
+const LIVE = CF || Boolean(CONFIG.supabaseUrl.trim() && CONFIG.supabaseKey.trim());
 
 // Tarayıcıya yalnızca publishable (herkese açık) anahtar konabilir; secret anahtar tespit edilirse sayfa durur.
 function isSecretKey(k) {
@@ -3348,6 +3366,157 @@ function liveStore() {
     if (!rows.length) throw new UserError('Bu kaydı değiştirme izniniz yok.');
     return rows[0];
   }
+}
+
+// Cloudflare: düğün sunucusu (sunucu/worker.js). Misafirin aynı anda istediği okumalar (ör. açılışta albüm, dilekler,
+// ayarlar ve metinler) tek istekte birleştirilir (GET /veri) ve özel başlık taşımaz; yazmalar "text/plain" gövdeyle
+// gider. Böylece tarayıcı CORS ön isteği (OPTIONS) göndermez ve sunucunun günlük istek kotası korunur.
+// Yönetici tek şifreyle girer; sunucunun verdiği jeton bu cihazda 30 gün saklanır.
+function cfStore() {
+  const api = CF_API, OTURUM = 'elif-yunus:yonetim-cf';
+  let oturum = null, onSignedOut = null;
+  try { oturum = JSON.parse(ls.get(OTURUM) || 'null'); } catch { oturum = null; }
+  if (!oturum || typeof oturum.jeton !== 'string' || !(Date.parse(oturum.bitis) > Date.now())) oturum = null;
+  const oturumuKapat = () => { oturum = null; try { localStorage.removeItem(OTURUM); } catch { /* gizli sekme */ } };
+
+  // Sunucunun hata yanıtı sayfanın tanıdığı hatalara çevrilir (Supabase'teki karşılıklarıyla aynı davranış)
+  function hata(durum, j, yonetici) {
+    const kod = j?.hata || '', mesaj = j?.mesaj || `Sunucu yanıtı: HTTP ${durum}`;
+    if (/^(dilek_siniri|foto_siniri|yogunluk|foto_yogunluk)$/.test(kod)) return limitError(kod, mesaj);
+    if (kod === 'kapali') return Object.assign(new Error(`row-level security: ${mesaj}`), { code: '42501' });
+    if (durum === 401 && yonetici) {
+      const vardi = !!oturum;
+      oturumuKapat();
+      if (vardi) onSignedOut?.();
+      return Object.assign(new UserError('Oturumun süresi doldu; lütfen yeniden giriş yapın.'), { oturum: true });
+    }
+    if (/^(gecersiz|yetkisiz|cok_buyuk|alan_doldu|tur|cok_deneme|foto_dosyasi_yok)$/.test(kod)) return new UserError(mesaj);
+    return Object.assign(new Error(mesaj), { status: durum });
+  }
+  async function istek(yontem, yol, { govde, tur, yonetici = false } = {}) {
+    const h = {};
+    if (yonetici) {
+      if (!oturum) throw Object.assign(new UserError('Bu işlem için yönetici olarak giriş yapın.'), { oturum: true });
+      h.Authorization = `Bearer ${oturum.jeton}`;
+    }
+    if (tur) h['Content-Type'] = tur;
+    const r = await fetch(api + yol, { method: yontem, headers: h, body: govde, credentials: 'omit' });
+    let j = null;
+    try { j = await r.json(); } catch { /* gövde yok ya da JSON değil */ }
+    if (!r.ok) throw hata(r.status, j, yonetici);
+    return j;
+  }
+  // JSON gövde düz metin olarak gider (tarayıcı "text/plain" yazar: ön istek gerekmez)
+  const yaz = (yol, veri, yonetici = false) => istek('POST', yol, { govde: JSON.stringify(veri), yonetici });
+  const degistir = (yontem, yol, veri) => istek(yontem, yol, { govde: JSON.stringify(veri), yonetici: true });
+
+  // Okumalar: 12 ms içinde istenenler tek GET /veri isteğinde toplanır. Aynı parça ikinci kez istenirse yeni bir grup açılır.
+  let grup = null;
+  const oku = (parca, params = {}) => new Promise((resolve, reject) => {
+    if (!grup || grup.has(parca)) {
+      const g = new Map();
+      grup = g;
+      setTimeout(() => { if (grup === g) grup = null; gonder(g); }, 12);
+    }
+    grup.set(parca, { params, resolve, reject });
+  });
+  async function gonder(g) {
+    const q = new URLSearchParams();
+    for (const [parca, { params }] of g) {
+      q.set(parca, params.tur ?? '1');
+      for (const [k, v] of Object.entries(params)) if (k !== 'tur' && v != null) q.set(`${parca}_${k}`, String(v));
+    }
+    // Giriş yapmış yönetici gizlenen bölümleri de görür (oturum düştüyse misafir olarak yeniden denenir)
+    const al = () => retry(() => istek('GET', `/veri?${q}`, { yonetici: !!oturum }), 2);
+    try {
+      let veri;
+      try { veri = await al(); } catch (e) { if (!e?.oturum) throw e; veri = await al(); }
+      for (const [parca, i] of g) i.resolve(veri[parca]);
+    } catch (e) { for (const i of g.values()) i.reject(e); }
+  }
+  const sayfa = tablo => ({ before, limit }) => oku(tablo, { tur: 'sayfa', once: before ?? null, adet: limit });
+  const sonra = tablo => zaman => oku(tablo, { tur: 'sonra', zaman: zaman ?? null });
+  const dosyaUrl = p => (PATH_RE.test(p || '') ? `${api}/d/${p}` : '');
+  const depo = () => istek('GET', '/yonetim/depo', { yonetici: true });
+  // Yöneticinin tüm kayıtları (arşiv, yönetim listesi): 1000'erlik sayfalarla, eskiden yeniye
+  async function tumu(tablo) {
+    const out = [];
+    for (let son = 0; ;) {
+      const j = await istek('GET', `/veri?${tablo}=artan&${tablo}_sonra_id=${son}&${tablo}_adet=1000`, { yonetici: true });
+      out.push(...j[tablo]);
+      if (j[tablo].length < 1000) return out;
+      son = j[tablo][j[tablo].length - 1].id;
+    }
+  }
+  return {
+    live: true,
+    notes: { page: sayfa('notlar'), since: sonra('notlar') },
+    photos: { page: sayfa('fotograflar'), since: sonra('fotograflar') },
+    // Bağ anahtarı yalnızca bu cihazda kalır; sunucu fotoğrafı dileğe yalnızca bununla bağlar
+    async addNote(isim, mesaj) {
+      const bag = uuid();
+      await retry(() => yaz('/dilek', { isim, mesaj, bag, cihaz: deviceKey() }));
+      return { key: bag };
+    },
+    // İki dosya (büyük ve küçük sürüm) yüklenir, sonra albüme kaydedilir. Dosyalar "text/plain" türüyle gider
+    // (ön istek olmasın); sunucu JPEG olduğunu kendisi denetler.
+    async addPhoto({ isim, large, thumb, width, height, bag }) {
+      const id = uuid(), cihaz = deviceKey();
+      const yukle = (ad, blob) => retry(() => istek('POST', `/dosya?ad=${encodeURIComponent(ad)}&cihaz=${cihaz}`,
+        { govde: new Blob([blob], { type: 'text/plain' }) }));
+      await Promise.all([yukle(`buyuk/${id}.jpg`, large), yukle(`kucuk/${id}.jpg`, thumb)]);
+      await retry(() => yaz('/foto', { id, isim, genislik: width, yukseklik: height, bag: bag?.key || null, cihaz }));
+    },
+    thumbUrl: r => dosyaUrl(r.kucuk),
+    largeUrl: r => dosyaUrl(r.buyuk),
+    count: tablo => oku(`${tablo}_say`).then(n => n ?? 0),
+    all: tumu,
+    byIds: (tablo, ids) => oku(tablo, { tur: 'idler', idler: ids.join(',') }),
+    auth: {
+      eposta: false,   // giriş yalnızca şifreyle
+      async session() { return oturum ? { user: { email: 'Yönetici' } } : null; },
+      async signIn(_eposta, sifre) {
+        const j = await yaz('/yonetim/giris', { sifre });
+        oturum = { jeton: j.jeton, bitis: j.bitis };
+        ls.set(OTURUM, JSON.stringify(oturum));
+      },
+      async signOut() { oturumuKapat(); },
+      async isAdmin() {
+        if (!oturum) return false;
+        try { await istek('GET', '/yonetim/ben', { yonetici: true }); return true; } catch (e) { if (e?.oturum) return false; throw e; }
+      },
+      onSignedOut(cb) { onSignedOut = cb; },
+    },
+    deletePhotos: rows => yaz('/yonetim/sil', { tablo: 'fotograflar', idler: rows.map(r => r.id) }, true).then(j => j.silinen),
+    async storageAudit() {
+      const j = await depo();
+      return { orphans: j.yetimler.map(y => ({ path: y.ad, size: y.boyut })) };
+    },
+    cleanStorage: ({ orphans }) => yaz('/yonetim/temizle', { adlar: orphans.map(o => o.path) }, true),
+    settings: {
+      get: () => oku('ayarlar'),
+      save: fields => degistir('PUT', '/yonetim/ayarlar', fields).then(j => j.ayarlar),
+    },
+    content: {
+      get: () => oku('icerik').then(v => v ?? null),
+      save: veri => degistir('PUT', '/yonetim/icerik', { veri }).then(j => j.veri),
+    },
+    site: {
+      upload: (path, blob, contentType) => istek('POST', `/yonetim/site?ad=${encodeURIComponent(path)}`, { govde: blob, tur: contentType, yonetici: true }),
+      remove: paths => yaz('/yonetim/site-sil', { adlar: paths }, true),
+    },
+    async storageUsage() {
+      const j = await depo();
+      return { bytes: j.bayt, files: j.dosya, limit: j.alan_bayt };
+    },
+    deleteNotes: ids => yaz('/yonetim/sil', { tablo: 'notlar', idler: ids }, true).then(j => j.silinen),
+    updateNote: (id, fields) => degistir('PATCH', `/yonetim/notlar/${id}`, fields).then(j => j.kayit),
+    updatePhoto: (id, fields) => degistir('PATCH', `/yonetim/fotograflar/${id}`, fields).then(j => j.kayit),
+    changes: {
+      recent: () => oku('degisiklik', { tur: 'son' }),
+      since: id => oku('degisiklik', { tur: 'sonra', id }),
+    },
+  };
 }
 
 // Önizleme: Supabase bilgileri girilmemişken tasarımı denemek için. Hiçbir şey kaydedilmez.
@@ -4375,7 +4544,7 @@ async function pollAll() {
     if (pollAgain) { pollAgain = false; pollAll(); }
   }
 }
-function startPolling() { stopPolling(); pollTimer = setInterval(pollAll, CONFIG.pollSeconds * 1000); }
+function startPolling() { stopPolling(); pollTimer = setInterval(pollAll, (CF ? CONFIG.pollSecondsCloudflare : CONFIG.pollSeconds) * 1000); }
 function stopPolling() { clearInterval(pollTimer); pollTimer = 0; }
 function pollSoon() { clearTimeout(soonTimer); soonTimer = setTimeout(pollAll, 500); }
 
@@ -4390,18 +4559,21 @@ const arcLog = t => { $('#arc-log').textContent = t; };
 const fmtSize = b => (b >= 1024 ** 3 ? `${(b / 1024 ** 3).toLocaleString('tr-TR', { maximumFractionDigits: 2 })} GB`
   : b >= 1024 ** 2 ? `${Math.round(b / 1024 ** 2)} MB` : `${Math.round(b / 1024)} KB`);
 async function refreshUsage() {
-  const box = $('#arc-usage'), limit = CONFIG.storageLimitGB * 1024 ** 3;
+  const box = $('#arc-usage');
   try {
-    const { bytes, files } = await store.storageUsage();
+    const { bytes, files, limit: sunucuSiniri } = await store.storageUsage();
+    // Cloudflare'de alan sınırını sunucu bildirir (ALAN_GB; GB = 10^9 bayt); Supabase'te ayarlardaki değer
+    const limit = sunucuSiniri || (CF ? CONFIG.storageLimitGBCloudflare * 1e9 : CONFIG.storageLimitGB * 1024 ** 3);
+    const gb = CF ? Math.round(limit / 1e8) / 10 : CONFIG.storageLimitGB;
     // Kalan fotoğraf tahmini: 100 fotoğraf birikene kadar gerçek telefon fotoğraflarının ortalaması (~420 KB)
     const pct = bytes / limit, per = files >= 100 ? bytes / files : 420e3;
     const left = Math.max(0, Math.floor((limit - bytes) / per)).toLocaleString('tr-TR');
-    $('#arc-usage-text').textContent = `${fmtSize(bytes)} / ${CONFIG.storageLimitGB} GB · %${Math.round(pct * 100)}`;
+    $('#arc-usage-text').textContent = `${fmtSize(bytes)} / ${gb.toLocaleString('tr-TR')} GB · %${Math.round(pct * 100)}`;
     $('#arc-usage-bar').style.width = `${Math.min(100, pct * 100)}%`;
     box.className = 'arc-usage' + (pct >= 0.9 ? ' full' : pct >= 0.7 ? ' warn' : '');
-    $('#arc-usage-note').textContent = pct >= 0.7
-      ? `Alan dolmak üzere (yaklaşık ${left} fotoğraf daha sığar). Supabase panelinde Organization › Billing’den Pro plana geçince alan hemen 100 GB olur; misafirler hiçbir şey fark etmez.`
-      : `Yaklaşık ${left} fotoğraf daha sığar.`;
+    $('#arc-usage-note').textContent = pct < 0.7 ? `Yaklaşık ${left} fotoğraf daha sığar.`
+      : CF ? `Alan dolmak üzere (yaklaşık ${left} fotoğraf daha sığar). Cloudflare panelinde Worker › Settings › Variables and Secrets’tan ALAN_GB değerini büyütün (10 GB’ı aşan kısım GB başına ayda yaklaşık 0,015 $); misafirler hiçbir şey fark etmez.`
+      : `Alan dolmak üzere (yaklaşık ${left} fotoğraf daha sığar). Supabase panelinde Organization › Billing’den Pro plana geçince alan hemen 100 GB olur; misafirler hiçbir şey fark etmez.`;
     return pct;
   } catch (e) {
     console.warn('Alan ölçülemedi:', e);
@@ -5443,7 +5615,10 @@ function askLogin() {
     $('#login-msg').textContent = store.live ? '' : 'Önizleme modu: herhangi bir e-posta ve şifreyle girebilirsiniz.';
     $('#login-sheet').hidden = false;
     lockScroll(true);
-    setTimeout(() => $('#login-email').focus(), 60);
+    // Cloudflare'de giriş yalnızca şifreyle
+    const eposta = store.auth?.eposta !== false;
+    $('#login-email').closest('label').hidden = !eposta;
+    setTimeout(() => $(eposta ? '#login-email' : '#login-pass').focus(), 60);
   });
 }
 function closeLogin(ok) {
@@ -5465,7 +5640,8 @@ function loginError(e) {
 async function submitLogin(e) {
   e.preventDefault();
   const email = $('#login-email').value.trim(), pass = $('#login-pass').value, msg = $('#login-msg'), btn = $('#login-go');
-  if (store.live && (!email || !pass)) { msg.textContent = 'E-posta adresinizi ve şifrenizi yazın.'; return; }
+  const eposta = store.auth?.eposta !== false;
+  if (store.live && ((eposta && !email) || !pass)) { msg.textContent = eposta ? 'E-posta adresinizi ve şifrenizi yazın.' : 'Şifrenizi yazın.'; return; }
   btn.disabled = true;
   msg.textContent = 'Giriş yapılıyor…';
   try {
@@ -5474,7 +5650,7 @@ async function submitLogin(e) {
       await store.auth.signOut();
       throw new UserError('Bu hesap yönetici olarak tanımlı değil.');
     }
-    setAdminActive(true, email);
+    setAdminActive(true, eposta ? email : 'Yönetici');
     closeLogin(true);
   } catch (err) {
     console.warn('Giriş yapılamadı:', err);
@@ -5482,7 +5658,7 @@ async function submitLogin(e) {
   } finally { btn.disabled = false; }
 }
 async function logout() {
-  if (!(await dialog({ title: 'Çıkış yapılsın mı?', text: 'Yönetim ekranına tekrar girmek için e-posta ve şifreniz gerekecek.', ok: 'Çıkış Yap' }))) return;
+  if (!(await dialog({ title: 'Çıkış yapılsın mı?', text: store.auth?.eposta === false ? 'Yönetim ekranına tekrar girmek için şifreniz gerekecek.' : 'Yönetim ekranına tekrar girmek için e-posta ve şifreniz gerekecek.', ok: 'Çıkış Yap' }))) return;
   if (lookDraft) await cleanupLookFiles(lookSaved);   // kaydedilmeyen yüklemeler, oturum kapanmadan silinir
   setAdminActive(false);
   try { await store.auth.signOut(); } catch (e) { console.warn(e); }
@@ -5738,7 +5914,7 @@ function onLookInput(e) {
   cancelAnimationFrame(lookFrame);
   lookFrame = requestAnimationFrame(refreshLookDraft);
 }
-const uploadError = e => (/bucket not found|not found|404/i.test(`${e?.message} ${e?.statusCode} ${e?.status}`)
+const uploadError = e => (!CF && /bucket not found|not found|404/i.test(`${e?.message} ${e?.statusCode} ${e?.status}`)
   ? 'Kapak ve müzik deposu henüz yok: güncel kurulum SQL’ini Supabase’de çalıştırın.' : friendlyError(e));
 async function pickCoverPhoto(file) {
   const btn = $('#lk-foto-sec'), log = $('#lk-log');
@@ -6303,12 +6479,13 @@ function init() {
   tickCountdown();
   setInterval(tickCountdown, 250);
 
-  if (LIVE && isSecretKey(CONFIG.supabaseKey.trim())) {
+  if (LIVE && !CF && isSecretKey(CONFIG.supabaseKey.trim())) {
     document.body.append(h('div', { class: 'fatal', role: 'alert' },
       'GÜVENLİK UYARISI: Ayarlara secret (gizli) anahtar yazılmış! Bu anahtarı hemen Supabase panelinden iptal edin ve yerine yalnızca “sb_publishable_…” anahtarını yazın.'));
     return;
   }
-  store = LIVE ? liveStore() : previewStore();
+  store = CF ? cfStore() : LIVE ? liveStore() : previewStore();
+  if (CF) $('#adm-tip-supabase').hidden = true;   // Supabase'e özgü hatırlatma
   if (!LIVE) {
     const pill = $('#pv-pill');
     pill.hidden = false;

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://hpmhoursfrtigfyoibvd.supabase.co https://*.workers.dev http://127.0.0.1:* http://localhost:*; base-uri 'none'; form-action 'none'">
+<title>Cloudflare'e Aktarım</title>
+<style>
+  :root { --zemin: #F4ECDD; --kart: #FFFDF8; --yazi: #24312A; --yazi-2: #56635B; --altin: #B8955A; --altin-koyu: #7A5B2F; --hata: #9C3A1E; --iyi: #3F6B4A; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px 16px 48px; background: var(--zemin); color: var(--yazi); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 620px; margin: 0 auto; }
+  h1 { margin: 0 0 6px; font: 600 24px/1.25 Georgia, serif; color: var(--altin-koyu); }
+  .alt { margin: 0 0 22px; color: var(--yazi-2); }
+  .kart { background: var(--kart); border: 1px solid rgba(184, 149, 90, .35); border-radius: 16px; padding: 20px; box-shadow: 0 10px 24px -18px rgba(70, 50, 20, .45); }
+  label { display: block; margin: 0 0 14px; font-weight: 600; font-size: 15px; }
+  label span { display: block; margin-bottom: 6px; }
+  input[type="text"], input[type="password"], input[type="url"] { width: 100%; padding: 11px 12px; border: 1px solid rgba(122, 91, 47, .35); border-radius: 10px; font: inherit; background: #fff; color: inherit; }
+  .secim { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; }
+  .secim input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--altin-koyu); }
+  .secim small { display: block; color: var(--yazi-2); }
+  button { width: 100%; margin-top: 8px; padding: 13px 16px; border: 0; border-radius: 999px; background: linear-gradient(135deg, #C9A464, var(--altin-koyu)); color: #fff; font: 600 16px/1 system-ui, sans-serif; letter-spacing: .02em; cursor: pointer; }
+  button:disabled { opacity: .55; cursor: default; }
+  ol { margin: 22px 0 0; padding: 0; list-style: none; }
+  ol li { padding: 8px 0 8px 28px; position: relative; border-top: 1px solid rgba(184, 149, 90, .2); }
+  ol li::before { content: "•"; position: absolute; left: 8px; color: var(--altin); }
+  ol li.iyi::before { content: "✓"; color: var(--iyi); }
+  ol li.hata { color: var(--hata); }
+  ol li.hata::before { content: "!"; color: var(--hata); font-weight: 700; }
+  .not { margin: 18px 0 0; font-size: 14px; color: var(--yazi-2); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Supabase → Cloudflare aktarımı</h1>
+  <p class="alt">Dilekleri, ayarları, sayfa metinlerini ve yönetimden yüklenen kapak/müzik/önizleme görsellerini düğün sayfasının yeni sunucusuna kopyalar. Supabase’te hiçbir şey silinmez ya da değiştirilmez. Tekrar çalıştırmak güvenlidir: aynı dilek ikinci kez eklenmez.</p>
+  <form class="kart" id="form" autocomplete="off">
+    <label><span>Cloudflare sunucusunun adresi</span><input type="url" id="api" spellcheck="false"></label>
+    <label><span>Düğün sunucusunun yönetici şifresi</span><input type="password" id="sifre" autocomplete="current-password"></label>
+    <label class="secim"><input type="checkbox" id="ayar" checked><span>Ayarlar ve sayfa metinleri de aktarılsın
+      <small>Geçişten sonraki son aktarımda işareti kaldırın: o zamana kadar yeni yönetimde yaptığınız değişiklikler korunur.</small></span></label>
+    <label class="secim"><input type="checkbox" id="dosya" checked><span>Kapak fotoğrafı, müzik ve WhatsApp önizleme görseli de aktarılsın</span></label>
+    <button id="git" type="submit">Aktar</button>
+    <ol id="adimlar" aria-live="polite"></ol>
+    <p class="not">Şifre yalnızca bu sayfadan sunucuya gönderilir; hiçbir yere kaydedilmez.</p>
+  </form>
+</main>
+<script>
+'use strict';
+// Kaynak: düğün sayfasının Supabase projesi (yalnızca herkese açık anahtarla OKUNUR; hiçbir şey yazılmaz)
+const SB = 'https://hpmhoursfrtigfyoibvd.supabase.co';
+const SB_ANAHTAR = 'sb_publishable_1NkpbDIHSAAuhWhQPF3X0A_LB9MDNWp';
+const VARSAYILAN_API = 'https://elif-yunus-dugun.kose-yunus-55.workers.dev';
+const AYAR_ALANLARI = ['foto_acik', 'foto_baslangic', 'foto_bitis', 'dilek_acik', 'dilek_baslangic', 'dilek_bitis',
+  'album_gorunur', 'dilekler_gorunur', 'muzik', 'dilek_siniri', 'foto_siniri'];
+const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
+const SITE_YOLU = new RegExp(`^(?:(?:kapak|paylasim)/${UUID}\\.jpg|muzik/${UUID}\\.(?:mp3|m4a))$`);
+const TURLER = { jpg: 'image/jpeg', mp3: 'audio/mpeg', m4a: 'audio/mp4' };
+
+const $ = s => document.querySelector(s);
+const q = new URLSearchParams(location.search);
+$('#api').value = q.get('api') || VARSAYILAN_API;
+
+function adim(metin, tur = '') {
+  const li = document.createElement('li');
+  li.textContent = metin;
+  if (tur) li.className = tur;
+  $('#adimlar').append(li);
+  return li;
+}
+const bitti = (li, metin, tur = 'iyi') => { li.textContent = metin; li.className = tur; };
+
+async function supabase(yol) {
+  const r = await fetch(`${SB}/rest/v1/${yol}`, { headers: { apikey: SB_ANAHTAR, Authorization: `Bearer ${SB_ANAHTAR}` } });
+  if (!r.ok) throw new Error(`Supabase okunamadı (HTTP ${r.status}).`);
+  return r.json();
+}
+
+async function aktar(e) {
+  e.preventDefault();
+  const api = $('#api').value.trim().replace(/\/+$/, ''), sifre = $('#sifre').value;
+  $('#adimlar').replaceChildren();
+  if (!/^https?:\/\/[\w.-]+(:\d+)?$/.test(api)) { adim('Sunucu adresi geçersiz.', 'hata'); return; }
+  if (!sifre) { adim('Yönetici şifresini yazın.', 'hata'); return; }
+  $('#git').disabled = true;
+  let li;
+  try {
+    // 1) Yeni sunucuya giriş (jeton yalnızca bu sayfa açıkken bellekte tutulur)
+    li = adim('Cloudflare sunucusuna giriş yapılıyor…');
+    let r = await fetch(`${api}/yonetim/giris`, { method: 'POST', body: JSON.stringify({ sifre }) });
+    let j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.mesaj || `Giriş yapılamadı (HTTP ${r.status}).`);
+    const jeton = j.jeton;
+    $('#sifre').value = '';
+    bitti(li, 'Cloudflare sunucusuna giriş yapıldı.');
+    const yonetim = (yontem, yol, govde, tur) => fetch(`${api}/yonetim/${yol}`, {
+      method: yontem, body: govde, headers: { Authorization: `Bearer ${jeton}`, ...(tur ? { 'Content-Type': tur } : {}) },
+    });
+
+    // 2) Supabase'ten okuma
+    li = adim('Supabase’teki dilekler okunuyor…');
+    const notlar = [];
+    for (let offset = 0; ; offset += 1000) {
+      const parca = await supabase(`notlar?select=id,created_at,isim,mesaj&order=id.asc&limit=1000&offset=${offset}`);
+      notlar.push(...parca);
+      if (parca.length < 1000) break;
+    }
+    const [ayarlar] = await supabase('ayarlar?select=*&id=eq.1');
+    const [icerikSatiri] = await supabase('icerik?select=veri&id=eq.1');
+    const veri = icerikSatiri?.veri && typeof icerikSatiri.veri === 'object' ? icerikSatiri.veri : null;
+    if (ayarlar && ayarlar.dilekler_gorunur === false) {
+      throw new Error('Supabase’te Dilek Defteri gizli olduğu için dilekler okunamıyor. Eski yönetimde (adresin sonuna ?sunucu=supabase#yonetim) Ayarlar › Dilek Defteri’ni geçici olarak görünür yapıp tekrar deneyin.');
+    }
+    bitti(li, `Supabase’te ${notlar.length} dilek bulundu.`);
+    const fotoSayisi = await fetch(`${SB}/rest/v1/fotograflar?select=id`, { method: 'HEAD', headers: { apikey: SB_ANAHTAR, Authorization: `Bearer ${SB_ANAHTAR}`, Prefer: 'count=exact' } })
+      .then(x => Number(/\/(\d+)$/.exec(x.headers.get('content-range') || '')?.[1] || 0)).catch(() => 0);
+    if (fotoSayisi) adim(`Uyarı: Supabase’te ${fotoSayisi} fotoğraf var; fotoğraflar bu sayfayla aktarılmaz.`, 'hata');
+
+    // 3) Kapak, müzik ve önizleme görseli (metinler bu adlarla gösterir; adlar aynı kalır)
+    if ($('#dosya').checked && veri) {
+      const adlar = [...new Set([veri.gorunum?.kapak_foto, veri.gorunum?.muzik_dosya, veri.ozet?.gorsel].filter(a => typeof a === 'string' && SITE_YOLU.test(a)))];
+      if (!adlar.length) adim('Yönetimden yüklenmiş kapak, müzik ya da önizleme görseli yok.', 'iyi');
+      for (const ad of adlar) {
+        li = adim(`${ad} kopyalanıyor…`);
+        const d = await fetch(`${SB}/storage/v1/object/public/site/${ad}`);
+        if (!d.ok) { bitti(li, `${ad} Supabase’te bulunamadı (HTTP ${d.status}); atlandı.`, 'hata'); continue; }
+        const govde = await d.blob();
+        const y = await yonetim('POST', `site?ad=${encodeURIComponent(ad)}`, govde, TURLER[ad.split('.').pop()]);
+        const yj = await y.json().catch(() => ({}));
+        if (!y.ok) throw new Error(yj.mesaj || `${ad} yüklenemedi (HTTP ${y.status}).`);
+        bitti(li, `${ad} ${yj.zaten ? 'zaten vardı' : `kopyalandı (${Math.round(govde.size / 1024)} KB)`}.`);
+      }
+    }
+
+    // 4) Dilekler (Supabase'teki numaralarıyla), ayarlar ve metinler
+    li = adim('Dilekler Cloudflare’e yazılıyor…');
+    const istek = { notlar };
+    if ($('#ayar').checked) {
+      if (ayarlar) istek.ayarlar = Object.fromEntries(AYAR_ALANLARI.filter(k => k in ayarlar).map(k => [k, ayarlar[k]]));
+      if (veri) istek.icerik = veri;
+    }
+    r = await yonetim('POST', 'tasi', JSON.stringify(istek));
+    j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.mesaj || `Aktarılamadı (HTTP ${r.status}).`);
+    bitti(li, `Dilekler: ${j.eklenen} eklendi, ${j.zaten} zaten vardı${j.gecersiz ? `, ${j.gecersiz} geçersiz kayıt atlandı` : ''}.`);
+    if (istek.ayarlar || istek.icerik) adim(`${istek.ayarlar ? 'Ayarlar' : ''}${istek.ayarlar && istek.icerik ? ' ve ' : ''}${istek.icerik ? 'sayfa metinleri' : ''} aktarıldı.`, 'iyi');
+    adim('Aktarım tamamlandı.', 'iyi');
+  } catch (err) {
+    if (li && !li.className) li.remove();
+    adim(err instanceof TypeError ? 'Bağlantı kurulamadı. İnternetinizi ve sunucu adresini kontrol edin.' : err.message, 'hata');
+  } finally {
+    $('#git').disabled = false;
+  }
+}
+$('#form').addEventListener('submit', aktar);
+</script>
+</body>
+</html>
