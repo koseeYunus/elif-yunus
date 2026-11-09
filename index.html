@@ -429,13 +429,16 @@ html.zarf-acik, html.zarf-acik body, html.zarf-kalkiyor, html.zarf-kalkiyor body
 .muhur-parilti { position: absolute; inset: -42%; border-radius: 50%; opacity: 0; pointer-events: none;
   background: radial-gradient(closest-side, #FFFBF0, rgba(255, 246, 224, .85) 26%, rgba(var(--spark-rgb), .42) 52%, rgba(var(--spark-rgb), 0)); }
 .zarf-ipucu { position: absolute; left: 50%; top: calc(50% + 92 * var(--zs)); z-index: 6; translate: -50% 0; margin: 0;
+  width: max-content; max-width: calc(100cqw - 32px); text-align: center;   /* tek satır; çok uzun yazı yalnızca ekrana sığmazsa kırılır */
   display: flex; align-items: center; gap: 8px; padding: 9px 16px 9px 13px; border-radius: 999px; white-space: nowrap; pointer-events: none;
   background: rgba(255, 252, 245, .62); border: 1px solid rgba(var(--gold-deep-rgb), .16); box-shadow: 0 6px 18px -10px rgba(70, 50, 20, .45);
   -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
   color: var(--gold-deep); font: 500 calc(10.5px * var(--fs-sans))/1 var(--sans); letter-spacing: .26em; text-transform: uppercase;
   animation: ipucu 2.4s ease-in-out infinite; }
-.zarf-ipucu .ic { width: 12px; height: 12px; stroke-width: 1.8; }
-@keyframes ipucu { 0%, 100% { transform: translateY(0); opacity: .82; } 50% { transform: translateY(-3px); opacity: 1; } }
+/* Yazı yerinde durur, yalnızca parmak mühre "dokunur": yukarı zıplayan bir ipucu "yukarı kaydır" diye okunuyordu */
+.zarf-ipucu .ic { width: 15px; height: 15px; stroke-width: 1.7; transform-origin: 40% 15%; animation: ipucu-dokun 2.4s ease-in-out infinite; }
+@keyframes ipucu { 0%, 100% { opacity: .84; } 50% { opacity: 1; } }
+@keyframes ipucu-dokun { 0%, 34%, 100% { transform: none; } 14% { transform: translateY(-1.5px) scale(.84); } 22% { transform: none; } }
 /* mühürden saçılan altın tozlar ve gül yaprakları (betik ekler) */
 .muhur-toz { position: absolute; inset: 0; z-index: 7; overflow: hidden; pointer-events: none; }
 .muhur-toz i { position: absolute; width: var(--w); height: var(--w); margin: calc(var(--w) / -2) 0 0 calc(var(--w) / -2); border-radius: 50%;
@@ -1098,6 +1101,8 @@ body:is([data-phase="live"], [data-phase="after"]) .kapanis-baslik { display: no
     <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
     <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
     <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
+    <!-- Mühre dokunan parmak: Lucide "pointer" simgesi (ISC lisansı, lucide.dev) -->
+    <symbol id="i-dokun" viewBox="0 0 24 24"><path d="M22 14a8 8 0 0 1-8 8M18 11v-1a2 2 0 0 0-2-2 2 2 0 0 0-2 2M14 10V9a2 2 0 0 0-2-2 2 2 0 0 0-2 2v1M10 9.5V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v10M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></symbol>
     <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
     <!-- Kapaktaki tül perde, sol yarı (sağdaki aynasıdır). Kemerin içini 100×200 sayan bir kutuda çizilir: tepede toplanır,
          kemerin kenarında bağlanır (çiçek demetinin altında) ve yere dökülür. Kemerin dışında kalan yeri kemer keser. -->
@@ -1672,7 +1677,7 @@ body:is([data-phase="live"], [data-phase="after"]) .kapanis-baslik { display: no
       <span class="muhur-golge"></span>
       <span class="muhur-tam"><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#muhur-cizim"/></svg></span>
     </button>
-    <p class="zarf-ipucu" aria-hidden="true"><svg class="ic"><use href="#i-up"/></svg><span data-c="zarf_ipucu">Davetiyeyi Aç</span></p>
+    <p class="zarf-ipucu" aria-hidden="true"><svg class="ic"><use href="#i-dokun"/></svg><span data-c="zarf_ipucu">Açmak için mühre dokunun</span></p>
   </div>
 </div>
 
