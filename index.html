@@ -4856,7 +4856,9 @@ function initArchive() {
 // Önizleme görselini etkileyenler. Hepsi varsayılandaysa depodaki paylasim.jpg kullanılır, görsel hazırlanmaz.
 function shareParts(T, wed, g) {
   return [T('gelin_adi'), T('damat_adi'), T('kapak_ust'), T('mekan_adi'), dateText('tarih', wed), dateText('gun', wed), dateText('saat', wed),
-    g.tema, g.koyu, g.vurgu, g.zemin, g.el, g.serif, g.sans, g.dallar, g.cerceve, g.kapak === 'foto' ? `${g.kapak_foto}|${g.kapak_karartma}|${g.kapak_odak}` : ''];
+    g.tema, g.koyu, g.vurgu, g.zemin, g.el, g.serif, g.sans, g.dallar, g.cerceve, g.kapak === 'foto' ? `${g.kapak_foto}|${g.kapak_karartma}|${g.kapak_odak}` : '',
+    // kemerli kapak (2. sürüm görsel): kemer açık mı ve kemerdeki yazılar
+    'k2', g.kemer !== false, T('kapak_davetli'), T('kapak_davetli_alt')];
 }
 const shareSignature = g => JSON.stringify(shareParts(txt, WED, g));
 const shareIsDefault = g => shareSignature(g) === JSON.stringify(shareParts(defOf, Date.parse(CONFIG.weddingAt), LOOK_DEFAULT));
@@ -4875,13 +4877,17 @@ const loadImg = src => new Promise((res, rej) => {
   i.onerror = () => rej(new Error('Görsel yüklenemedi'));
   i.src = src;
 });
-// 1200×630 önizleme görseli: kapağın küçük bir kopyası — temanın renkleri, yazı tipleri ve varsa kapak fotoğrafı
+// 1200×630 önizleme görseli: kapağın küçük bir kopyası — temanın renkleri, yazı tipleri ve varsa kapak fotoğrafı.
+// Kemerli kapakta (varsayılan) krem duvar ve kemer; kemer kapatıldıysa klasik gece kapağı.
 async function drawShareImage(g = lookSaved) {
-  const W = 1200, H = 630, p = paletteOf(g), c = paletteVars(p.koyu, p.vurgu, p.zemin);
+  const W = 1200, H = 630, p = paletteOf(g), c = paletteVars(p.koyu, p.vurgu, p.zemin), kemer = g.kemer !== false;
   const fEl = fontOf('el', g.el), fSerif = fontOf('serif', g.serif), fSans = fontOf('sans', g.sans);
   const fpx = (n, f) => `${Math.round(n * f.o * 100) / 100}px "${f.ad}"`;
-  const F = { ust: '500 ' + fpx(20, fSans), isim: '400 ' + fpx(165, fEl), amp: 'italic 400 ' + fpx(56, fSerif), tarih: '500 ' + fpx(34, fSerif), mekan: 'italic 400 ' + fpx(24, fSerif) };
-  const T = { ust: txt('kapak_ust').toLocaleUpperCase('tr-TR'), gelin: txt('gelin_adi'), damat: txt('damat_adi'), tarih: dateText('tarih'), gun: dateText('gun'), saat: dateText('saat'), mekan: txt('mekan_adi') };
+  const F = kemer
+    ? { alt: '500 ' + fpx(14, fSans), davetli: '400 ' + fpx(62, fEl), isim: '400 ' + fpx(118, fEl), amp: 'italic 400 ' + fpx(42, fSerif), tarih: '500 ' + fpx(30, fSerif), mekan: 'italic 400 ' + fpx(23, fSerif) }
+    : { ust: '500 ' + fpx(20, fSans), isim: '400 ' + fpx(165, fEl), amp: 'italic 400 ' + fpx(56, fSerif), tarih: '500 ' + fpx(34, fSerif), mekan: 'italic 400 ' + fpx(24, fSerif) };
+  const T = { ust: txt('kapak_ust').toLocaleUpperCase('tr-TR'), gelin: txt('gelin_adi'), damat: txt('damat_adi'), tarih: dateText('tarih'), gun: dateText('gun'), saat: dateText('saat'), mekan: txt('mekan_adi'),
+    davetli: txt('kapak_davetli'), alt: txt('kapak_davetli_alt').toLocaleUpperCase('tr-TR') };
   await ensureLookFonts(g);
   const sample = [...Object.values(T), '&·'].join(' ');
   const loaded = await Promise.all(Object.values(F).map(f => document.fonts.load(f, sample)));
@@ -4889,6 +4895,8 @@ async function drawShareImage(g = lookSaved) {
   const cv = document.createElement('canvas');
   cv.width = W; cv.height = H;
   const x = cv.getContext('2d');
+  const jpeg = () => new Promise((res, rej) => cv.toBlob(b => (b ? res(b) : rej(new Error('Görsel hazırlanamadı'))), 'image/jpeg', .9));
+  if (kemer) { await paintKemerShare(x, W, H, g, c, F, T); return jpeg(); }
   // Zemin: kapaktaki renk geçişi ya da karartılmış kapak fotoğrafı
   const bg = x.createLinearGradient(0, 0, 0, H);
   bg.addColorStop(0, c['hero-1']); bg.addColorStop(.55, c['hero-2']); bg.addColorStop(1, c['hero-3']);
@@ -4937,7 +4945,157 @@ async function drawShareImage(g = lookSaved) {
   const nokta = { f: F.tarih, c: gl, t: '·', pad: 10 }, cream = c['cream-hi'];
   line(432, { f: F.tarih, c: cream, t: T.tarih, sp: 1.7 }, nokta, { f: F.tarih, c: cream, t: T.gun, sp: 1.7 }, nokta, { f: F.tarih, c: cream, t: T.saat, sp: 1.7 });
   line(478, { f: F.mekan, c: rgbaOf(c.cream, .78), t: T.mekan });
-  return new Promise((res, rej) => cv.toBlob(b => (b ? res(b) : rej(new Error('Görsel hazırlanamadı'))), 'image/jpeg', .9));
+  return jpeg();
+}
+// Kemerli kapağın yatay kopyası: kabartmalı krem duvar, ortada altın pervazlı kemer; içinde tül perdeler, gül demetleri
+// ve kapaktaki yazılar. Süsler kapaktaki SVG desenlerinin kendisidir (sayfa onları açılışta çizer); çizilemeyen bir süs
+// atlanır, görsel yine hazırlanır. Ölçüler kapağın CSS'iyle aynı oranlarda (kw: kemer genişliği, kt: kemerin tepesi).
+async function paintKemerShare(x, W, H, g, c, F, T) {
+  const hero = $('.hero'), desen = ad => getComputedStyle(hero).getPropertyValue(ad).trim();
+  try { window.desenleriHazirla?.('kemer'); } catch (e) { console.warn('Desenler çizilemedi:', e); }
+  for (let i = 0; i < 30 && !desen('--demet-tepe'); i++) await sleep(100);   // çiçek demetleri sayfa boştayken çizilir
+  // Desen istenen ölçüde yeniden çizilir (küçük çizip büyütmek bulanık olur)
+  const ciz = async (ad, left, top, w, h) => {
+    const m = /^url\(\s*"data:image\/svg\+xml,(.*)"\s*\)$/s.exec(desen(ad));
+    if (!m) return;
+    try {
+      const s = decodeURIComponent(m[1]).replace(/ width="[\d.]+" height="[\d.]+"/, ` width="${Math.round(w)}" height="${Math.round(h)}"`);
+      const img = new Image();
+      img.src = 'data:image/svg+xml,' + encodeURIComponent(s);
+      await img.decode();
+      x.drawImage(img, left, top, w, h);
+    } catch (e) { console.warn('Süs önizleme görseline eklenemedi:', ad, e); }
+  };
+  const karis = (a, b, t) => '#' + hexRgb(a).map((v, i) => Math.round(v + (hexRgb(b)[i] - v) * t).toString(16).padStart(2, '0')).join('');
+  const duvar = karis(c.sand, c['gold-deep'], .05);
+  const kw = 600, cx = W / 2, kt = 40, kh = H - kt, r = kw / 2, x0 = cx - r, x1 = cx + r, ay = kt + r;
+  // Kemerin çizgisi; d > 0 dışa, d < 0 içe kaydırır (alt kenar görselin dışında kalır)
+  const kemerYolu = (d = 0) => {
+    const yol = new Path2D();
+    yol.moveTo(x0 - d, H + 30); yol.lineTo(x0 - d, ay); yol.arc(cx, ay, r + d, Math.PI, 0); yol.lineTo(x1 + d, H + 30); yol.closePath();
+    return yol;
+  };
+  // CSS'teki eliptik radial-gradient
+  const elips = (ctx, ex, ey, rx, ry, duraklar) => {
+    ctx.save(); ctx.translate(ex, ey); ctx.scale(rx / ry, 1);
+    const gr = ctx.createRadialGradient(0, 0, 0, 0, 0, ry);
+    for (const [o, renk] of duraklar) gr.addColorStop(o, renk);
+    ctx.fillStyle = gr; ctx.fillRect(-ex * ry / rx, -ey, W * ry / rx, H);
+    ctx.restore();
+  };
+
+  // Duvar ve kabartmalar: kemerin iki yanında sarmaşık, omuzlarında gül kümeleri
+  x.fillStyle = duvar; x.fillRect(0, 0, W, H);
+  elips(x, cx, H * .45, W * .6, H * .8, [[0, 'rgba(255, 255, 255, .2)'], [1, 'rgba(255, 255, 255, 0)']]);
+  const vh = Math.round(H * .78), vw = Math.round(vh * 76 / 504), vy = Math.round((H - vh) * .54);
+  await ciz('--yan-desen-sol', x0 - 30 - vw / 2, vy, vw, vh);
+  await ciz('--yan-desen-sag', x1 + 30 - vw / 2, vy, vw, vh);
+  const ks = kw * .5 + 40;
+  await ciz('--kose-sol', cx - kw * .2 - ks, kt - 24, ks, ks);
+  await ciz('--kose-sag', cx + kw * .2, kt - 24, ks, ks);
+
+  // Pervaz: dışta duvar renginde bant ve altın çizgi, altında yumuşak gölge
+  x.save(); x.shadowColor = 'rgba(70, 50, 20, .2)'; x.shadowBlur = 18; x.shadowOffsetY = 8;
+  x.fillStyle = rgbaOf(c.gold, .5); x.fill(kemerYolu(5)); x.restore();
+  x.fillStyle = duvar; x.fill(kemerYolu(4));
+
+  // Kemerin içi: aydınlık sahne (ya da karartılmış kapak fotoğrafı)
+  x.save(); x.clip(kemerYolu());
+  const zemin = x.createLinearGradient(0, kt, 0, H);
+  zemin.addColorStop(0, c.paper); zemin.addColorStop(.42, c.ivory); zemin.addColorStop(1, c.cream);
+  x.fillStyle = zemin; x.fillRect(x0, kt, kw, kh);
+  let foto = null;
+  if (g.kapak === 'foto' && g.kapak_foto) {
+    try { foto = await loadImg(siteUrl(g.kapak_foto)); } catch (e) { console.warn('Kapak fotoğrafı önizleme görseline eklenemedi:', e); }
+  }
+  if (foto) {
+    const k = Math.max(kw / foto.naturalWidth, kh / foto.naturalHeight), dw = foto.naturalWidth * k, dh = foto.naturalHeight * k;
+    x.drawImage(foto, x0 + (kw - dw) / 2, kt + (kh - dh) * g.kapak_odak / 100, dw, dh);
+    const a = g.kapak_karartma / 100, shade = x.createLinearGradient(0, kt, 0, H);
+    shade.addColorStop(0, rgbaOf(c.night, Math.min(1, a + .08))); shade.addColorStop(.42, rgbaOf(c.night, Math.max(0, a - .06))); shade.addColorStop(1, rgbaOf(c.night, Math.min(1, a + .14)));
+    x.fillStyle = shade; x.fillRect(x0, kt, kw, kh);
+  } else {
+    elips(x, cx, kt + kh * .14, kw * .7, kh * .36, [[0, 'rgba(255, 255, 255, .95)'], [.72, 'rgba(255, 255, 255, 0)']]);
+    elips(x, cx, kt + kh * 1.04, kw, kh * .42, [[0, rgbaOf(c['gold-light'], .42)], [.72, rgbaOf(c['gold-light'], 0)]]);
+    // Tepeden süzülen ışık huzmeleri (kapaktaki repeating-conic-gradient; eski tarayıcıda atlanır)
+    if (x.createConicGradient) {
+      const oc = document.createElement('canvas');
+      oc.width = W; oc.height = H;
+      const o = oc.getContext('2d'), konik = o.createConicGradient(0, cx, kt - kh * .08);
+      const isik = rgbaOf(c['gold-light'], .2), bos = rgbaOf(c['gold-light'], 0);
+      for (let a = 0; a < 360; a += 15) for (const [d, renk] of [[0, bos], [5, bos], [7, isik], [8, isik], [10, bos]]) konik.addColorStop((a + d) / 360, renk);
+      o.fillStyle = konik; o.fillRect(0, 0, W, H);
+      o.globalCompositeOperation = 'destination-in';
+      elips(o, cx, kt, kw * .9, kh * .75, [[.1, '#000'], [.8, 'rgba(0, 0, 0, 0)']]);
+      x.drawImage(oc, 0, 0);
+      oc.width = oc.height = 0;
+    }
+  }
+  // Tül perdeler: kapaktaki perde çiziminin kendisi (100×200'lük kutu kemerin içine yayılır; çizgi kalınlığı değişmez)
+  const perde = $$('#perde-yari path');
+  x.lineCap = 'round';
+  for (const ayna of [false, true]) {
+    const m = new DOMMatrix([ayna ? -kw / 100 : kw / 100, 0, 0, kh / 200, ayna ? x1 : x0, kt]);
+    for (const pth of perde) {
+      const yol = new Path2D();
+      yol.addPath(new Path2D(pth.getAttribute('d')), m);
+      const tur = pth.getAttribute('class');
+      if (tur === 'perde-tul') {
+        x.save(); x.shadowColor = rgbaOf(c['gold-deep'], .16); x.shadowBlur = 10; x.shadowOffsetY = 6;
+        x.fillStyle = 'rgba(255, 255, 255, .5)'; x.fill(yol); x.restore();
+        continue;
+      }
+      [x.strokeStyle, x.lineWidth] = tur === 'perde-kivrim' ? [rgbaOf(c['gold-deep'], .12), 2.4]
+        : tur === 'perde-isik' ? ['rgba(255, 255, 255, .9)', 1.3] : [rgbaOf(c['gold-deep'], .2), 1.2];
+      x.stroke(yol);
+    }
+  }
+  // Pervazın içi: tepeden düşen yumuşak gölge, ince altın çizgi, duvar renginde bant, ikinci altın çizgi
+  x.save(); x.shadowColor = rgbaOf(c['gold-deep'], .3); x.shadowBlur = 22; x.shadowOffsetY = 10;
+  x.lineWidth = 24; x.strokeStyle = duvar; x.stroke(kemerYolu(12)); x.restore();
+  x.lineWidth = 4.5; x.strokeStyle = duvar; x.stroke(kemerYolu(-3.75));
+  x.lineWidth = 1.5; x.strokeStyle = c['shine-3']; x.stroke(kemerYolu(-.75));
+  x.lineWidth = 1; x.strokeStyle = rgbaOf(c.gold, .75); x.stroke(kemerYolu(-6.5));
+  x.restore();
+
+  // Gül demetleri: kemerin tepesinde ve perdelerin bağlandığı iki yanda
+  await ciz('--demet-tepe', cx - kw * .39, kt - kw * .1387, kw * .78, kw * .78 * 190 / 360);
+  const yw = kw * .32, yh = yw * 210 / 150, yy = kt + kh * .69 - kw * .1323;
+  await ciz('--demet-yan-sol', cx - kw * .7061, yy, yw, yh);
+  await ciz('--demet-yan-sag', cx + kw * .7061 - yw, yy, yw, yh);
+
+  // Yazılar: kapaktaki gibi isimler altın, diğerleri mürekkep rengi (fotoğraflı kapakta açık renk)
+  const koyu = !foto, { line } = textLine(x, cx, kw - 110);
+  const altin = (l, rr) => {
+    const gr = x.createLinearGradient(l, 0, l + (rr - l) * 2.2, 0);
+    const duraklar = koyu ? [[0, 'gold-deep'], [.26, 'btn-3'], [.5, 'gold-deep'], [.74, 'btn-3'], [1, 'gold-deep']]
+      : [[0, 'shine-1'], [.26, 'shine-2'], [.5, 'shine-3'], [.74, 'shine-4'], [1, 'shine-1']];
+    for (const [o, k] of duraklar) gr.addColorStop(o, c[k]);
+    return gr;
+  };
+  const yazi = koyu ? c.ink : c['cream-hi'], yazi2 = koyu ? c['ink-2'] : rgbaOf(c.cream, .78), vurgu = koyu ? c.gold : c['gold-light'];
+  let y = T.alt ? 262 : 252;
+  if (T.alt) line(y - 46, { f: F.alt, c: yazi2, t: T.alt, sp: 4.5 });
+  line(y, { f: F.davetli, c: koyu ? c['gold-deep'] : c['cream-hi'], t: T.davetli });
+  drawOrnRing(x, cx - 95, y + 12, .79, vurgu);
+  y += 132;
+  line(y, { f: F.isim, c: altin, t: T.gelin }, { f: F.amp, c: altin, t: '&', pad: 16 }, { f: F.isim, c: altin, t: T.damat });
+  drawOrn(x, cx - 105, y + 42, .875, vurgu);   // el yazısının kuyrukları (ör. "Y") ayraca değmesin
+  const nokta = { f: F.tarih, c: vurgu, t: '·', pad: 9 };
+  y += 104;
+  line(y, { f: F.tarih, c: yazi, t: T.tarih, sp: 1.5 }, nokta, { f: F.tarih, c: yazi, t: T.gun, sp: 1.5 }, nokta, { f: F.tarih, c: yazi, t: T.saat, sp: 1.5 });
+  line(y + 40, { f: F.mekan, c: yazi2, t: T.mekan });
+}
+// İç içe iki nikâh yüzüklü ayraç (#orn-yuzuk, 240×24): sol üst köşesi (left, top), k kat büyütülmüş
+function drawOrnRing(x, left, top, k, color) {
+  x.save(); x.translate(left, top); x.scale(k, k);
+  x.strokeStyle = x.fillStyle = color; x.lineWidth = .9;
+  x.stroke(new Path2D('M10 13H96M144 13H230'));
+  for (const ex of [101, 139]) { x.beginPath(); x.arc(ex, 13, 1.7, 0, Math.PI * 2); x.fill(); }
+  x.lineWidth = 1.5;
+  for (const ex of [114, 126]) { x.beginPath(); x.arc(ex, 14, 7.5, 0, Math.PI * 2); x.stroke(); }
+  x.translate(-2.6, -.2); x.fill(new Path2D('M126 4.2l2.6-2.6 2.6 2.6-2.6 2.2z'));
+  x.restore();
 }
 // Durağan dosyalara işlenecek her şey (yalnızca düz metin; GitHub görevi ayrıca doğrular ve kaçışlar)
 function shareSummary(g, zaman) {
