@@ -39,8 +39,8 @@
   setTimeout(function () { d.classList.remove('icerik-bekle'); }, 1500);
   try {
     let g = null, s = null, l;
-    try { g = JSON.parse(localStorage.getItem('elif-yunus:gorunum') || 'null'); } catch (e) { /* gizli sekme */ }
-    try { s = JSON.parse(document.getElementById('ilk-veri').textContent || '{}'); } catch (e) { /* bozuk */ }
+    try { g = JSON.parse(localStorage.getItem('elif-yunus:gorunum') || 'null'); } catch { /* gizli sekme */ }
+    try { s = JSON.parse(document.getElementById('ilk-veri').textContent || '{}'); } catch { /* bozuk */ }
     const o = s && s.icerik && s.icerik.ozet;
     if (o && o.gorunum && typeof o.gorunum === 'object' && (!g || String(o.zaman || '') > String(g.z || ''))) g = o.gorunum;
     if (!g || typeof g !== 'object') g = { v: {} };   // kayıtlı görünüm yok: varsayılan (zarf kararı yine aşağıda)
@@ -57,25 +57,25 @@
       l = document.createElement('link'); l.rel = 'preload'; l.as = 'image'; l.href = g.p; l.setAttribute('fetchpriority', 'high');
       document.head.appendChild(l);
     }
-  } catch (e) { /* önbellek yok ya da okunamadı: varsayılan görünüm */ }
+  } catch { /* önbellek yok ya da okunamadı: varsayılan görünüm */ }
   // Açılış zarfı: düğün gününden önce, sayfa doğrudan bir bölümle (#paylas gibi) açılmadıysa ve bu sekmede zarf
   // henüz açılmadıysa gösterilir. Adresin sonuna ?zarf yazılırsa her zaman gösterilir (deneme için).
   try {
     const q = new URLSearchParams(location.search);
     let ic = null, em = null;
-    try { ic = JSON.parse(localStorage.getItem('elif-yunus:icerik') || 'null'); } catch (e) { /* gizli sekme */ }
-    try { em = JSON.parse(document.getElementById('ilk-veri').textContent || '{}').icerik; } catch (e) { /* yok */ }
+    try { ic = JSON.parse(localStorage.getItem('elif-yunus:icerik') || 'null'); } catch { /* gizli sekme */ }
+    try { em = JSON.parse(document.getElementById('ilk-veri').textContent || '{}').icerik; } catch { /* yok */ }
     const kay = em && (!ic || String((em.ozet || {}).zaman || '') > String((ic.ozet || {}).zaman || '')) ? em : ic || em || {};
     const wed = Date.parse(kay.dugun_zamani || '') || Date.parse('2026-11-15T19:00:00+03:00');
     const h = new Date(wed + 3 * 3600e3);
     const gun = Date.UTC(h.getUTCFullYear(), h.getUTCMonth(), h.getUTCDate()) - 3 * 3600e3;   // düğün günü 00.00 (TR)
     const an = Date.parse(q.get('zaman') || '') || Date.now();
     let acildi = false;
-    try { acildi = sessionStorage.getItem('elif-yunus:zarf') === '1'; } catch (e) { /* gizli sekme */ }
+    try { acildi = sessionStorage.getItem('elif-yunus:zarf') === '1'; } catch { /* gizli sekme */ }
     // eski tarayıcılarda (kapsayıcı birimleri olmayan) zarf gösterilmez; sayfa doğrudan açılır
     if (window.self === window.top && window.CSS && CSS.supports('width: 1cqw') && CSS.supports('color: color-mix(in srgb, red, blue)')
       && (q.has('zarf') || (!/\bno-zarf\b/.test(d.className) && an < gun && !acildi && /^#?(top|davet)?$/.test(location.hash)))) d.className += ' zarf-acik';
-  } catch (e) { /* zarf gösterilmez */ }
+  } catch { /* zarf gösterilmez */ }
 })(document.documentElement);
 </script>
 <style>
