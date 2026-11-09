@@ -280,7 +280,9 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
    arkadaki kapak belirir (~4 sn). Zarf açıkken kapaktaki animasyonlar bekler.
    Kabartma desenler sayfa açılırken bir kez çizilir (bkz. "Zarf ve kemer desenleri" betiği). */
 html.zarf-acik, html.zarf-acik body, html.zarf-kalkiyor, html.zarf-kalkiyor body { overflow: hidden; }
-.zarf { position: fixed; inset: 0; z-index: 44; display: none; container-type: size; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+/* touch-action: kaydırma hareketi tarayıcıya gitmez (sayfa yenileme ya da kaydırma yerine zarfı açar, bkz. initZarf) */
+.zarf { position: fixed; inset: 0; z-index: 44; display: none; container-type: size; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+  touch-action: none; cursor: pointer; }
 /* arkadaki karartma ayrı katmanda: açılırken yalnızca saydamlığı değişir, her karede yeniden boyanmaz */
 .zarf::before { content: ""; position: absolute; inset: 0; background: rgba(var(--night-rgb), .9); }
 .zarf-acik .zarf, .zarf-kalkiyor .zarf { display: block; }
@@ -351,8 +353,10 @@ html.zarf-acik, html.zarf-acik body, html.zarf-kalkiyor, html.zarf-kalkiyor body
   -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
   color: var(--gold-deep); font: 500 calc(10.5px * var(--fs-sans))/1 var(--sans); letter-spacing: .26em; text-transform: uppercase;
   animation: ipucu 2.4s ease-in-out infinite; }
-.zarf-ipucu .ic { width: 12px; height: 12px; stroke-width: 1.8; }
-@keyframes ipucu { 0%, 100% { transform: translateY(0); opacity: .82; } 50% { transform: translateY(-3px); opacity: 1; } }
+/* Yazı yerinde durur, yalnızca parmak mühre "dokunur": yukarı zıplayan bir ipucu "yukarı kaydır" diye okunuyordu */
+.zarf-ipucu .ic { width: 15px; height: 15px; stroke-width: 1.7; transform-origin: 40% 15%; animation: ipucu-dokun 2.4s ease-in-out infinite; }
+@keyframes ipucu { 0%, 100% { opacity: .84; } 50% { opacity: 1; } }
+@keyframes ipucu-dokun { 0%, 34%, 100% { transform: none; } 14% { transform: translateY(-1.5px) scale(.84); } 22% { transform: none; } }
 /* mühürden saçılan altın tozlar ve gül yaprakları (betik ekler) */
 .muhur-toz { position: absolute; inset: 0; z-index: 7; overflow: hidden; pointer-events: none; }
 .muhur-toz i { position: absolute; width: var(--w); height: var(--w); margin: calc(var(--w) / -2) 0 0 calc(var(--w) / -2); border-radius: 50%;
@@ -878,6 +882,8 @@ video.lb-media { background: #000; }
     <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
     <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
     <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
+    <!-- Mühre dokunan parmak: Lucide "pointer" simgesi (ISC lisansı, lucide.dev) -->
+    <symbol id="i-dokun" viewBox="0 0 24 24"><path d="M22 14a8 8 0 0 1-8 8M18 11v-1a2 2 0 0 0-2-2 2 2 0 0 0-2 2M14 10V9a2 2 0 0 0-2-2 2 2 0 0 0-2 2v1M10 9.5V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v10M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></symbol>
     <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
     <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="11" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
     <symbol id="i-video" viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M22 8l-6 4 6 4z"/></symbol>
@@ -1461,7 +1467,7 @@ video.lb-media { background: #000; }
       <span class="muhur-golge"></span>
       <span class="muhur-tam"><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#muhur-cizim"/></svg></span>
     </button>
-    <p class="zarf-ipucu" aria-hidden="true"><svg class="ic"><use href="#i-up"/></svg><span>Davetiyeyi Aç</span></p>
+    <p class="zarf-ipucu" aria-hidden="true"><svg class="ic"><use href="#i-dokun"/></svg><span>Açmak için mühre dokunun</span></p>
   </div>
 </div>
 
@@ -2526,7 +2532,25 @@ function initZarf() {
   if (!root.classList.contains('zarf-acik')) { zarf.remove(); window.desenleriBirak?.(); return; }
   const arka = $$('body > header, body > main, body > footer, body > nav');
   arka.forEach(n => { n.inert = true; });
-  $('#muhur').addEventListener('click', () => {
+  // Zarf yalnızca mühre dokununca değil, herhangi bir yerine dokununca, parmakla kaydırınca, fare tekerleğiyle ya da
+  // kaydırma tuşlarıyla da açılır: misafirlerin bir kısmı ipucunu "yukarı kaydır" diye anlıyordu.
+  let acildi = false, basla = null;
+  const tuslar = new Set(['Enter', ' ', 'ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'End', 'Home']);
+  const tusla = e => { if (tuslar.has(e.key)) { e.preventDefault(); ac(); } };
+  zarf.addEventListener('click', () => ac());
+  zarf.addEventListener('wheel', () => ac(), { passive: true });
+  zarf.addEventListener('pointerdown', e => { basla = { x: e.clientX, y: e.clientY }; });
+  zarf.addEventListener('pointermove', e => {
+    if (basla && Math.hypot(e.clientX - basla.x, e.clientY - basla.y) > 24) { basla = null; ac(); }
+  });
+  const birak = () => { basla = null; };
+  zarf.addEventListener('pointerup', birak);
+  zarf.addEventListener('pointercancel', birak);
+  document.addEventListener('keydown', tusla);
+  function ac() {
+    if (acildi) return;
+    acildi = true;
+    document.removeEventListener('keydown', tusla);
     ss.set(ON + 'zarf', '1');
     const hizli = matchMedia('(prefers-reduced-motion: reduce)').matches;
     root.classList.add('aciliyor');
@@ -2544,7 +2568,7 @@ function initZarf() {
       arka.forEach(n => { n.inert = false; });
       document.dispatchEvent(new Event('zarf-kalkti'));
     }, hizli ? 60 : ZARF_SURE);
-  }, { once: true });
+  }
 }
 
 /* =====================================================================
