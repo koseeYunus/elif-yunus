@@ -1559,7 +1559,7 @@ video.lb-media { background: #000; }
       <div class="konum rv">
         <svg class="konum-pin" aria-hidden="true"><use href="#i-pin"/></svg>
         <p class="venue-name">Firuzan Davet Evi</p>
-        <p class="venue-addr">Çarşamba / Samsun</p>
+        <p class="venue-addr">Şehit Polis Mustafa Öztürk Cad. C Blok No: 4A<br>Kirazlıkçay, Çarşamba / Samsun</p>
         <div class="harita" id="harita">
           <iframe id="harita-cerceve" title="Firuzan Davet Evi’nin haritadaki yeri" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
@@ -1834,8 +1834,11 @@ const CONFIG = {
   partyHours: 6,                          // bu süre boyunca kapakta "Kına gecemiz başladı" yazar
   calendarHours: 5,                       // takvime eklenen etkinliğin süresi
   mekan: 'Firuzan Davet Evi',
-  adres: 'Çarşamba / Samsun',
-  haritaSorgu: 'Firuzan Davet Evi, Çarşamba, Samsun',   // Google Haritalar'da aranan yer (yol tarifi ve gömülü harita)
+  adres: 'Şehit Polis Mustafa Öztürk Cad. C Blok No: 4A, Kirazlıkçay, Çarşamba / Samsun',   // takvim kaydında da kullanılır
+  harita: {
+    konum: '41.1842183,36.7153672',                       // gömülü haritadaki iğnenin yeri (enlem,boylam)
+    baglanti: 'https://maps.app.goo.gl/QYJL3QUh1HcER6VA6', // "Yol Tarifi Al" düğmesi Google Haritalar'da bu kaydı açar
+  },
 
   pollSeconds: 60,        // dilekler ve paylaşım durumu bu aralıkla yenilenir (saniye; sunucunun günlük okuma kotası için seyrek)
   paralel: 3,             // aynı anda gönderilen dosya sayısı
@@ -2293,10 +2296,9 @@ function tickCountdown() {
 }
 function fillDates() { $$('[data-d]').forEach(n => { n.textContent = dateText(n.dataset.d); }); }
 function updateLinks() {
-  const yol = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(CONFIG.haritaSorgu);
-  $$('[data-map]').forEach(a => { a.href = yol; });
+  $$('[data-map]').forEach(a => { a.href = CONFIG.harita.baglanti; });
   // Gömülü harita: "loading=lazy" sayesinde bölüm ekrana yaklaşınca yüklenir
-  $('#harita-cerceve').src = `https://www.google.com/maps?q=${encodeURIComponent(CONFIG.haritaSorgu)}&hl=tr&z=16&output=embed`;
+  $('#harita-cerceve').src = `https://www.google.com/maps?q=${encodeURIComponent(CONFIG.harita.konum)}&hl=tr&z=17&output=embed`;
   const stamp = t => new Date(t).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const google = 'https://calendar.google.com/calendar/render?' + new URLSearchParams({
     action: 'TEMPLATE', text: 'Elif & Yunus’un Kına Gecesi',

@@ -12,11 +12,13 @@ SEQUENCE:0
 DTSTART:20261113T160000Z
 DTEND:20261113T210000Z
 SUMMARY:Elif & Yunus’un Kına Gecesi
-LOCATION:Firuzan Davet Evi\, Çarşamba / Samsun
+LOCATION:Firuzan Davet Evi\, Şehit Polis Mustafa Öztürk Cad. C Blok No: 
+ 4A\, Kirazlıkçay\, Çarşamba / Samsun
+GEO:41.1842183;36.7153672
 URL:https://koseeyunus.github.io/elif-yunus/kina/
-DESCRIPTION:Kına gecemiz hanımlara özeldir.\nFotoğraf ve videoları
- nızı gönderebilirsiniz: https://koseeyunus.github.io/elif-yunus/kin
- a/#paylas
+DESCRIPTION:Kına gecemiz hanımlara özeldir.\nFotoğraf ve videolarınız
+ ı gönderebilirsiniz: https://koseeyunus.github.io/elif-yunus/kina/#payla
+ s
 BEGIN:VALARM
 TRIGGER:-P1D
 ACTION:DISPLAY
