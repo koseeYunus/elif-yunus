@@ -7,13 +7,13 @@ X-WR-CALNAME:Elif & Yunus’un Kına Gecesi
 X-WR-TIMEZONE:Europe/Istanbul
 BEGIN:VEVENT
 UID:elif-yunus-kina-20261113@elif-yunus
-DTSTAMP:20261103T120000Z
-SEQUENCE:0
-DTSTART:20261113T160000Z
-DTEND:20261113T210000Z
+DTSTAMP:20261110T190000Z
+SEQUENCE:1
+DTSTART:20261113T153000Z
+DTEND:20261113T203000Z
 SUMMARY:Elif & Yunus’un Kına Gecesi
-LOCATION:Firuzan Davet Evi\, Şehit Polis Mustafa Öztürk Cad. C Blok No: 
- 4A\, Kirazlıkçay\, Çarşamba / Samsun
+LOCATION:Fürüzan Davet Evi\, Şehit Polis Mustafa Öztürk Cad. C Blok
+  No: 4A\, Kirazlıkçay\, Çarşamba / Samsun
 GEO:41.1842183;36.7153672
 URL:https://koseeyunus.github.io/elif-yunus/kina/
 DESCRIPTION:Kına gecemiz hanımlara özeldir.\nFotoğraf ve videolarınız
@@ -27,7 +27,7 @@ END:VALARM
 BEGIN:VALARM
 TRIGGER:-PT3H
 ACTION:DISPLAY
-DESCRIPTION:Bu akşam 19.00: Elif & Yunus’un Kına Gecesi
+DESCRIPTION:Bu akşam 18.30: Elif & Yunus’un Kına Gecesi
 END:VALARM
 END:VEVENT
 END:VCALENDAR
