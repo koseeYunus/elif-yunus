@@ -125,20 +125,23 @@ a { color: inherit; -webkit-tap-highlight-color: transparent; }
    yüksekliğiyle büyür. Fenerlerdeki mumlar hafifçe titreşir, kadife gül yaprakları süzülür. Davetin yazısı, tarih,
    saat ve mekân aşağı kaydırdıkça sırayla gelir. */
 .hero {
-  position: relative; isolation: isolate; overflow: hidden;
+  /* yanlardan kırpılır, aşağıya taşabilir: alttaki güller ve perde bir sonraki bölümün içinde söner */
+  position: relative; isolation: isolate; overflow: hidden; overflow: clip visible;
   min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 72px 20px calc(96px + var(--safe-b)); text-align: center; color: var(--cream);
+  /* zemin sayfanın kendi kadifesi (body): kapakta yalnızca ışıklar var, kapakla aşağısı arasında sınır görünmez */
   background:
     radial-gradient(56% 36% at 50% 48%, rgba(255, 168, 118, .17), transparent 72%),
-    radial-gradient(38% 30% at 100% 12%, rgba(255, 190, 120, .16), transparent 70%),
-    radial-gradient(120% 60% at 50% 115%, rgba(0, 0, 0, .5), transparent 62%),
-    var(--kadife-zemin);
+    radial-gradient(38% 30% at 100% 12%, rgba(255, 190, 120, .16), transparent 70%);
 }
 .hero-sus { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .sus { position: absolute; display: block; max-width: none; height: auto; -webkit-user-select: none; user-select: none; }
 .sus-perde { top: 0; left: 0; width: min(58vw, 46vh); }
 .sus-gul { left: 0; bottom: 0; width: min(56vw, 44vh); }
 .sus-perde-sag { right: 0; bottom: 0; width: min(42vw, 34vh); }
+/* alttaki süsler kapağın sınırında kesilmez: biraz aşağı taşar ve kadifenin içinde yavaşça kaybolur */
+.sus-gul, .sus-perde-sag { translate: 0 20%;
+  -webkit-mask-image: linear-gradient(180deg, #000 58%, transparent); mask-image: linear-gradient(180deg, #000 58%, transparent); }
 .sus-fener { top: 0; right: 0; width: min(29vw, 25vh); aspect-ratio: 263 / 700; }
 .sus-fener img { display: block; width: 100%; height: 100%; }
 /* fenerlerdeki mumlar hafifçe titreşir */
@@ -461,23 +464,25 @@ textarea.input { min-height: 132px; resize: vertical; }
 .wish-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line-2); }
 .wish-name { font: 500 calc(13px * var(--fs-sans))/1.35 var(--sans); letter-spacing: .08em; color: var(--gold-deep); overflow-wrap: anywhere; }
 .wish-time { flex: none; font-size: calc(12px * var(--fs-sans)); color: var(--ink-3); }
-/* Alt bilgi: kemerli kapakta sayfa, kapaktakiyle aynı kemerle kapanır */
-.footer { position: relative; padding: 76px 20px calc(130px + var(--safe-b)); background: var(--forest) var(--noise-light); color: var(--cream); text-align: center; }
+/* Alt bilgi: ayrı bir blok değil; aynı kadife aşağı indikçe yavaşça koyulaşır. Kemer yalnızca altın çizgi,
+   alt uçları kadifenin içinde söner */
+.footer { position: relative; padding: 76px 20px calc(130px + var(--safe-b)); color: var(--cream); text-align: center;
+  background: linear-gradient(180deg, rgba(20, 2, 6, 0), rgba(20, 2, 6, .45) 280px, rgba(20, 2, 6, .6)); }
 .footer { margin-top: calc(var(--kw) * .5); padding-top: 1px; isolation: isolate; }
 .kapanis-kemer { position: absolute; z-index: -1; left: 50%; bottom: calc(100% - 1px); width: var(--kw); height: calc(var(--kw) * .5 + 1px); translate: -50% 0; pointer-events: none;
-  border: 1.6px solid var(--shine-3); border-bottom: 0; border-radius: calc(var(--kw) / 2) calc(var(--kw) / 2) 0 0; background: var(--forest) var(--noise-light); }
+  border: 1.6px solid var(--shine-3); border-bottom: 0; border-radius: calc(var(--kw) / 2) calc(var(--kw) / 2) 0 0;
+  -webkit-mask-image: linear-gradient(180deg, #000 45%, transparent); mask-image: linear-gradient(180deg, #000 45%, transparent); }
 .kapanis-demet { position: absolute; z-index: -1; left: 50%; bottom: calc(100% - 1px + var(--kw) * .227); width: calc(var(--kw) * .78); aspect-ratio: 360 / 190; translate: -50% 0; background: var(--demet-tepe, none) 50% 50% / 100% 100% no-repeat; pointer-events: none; }
 /* başlık kemerin içinde başlar (düğün başladıktan sonra başlık yokken ilk süs) */
 .footer > .kapanis-baslik, body:is([data-phase="live"], [data-phase="after"]) .footer > .kapanis-baslik + .orn { margin-top: calc(var(--kw) * -.2); }
-.kapanis-baslik { margin: 0 auto; max-width: 11em; font: 400 calc(clamp(34px, 9.4vw, 48px) * var(--fs-el))/1.15 var(--script); color: var(--cream-hi); }
-body:is([data-phase="live"], [data-phase="after"]) .kapanis-baslik { display: none; }   /* "Görüşmek dileğiyle" düğün başlayınca gizlenir */
+.kapanis-baslik { margin: 0 auto; max-width: 11em; font: 400 calc(clamp(34px, 9.4vw, 48px) * var(--fs-el))/1.15 var(--script); color: var(--cream-hi); }body:is([data-phase="live"], [data-phase="after"]) .kapanis-baslik { display: none; }   /* "Görüşmek dileğiyle" düğün başlayınca gizlenir */
 .footer .orn { color: var(--gold-light); opacity: .6; }
 .footer .footer-names {
   display: inline-block; margin: -.4em 0 -.28em; padding: .45em .3em .4em; font: 400 calc(60px * var(--fs-el) * var(--fit, 1))/1.1 var(--script); color: var(--gold-light);
   background: linear-gradient(100deg, var(--shine-1) 0%, var(--shine-2) 30%, var(--shine-3) 55%, var(--shine-4) 80%, var(--shine-1) 100%);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
-.footer p { margin: 8px 0 0; color: rgba(var(--cream-rgb), .8); }
+.footer p { margin-top: 8px; margin-bottom: 0; color: rgba(var(--cream-rgb), .8); }   /* yan boşluklara dokunmaz: kapanış başlığı geniş ekranda da ortada kalır */
 .footer .thanks { margin-top: 18px; font: italic 400 calc(20px * var(--fs-serif))/1.45 var(--serif); }
 .footer small { display: block; margin-top: 30px; font-size: calc(11px * var(--fs-sans)); letter-spacing: .24em; text-transform: uppercase; color: rgba(var(--cream-rgb), .45); }
 
@@ -833,8 +838,6 @@ main .hanimlara, .wish-paylasim { background: rgba(255, 255, 255, .04); border-c
 .davet-kemer .date-block { margin-top: 18px; }
 .davet-kemer .date-block .day { color: var(--gold-light); }
 .davet-kemer .hanimlara { margin-top: 26px; }
-/* alt bilgi: kadifenin biraz daha koyusu; kemer altın çizgiyle belirir */
-.footer, .kapanis-kemer { background: var(--noise-light), #2A050B; }
 .dock { background: rgba(26, 3, 8, .9); border-color: rgba(var(--gold-light-rgb), .3); }
 </style>
 </head>
