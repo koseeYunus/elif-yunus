@@ -3723,46 +3723,17 @@ async function temizle() {
   } catch (e) { toast(friendlyError(e), 'err'); }
 }
 
-/* ---------- QR kartı: 10×15 cm (1200×1800 px), okutan misafir doğrudan fotoğraf yükleme bölümüne gelir ---------- */
+/* ---------- QR kartı: 10×15 cm (1200×1800 px), sayfanın kadife temasında; okutan misafir doğrudan fotoğraf yükleme bölümüne gelir ---------- */
 const hexRgb = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
 const rgbaOf = (hex, a) => `rgba(${hexRgb(hex).join(', ')}, ${a})`;
 const paylasLink = () => (document.querySelector('meta[property="og:url"]')?.content || location.origin + location.pathname) + '#paylas';
 let cardP = null;
 const tableCard = () => (cardP || (cardP = buildTableCard().catch(e => { cardP = null; throw e; })));
-/* ---------- Kanvas çizim yardımcıları (düğün sayfasının QR kartıyla aynı) ---------- */
+/* ---------- Kanvas çizim yardımcıları ---------- */
 function roundPath(x, left, top, w, hgt, r) {
   x.beginPath(); x.moveTo(left + r, top);
   x.arcTo(left + w, top, left + w, top + hgt, r); x.arcTo(left + w, top + hgt, left, top + hgt, r); x.arcTo(left, top + hgt, left, top, r); x.arcTo(left, top, left + w, top, r);
   x.closePath();
-}
-// Sayfadaki dal süsünün (#branch) kanvas kopyası
-const BRANCH_LEAVES = [[38.9, 156.8, 15, 5.4, -84], [53, 170, 15, 5.4, -4], [57.9, 138.1, 14.5, 5.2, -88], [71.5, 150.8, 14.5, 5.2, -8], [78.3, 117.4, 14, 5, -86], [91.5, 129.7, 14, 5, -6],
-  [101.4, 94.2, 13, 4.7, -90], [113.6, 105.6, 13, 4.7, -10], [127.5, 66.9, 12, 4.3, -88], [138.8, 77.4, 12, 4.3, -8], [157.6, 35, 10.5, 3.8, -92], [167.5, 44.2, 10.5, 3.8, -12], [186.7, 12.6, 10, 3.6, -48]];
-function branchCanvas(size, color) {
-  const branch = document.createElement('canvas');
-  branch.width = branch.height = size;
-  const b = branch.getContext('2d');
-  b.scale(size / 210, size / 210);
-  b.strokeStyle = b.fillStyle = color; b.lineCap = 'round';
-  b.lineWidth = 1.3; b.stroke(new Path2D('M20 190C60 150 100 110 180 20'));
-  b.lineWidth = 1.1;
-  for (const [ex, ey, rx, ry, a] of BRANCH_LEAVES) {
-    const leaf = new Path2D();
-    leaf.ellipse(ex, ey, rx, ry, a * Math.PI / 180, 0, Math.PI * 2);
-    b.globalAlpha = .16; b.fill(leaf);
-    b.globalAlpha = 1; b.stroke(leaf);
-  }
-  b.globalAlpha = .55;
-  for (const [ex, ey, r] of [[64, 163, 3.2], [108, 118, 2.8], [146, 88, 2.4]]) { b.beginPath(); b.arc(ex, ey, r, 0, Math.PI * 2); b.fill(); }
-  return branch;
-}
-// Süs çizgisi (#orn, 240×18): sol üst köşesi (left, top), k kat büyütülmüş
-function drawOrn(x, left, top, k, color) {
-  x.save(); x.translate(left, top); x.scale(k, k);
-  x.strokeStyle = x.fillStyle = color; x.lineWidth = .9;
-  x.stroke(new Path2D('M10 9H98M142 9H230')); x.stroke(new Path2D('M120 2.5l6.5 6.5-6.5 6.5-6.5-6.5z'));
-  for (const ex of [106, 134]) { x.beginPath(); x.arc(ex, 9, 1.7, 0, Math.PI * 2); x.fill(); }
-  x.restore();
 }
 // Bir satırı parçalar halinde (farklı yazı tipi/renk) yatayda ortalayarak yazar; sp: harf aralığı, pad: iki yan boşluk.
 // Satır maxW'ye sığmazsa tüm parçalar aynı oranda küçültülür. Renk (c) bir işlevse satırın sol ve sağ kenarıyla
@@ -3796,20 +3767,46 @@ function paintQr(ctx, qr, left, top, size, margin, color = '#1C2A23') {
   for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) ctx.fillRect(ox + (c + margin) * cell, oy + (r + margin) * cell, cell, cell);
   return dim;
 }
+// Kartın süsleri sayfadaki gibi davetiyeden kesilmiş saydam resimler (susler/)
+const resimYukle = src => new Promise((ok, no) => {
+  const i = new Image();
+  i.onload = () => ok(i);
+  i.onerror = () => no(new UserError('Kartın süsleri yüklenemedi; internet bağlantınızı kontrol edip tekrar deneyin.'));
+  i.src = src;
+});
+// Sayfadaki lale (#lale), lale ayracı (#orn) ve başlık kıvrımının (#baslik-kivrim) kanvas kopyaları
+const LALE = ['M120 3C114.5 9 114.5 17 120 22C125.5 17 125.5 9 120 3Z',
+  'M120 22C111 21.5 107 15 108 7.5C112 10 116.5 14 120 22M120 22C129 21.5 133 15 132 7.5C128 10 123.5 14 120 22',
+  'M110 25.5C114.5 26.8 118 25.2 120 22C122 25.2 125.5 26.8 130 25.5'];
+const KIVRIM = 'M6 34C70 58 165 70 275 68S425 62 470 62C452 50 436 38 438 26C440 13 459 10 470 24C481 10 500 13 502 26C504 38 488 50 470 62C480 70 492 76 508 78';
+// Çizimi (sol, üst) noktasına k kat büyütülmüş olarak çizer; ox, oy: çizimin kendi koordinatlarındaki başlangıç
+function cizim(x, { yollar, dolgu = [], ox = 0, oy = 0 }, left, top, k, color, kalinlik) {
+  x.save(); x.translate(left - ox * k, top - oy * k); x.scale(k, k);
+  x.strokeStyle = x.fillStyle = color; x.lineWidth = kalinlik / k; x.lineCap = x.lineJoin = 'round';
+  for (const d of yollar) x.stroke(new Path2D(d));
+  for (const d of dolgu) x.fill(new Path2D(d));
+  x.restore();
+}
+const LALE_CIZIM = { yollar: LALE, ox: 104, oy: 1 };                     // 32×27
+const AYRAC_CIZIM = { yollar: ['M13 21H99M141 21H227', ...LALE],         // 240×30
+  dolgu: ['M4 21L13 17.4L11 21L13 24.6Z', 'M236 21L227 17.4L229 21L227 24.6Z', 'M104.7 21a1.7 1.7 0 1 1-3.4 0a1.7 1.7 0 1 1 3.4 0', 'M138.7 21a1.7 1.7 0 1 1-3.4 0a1.7 1.7 0 1 1 3.4 0'] };
+const KIVRIM_CIZIM = { yollar: [KIVRIM] };                               // 540×90
 async function buildTableCard() {
   const link = paylasLink(), shown = link.replace(/^https?:\/\//, '').replace(/\/?#paylas$/, '');
-  const P = { card: '#FBF7F0', gold: '#A88447', kina: '#8E2230', ink: '#2E2124', brown: '#7A5B2F', step: '#4E3E40', soft: '#6B5D5F' };
+  // Sayfanın kadife teması: bordo zemin, krem yazı, altın süsler
+  const P = { kadife: '#3B0911', gold: '#E2C994', goldDeep: '#C9A464', cream: '#F6E7D8', soft: '#D3B8A9', pembe: '#F0C2C7', qr: '#2A0710' };
   const F = {
-    eyebrow: '500 30px "Jost"', names: '400 150px "Great Vibes"', amp: 'italic 400 60px "Cormorant Garamond"', lead: '500 46px "Cormorant Garamond"',
-    step: '400 33px "Jost"', stepB: '500 33px "Jost"', url: '400 28px "Jost"', note: 'italic 400 34px "Cormorant Garamond"', foot: 'italic 400 36px "Cormorant Garamond"',
+    names: '400 150px "Great Vibes"', lead: '500 48px "Cormorant Garamond"',
+    step: '400 33px "Jost"', stepB: '500 33px "Jost"', url: '400 28px "Jost"', note: 'italic 400 35px "Cormorant Garamond"', foot: 'italic 400 36px "Cormorant Garamond"',
   };
-  const T = { eyebrow: 'KINA GECESİ', lead: 'Bu gecenin anılarını bizimle paylaşın', s1: ' Telefonunuzun kamerasıyla karekodu okutun', s2a: ' Fotoğraf ve videolarınızı ', s2b: 'gönderin',
+  const T = { lead: 'Bu gecenin anılarını bizimle paylaşın', s1: ' Telefonunuzun kamerasıyla karekodu okutun', s2a: ' Fotoğraf ve videolarınızı ', s2b: 'gönderin',
     note: 'Gönderdiklerinizi yalnızca Elif ile Yunus görebilir', foot: `${dateText('tarih')} · ${CONFIG.mekan}` };
   await loadScript(QR_JS);
   // Yazı tipleri (Türkçe harfleri içeren parçalar dahil) yüklenmeden çizilirse kart yedek yazı tipiyle çıkar
-  const sample = [...Object.values(T), 'Elif Yunus &', shown, '1.2.'].join(' ');
+  const sample = [...Object.values(T), 'Elifin Kına Gecesi', shown, '1.2.'].join(' ');
   const loaded = await Promise.all(Object.values(F).map(f => document.fonts.load(f, sample)));
   if (loaded.some(list => !list.length)) throw new UserError('Yazı tipleri yüklenemedi; internet bağlantınızı kontrol edip tekrar deneyin.');
+  const [perde, fener, gul, perdeSag] = await Promise.all(['perde-sol', 'fener', 'gul', 'perde-sag'].map(ad => resimYukle(`susler/${ad}.webp`)));
   const qr = window.qrcode(0, 'Q');
   qr.addData(link); qr.make();
 
@@ -3817,36 +3814,55 @@ async function buildTableCard() {
   card.width = 1200; card.height = 1800;
   const x = card.getContext('2d'), rgba = rgbaOf;
   const round = (left, top, w, hgt, r) => roundPath(x, left, top, w, hgt, r);
-  const { line } = textLine(x, 600, 1000);
-  x.fillStyle = P.card; x.fillRect(0, 0, 1200, 1800);
-  x.lineWidth = 2; x.strokeStyle = rgba(P.gold, .55); round(45, 45, 1110, 1710, 35); x.stroke();
-  x.lineWidth = 1; x.strokeStyle = rgba(P.kina, .3); round(58.5, 58.5, 1083, 1683, 25.5); x.stroke();
-  // Köşelerdeki dal süsleri
-  const branch = branchCanvas(235, P.gold);
-  x.globalAlpha = .55;
-  x.save(); x.translate(20, 255); x.scale(1, -1); x.drawImage(branch, 0, 0); x.restore();
-  x.save(); x.translate(1180, 1545); x.scale(-1, 1); x.drawImage(branch, 0, 0); x.restore();
-  x.globalAlpha = 1;
-
-  line(175, { f: F.eyebrow, c: P.kina, t: T.eyebrow, sp: 12.6 });
-  line(315, { f: F.names, c: P.ink, t: 'Elif' }, { f: F.amp, c: P.gold, t: '&', pad: 16.8 }, { f: F.names, c: P.ink, t: 'Yunus' });
-  drawOrn(x, 450, 382.75, 1.25, P.gold);
-  line(511, { f: F.lead, c: P.ink, t: T.lead });
-  // Karekod paneli (gölgeli beyaz kart)
-  x.save(); x.shadowColor = rgba(P.ink, .45); x.shadowBlur = 50; x.shadowOffsetY = 24; x.fillStyle = '#FFFFFF'; round(269, 641, 662, 662, 6); x.fill(); x.restore();
-  x.fillStyle = '#FFFFFF'; round(239, 611, 722, 722, 36); x.fill();
-  x.lineWidth = 2; x.strokeStyle = rgba(P.gold, .45); round(240, 612, 720, 720, 35); x.stroke();
-  paintQr(x, qr, 267, 639, 666, 2, '#2E2124');
-  line(1415.44, { f: F.stepB, c: P.brown, t: '1.' }, { f: F.step, c: P.step, t: T.s1 });
-  line(1464.94, { f: F.stepB, c: P.brown, t: '2.' }, { f: F.step, c: P.step, t: T.s2a }, { f: F.stepB, c: P.brown, t: T.s2b });
-  line(1517.44, { f: F.url, c: P.brown, t: shown, sp: 1.12 });
-  line(1600, { f: F.note, c: P.kina, t: T.note });
-  line(1689, { f: F.foot, c: P.soft, t: T.foot });
+  const { line } = textLine(x, 600, 1000), { line: dar } = textLine(x, 600, 720);
+  // Kadife: koyu bordo zemin, dikey kıvrım gölgeleri, başlığın ve fenerlerin ardında sıcak ışık
+  x.fillStyle = P.kadife; x.fillRect(0, 0, 1200, 1800);
+  for (let i = 0; i < 24; i++) {
+    const sol = i * 54 + (i % 3) * 11, k = x.createLinearGradient(sol, 0, sol + 64, 0);
+    k.addColorStop(0, 'rgba(0, 0, 0, 0)'); k.addColorStop(.5, i % 2 ? 'rgba(255, 150, 160, .045)' : 'rgba(0, 0, 0, .13)'); k.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    x.fillStyle = k; x.fillRect(sol, 0, 64, 1800);
+  }
+  for (const [cx, cy, r, renk] of [[600, 380, 560, 'rgba(255, 168, 118, .17)'], [1160, 200, 460, 'rgba(255, 190, 120, .2)'], [600, 1010, 620, 'rgba(255, 168, 118, .08)']]) {
+    const k = x.createRadialGradient(cx, cy, 0, cx, cy, r);
+    k.addColorStop(0, renk); k.addColorStop(1, 'rgba(255, 168, 118, 0)');
+    x.fillStyle = k; x.fillRect(0, 0, 1200, 1800);
+  }
+  // İnce altın çift çerçeve; köşelerdeki süsler çerçevenin üstüne biner
+  x.lineWidth = 2; x.strokeStyle = rgba(P.gold, .6); round(45, 45, 1110, 1710, 35); x.stroke();
+  x.lineWidth = 1; x.strokeStyle = rgba(P.gold, .28); round(58.5, 58.5, 1083, 1683, 25.5); x.stroke();
+  x.drawImage(perde, 0, 0, 400, 400 * 470 / 380);
+  x.drawImage(fener, 990, 0, 210, 210 * 700 / 263);
+  x.drawImage(gul, 0, 1800 - 330 * 524 / 380, 330, 330 * 524 / 380);
+  x.drawImage(perdeSag, 1200 - 280, 1800 - 280 * 444 / 303, 280, 280 * 444 / 303);
+  // Başlık: lale, altın parıltılı "Elifin Kına Gecesi", altında kalpli kıvrım
+  const altin = (l, r) => {
+    const k = x.createLinearGradient(l, 0, r, 0);
+    [[0, '#B98F4E'], [.3, '#F2DDA9'], [.55, '#C9A464'], [.8, '#F0DBA8'], [1, '#B98F4E']].forEach(([o, c]) => k.addColorStop(o, c));
+    return k;
+  };
+  cizim(x, LALE_CIZIM, 600 - 16 * 2.6, 112, 2.6, P.gold, 3.2);
+  x.save(); x.shadowColor = 'rgba(0, 0, 0, .5)'; x.shadowBlur = 26; x.shadowOffsetY = 8;
+  line(330, { f: F.names, c: altin, t: 'Elifin' });
+  line(470, { f: F.names, c: altin, t: 'Kına Gecesi' });
+  x.restore();
+  cizim(x, KIVRIM_CIZIM, 600 - 243 + 40, 486, .9, P.gold, 3.4);
+  line(640, { f: F.lead, c: P.cream, t: T.lead });
+  // Karekod paneli: beyaz zemin (koyu kadifede karekod okunmaz), altın çift çerçeve
+  x.save(); x.shadowColor = 'rgba(0, 0, 0, .6)'; x.shadowBlur = 50; x.shadowOffsetY = 22; x.fillStyle = '#FFFFFF'; round(300, 700, 600, 600, 30); x.fill(); x.restore();
+  x.lineWidth = 3; x.strokeStyle = P.goldDeep; round(300, 700, 600, 600, 30); x.stroke();
+  x.lineWidth = 1.5; x.strokeStyle = rgba(P.goldDeep, .55); round(312, 712, 576, 576, 20); x.stroke();
+  paintQr(x, qr, 326, 726, 548, 2, P.qr);
+  cizim(x, AYRAC_CIZIM, 600 - 120 * 1.15, 1328, 1.15, P.gold, 1.6);
+  dar(1424, { f: F.stepB, c: P.gold, t: '1.' }, { f: F.step, c: P.cream, t: T.s1 });
+  dar(1474, { f: F.stepB, c: P.gold, t: '2.' }, { f: F.step, c: P.cream, t: T.s2a }, { f: F.stepB, c: P.gold, t: T.s2b });
+  dar(1527, { f: F.url, c: P.goldDeep, t: shown, sp: 1.12 });
+  dar(1606, { f: F.note, c: P.pembe, t: T.note });
+  dar(1680, { f: F.foot, c: P.soft, t: T.foot });
 
   // Yalın karekod (pano, mesaj vb. için)
   const plain = document.createElement('canvas'), n = qr.getModuleCount();
   plain.width = plain.height = Math.floor(1200 / (n + 8)) * (n + 8);
-  paintQr(plain.getContext('2d'), qr, 0, 0, plain.width, 4, '#2E2124');
+  paintQr(plain.getContext('2d'), qr, 0, 0, plain.width, 4, P.qr);
   return { card, plain };
 }
 async function showCardPreview() {
