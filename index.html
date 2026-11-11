@@ -684,15 +684,14 @@ textarea.input { min-height: 132px; resize: vertical; }
 /* başlık kemerin içinde başlar (düğün başladıktan sonra başlık yokken ilk süs) */
 :root:not(.no-kemer) .footer > .kapanis-baslik, :root:not(.no-kemer) body:is([data-phase="live"], [data-phase="after"]) .footer > .kapanis-baslik + .orn { margin-top: calc(var(--kw) * -.2); }
 .no-kemer :is(.kapanis-kemer, .kapanis-demet) { display: none; }
-.kapanis-baslik { margin: 0 auto; max-width: 11em; font: 400 calc(clamp(34px, 9.4vw, 48px) * var(--fs-el))/1.15 var(--script); color: var(--cream-hi); }
-body:is([data-phase="live"], [data-phase="after"]) .kapanis-baslik { display: none; }   /* "Görüşmek dileğiyle" düğün başlayınca gizlenir */
+.kapanis-baslik { margin: 0 auto; max-width: 11em; font: 400 calc(clamp(34px, 9.4vw, 48px) * var(--fs-el))/1.15 var(--script); color: var(--cream-hi); }body:is([data-phase="live"], [data-phase="after"]) .kapanis-baslik { display: none; }   /* "Görüşmek dileğiyle" düğün başlayınca gizlenir */
 .footer .orn { color: var(--gold-light); opacity: .6; }
 .footer .footer-names {
   display: inline-block; margin: -.4em 0 -.28em; padding: .45em .3em .4em; font: 400 calc(60px * var(--fs-el) * var(--fit, 1))/1.1 var(--script); color: var(--gold-light);
   background: linear-gradient(100deg, var(--shine-1) 0%, var(--shine-2) 30%, var(--shine-3) 55%, var(--shine-4) 80%, var(--shine-1) 100%);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
-.footer p { margin: 8px 0 0; color: rgba(var(--cream-rgb), .8); }
+.footer p { margin-top: 8px; margin-bottom: 0; color: rgba(var(--cream-rgb), .8); }   /* yan boşluklara dokunmaz: kapanış başlığı geniş ekranda da ortada kalır */
 .footer .thanks { margin-top: 18px; font: italic 400 calc(20px * var(--fs-serif))/1.45 var(--serif); }
 .footer small { display: block; margin-top: 30px; font-size: calc(11px * var(--fs-sans)); letter-spacing: .24em; text-transform: uppercase; color: rgba(var(--cream-rgb), .45); }
 
